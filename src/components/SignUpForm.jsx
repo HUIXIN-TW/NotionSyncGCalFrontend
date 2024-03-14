@@ -1,20 +1,22 @@
-import React from "react";
+"use client";
 
-const SignUp = () => {
+import styles from "@styles/authflow.module.css";
+
+const SignUpForm = () => {
   return (
     <form>
       <h1>Create Account</h1>
-      <div className="social-icons">
-        <a href="#" className="icon">
+      <div className={styles.social_icons}>
+        <a href="#">
           <i className="fa-brands fa-google-plus-g"></i>
         </a>
-        <a href="#" className="icon">
+        <a href="#">
           <i className="fa-brands fa-facebook-f"></i>
         </a>
-        <a href="#" className="icon">
+        <a href="#">
           <i className="fa-brands fa-github"></i>
         </a>
-        <a href="#" className="icon">
+        <a href="#">
           <i className="fa-brands fa-linkedin-in"></i>
         </a>
       </div>
@@ -27,4 +29,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignUpForm;

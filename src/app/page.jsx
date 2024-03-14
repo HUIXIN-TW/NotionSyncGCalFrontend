@@ -1,15 +1,22 @@
 "use client";
 
+import Button from "@components/Button";
 import { useRouter } from "next/navigation";
 
 const Home = () => {
   const router = useRouter();
   return (
-    <section>
+    <div className="home">
       <h1>Welcome to the Modern Login Page!</h1>
-      <span>Login Option</span>
-      <button onClick={() => router.push("/login")}>Login</button>
-    </section>
+      <Button
+        text="Let's Get Started"
+        type="button"
+        className="black_btn"
+        onClick={() => {
+          router.push("/authflow");
+        }}
+      ></Button>
+    </div>
   );
 };
 
