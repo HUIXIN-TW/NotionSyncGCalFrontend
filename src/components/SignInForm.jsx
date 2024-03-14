@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "@styles/authflow.module.css";
+import Button from "@components/Button";
 
 const SignInForm = () => {
   return (
@@ -24,7 +25,7 @@ const SignInForm = () => {
       <input type="email" placeholder="Email" />
       <input type="password" placeholder="Password" />
       <a href="#">Forget Your Password?</a>
-      <button>Sign In</button>
+      <Button text="Sign In" type="button" className="black_btn" onClick={() => alert("Not finish")}></Button>
     </form>
   );
 };

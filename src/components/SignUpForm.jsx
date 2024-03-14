@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "@styles/authflow.module.css";
+import Button from "@components/Button";
 
 const SignUpForm = () => {
   return (
@@ -24,7 +25,7 @@ const SignUpForm = () => {
       <input type="text" placeholder="Name" />
       <input type="email" placeholder="Email" />
       <input type="password" placeholder="Password" />
-      <button>Sign Up</button>
+      <Button text="Sign Up" type="button" className="balck_btn" onClick={() => alert("Not finish")}></Button>
     </form>
   );
 };
