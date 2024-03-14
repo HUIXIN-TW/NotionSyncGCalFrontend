@@ -1,9 +1,16 @@
-import styles from "@/styles/page.module.css";
+"use client";
 
-export default function Home() {
+import { useRouter } from "next/navigation";
+
+const Home = () => {
+  const router = useRouter();
   return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>Welcome to Next.js!</h1>
-    </main>
+    <section>
+      <h1>Welcome to the Modern Login Page!</h1>
+      <span>Login Option</span>
+      <button onClick={() => router.push("/login")}>Login</button>
+    </section>
   );
-}
+};
+
+export default Home;
