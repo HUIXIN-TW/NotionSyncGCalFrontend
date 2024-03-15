@@ -7,15 +7,17 @@ const Home = () => {
   const router = useRouter();
   return (
     <div className="home">
-      <h1>Welcome to the Modern Login Page!</h1>
-      <Button
-        text="Let's Get Started"
-        type="button"
-        className="black_btn"
-        onClick={() => {
-          router.push("/authflow");
-        }}
-      ></Button>
+      <div className="welcome">
+        <h1>Welcome to WhatToEat!</h1>
+        <Button
+          text="Let's Get Started"
+          type="button"
+          className="black_btn"
+          onClick={() => {
+            router.push("/authflow");
+          }}
+        ></Button>
+      </div>
     </div>
   );
 };

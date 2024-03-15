@@ -19,6 +19,7 @@ body {
 }
 
 .home {
+  background-image: url("/assets/home.png");
   display: flex;
   align-items: center;
   justify-content: center;

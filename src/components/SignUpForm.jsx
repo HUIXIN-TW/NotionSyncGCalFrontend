@@ -25,7 +25,12 @@ const SignUpForm = () => {
       <input type="text" placeholder="Name" />
       <input type="email" placeholder="Email" />
       <input type="password" placeholder="Password" />
-      <Button text="Sign Up" type="button" className="balck_btn" onClick={() => alert("Not finish")}></Button>
+      <Button
+        text="Sign Up"
+        type="button"
+        className="balck_btn"
+        onClick={() => alert("Not finish")}
+      ></Button>
     </form>
   );
 };

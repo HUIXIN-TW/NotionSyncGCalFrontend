@@ -44,13 +44,22 @@ const AuthFlow = () => {
           >
             <h1>Welcome Back!</h1>
             <p>Enter your personal details and start your journey with us</p>
-            <Button text="Sign In" type="button" className="outline_btn" onClick={() => alert("Not finish")}></Button>
-         
+            <Button
+              text="Sign In"
+              type="button"
+              className="outline_btn"
+              onClick={() => alert("Not finish")}
+            ></Button>
           </div>
           <div className={`${styles.toggle_panel} ${styles.toggle_right}`}>
             <h1>Hello, Friend!</h1>
             <p>Register with your personal details and get started</p>
-            <Button text="Sign Up" type="button" className="outline_btn" onClick={() => alert("Not finish")}></Button>
+            <Button
+              text="Sign Up"
+              type="button"
+              className="outline_btn"
+              onClick={() => alert("Not finish")}
+            ></Button>
           </div>
         </div>
       </div>

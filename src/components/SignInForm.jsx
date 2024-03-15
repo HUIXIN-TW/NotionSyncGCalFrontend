@@ -25,7 +25,12 @@ const SignInForm = () => {
       <input type="email" placeholder="Email" />
       <input type="password" placeholder="Password" />
       <a href="#">Forget Your Password?</a>
-      <Button text="Sign In" type="button" className="black_btn" onClick={() => alert("Not finish")}></Button>
+      <Button
+        text="Sign In"
+        type="button"
+        className="black_btn"
+        onClick={() => alert("Not finish")}
+      ></Button>
     </form>
   );
 };
