@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-import styles from "@styles/authflow.module.css";
-import SignUpForm from "@components/SignUpForm";
-import SignInForm from "@components/SignInForm";
-import Button from "@components/Button";
+import styles from "./authflow.module.css";
+import SignUpForm from "@components/authflow/SignUpForm";
+import SignInForm from "@components/authflow/SignInForm";
+import Button from "@components/button/Button";
 
 const AuthFlow = () => {
   const [isSignUpActive, setIsSignUpActive] = useState(false);
@@ -48,7 +48,6 @@ const AuthFlow = () => {
               text="Sign In"
               type="button"
               className="outline_btn"
-              onClick={() => alert("Not finish")}
             ></Button>
           </div>
           <div className={`${styles.toggle_panel} ${styles.toggle_right}`}>
@@ -58,7 +57,6 @@ const AuthFlow = () => {
               text="Sign Up"
               type="button"
               className="outline_btn"
-              onClick={() => alert("Not finish")}
             ></Button>
           </div>
         </div>

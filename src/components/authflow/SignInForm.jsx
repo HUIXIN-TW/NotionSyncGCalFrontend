@@ -1,11 +1,13 @@
 "use client";
 
-import styles from "@styles/authflow.module.css";
-import Button from "@components/Button";
+import { useFormState } from "react-dom";
+
+import styles from "./form.module.css";
+import Button from "@components/button/Button";
 
 const SignInForm = () => {
   return (
-    <form>
+    <form className={styles.sign_in_form}>
       <h1>Sign In</h1>
       <div className={styles.social_icons}>
         <a href="#">
@@ -25,12 +27,7 @@ const SignInForm = () => {
       <input type="email" placeholder="Email" />
       <input type="password" placeholder="Password" />
       <a href="#">Forget Your Password?</a>
-      <Button
-        text="Sign In"
-        type="button"
-        className="black_btn"
-        onClick={() => alert("Not finish")}
-      ></Button>
+      <Button text="Sign In" type="submit" className="black_btn"></Button>
     </form>
   );
 };

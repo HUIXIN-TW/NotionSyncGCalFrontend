@@ -5,9 +5,8 @@ const nextConfig = {
     serverComponentsExternalPackages: ["mongoose"],
   },
   webpack: (config) => {
-    config.experiments = {
-      topLevelAwait: true,
-    };
+    config.experiments = config.experiments || {};
+    config.experiments.layers = true;
     return config;
   },
 };

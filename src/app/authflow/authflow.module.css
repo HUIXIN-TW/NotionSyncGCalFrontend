@@ -1,5 +1,6 @@
 .container {
-  background-color: #fff;
+  /* background-color: #fff; */
+  background-image: url("/assets/images/People.png");
   border-radius: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
   position: relative;
@@ -60,6 +61,7 @@
   left: 0;
   width: 50%;
   z-index: 2;
+  margin-left: 30px;
 }
 
 .sign_in_active {
@@ -93,21 +95,6 @@
   }
 }
 
-.social_icons {
-  margin: 20px 0;
-}
-
-.social_icons a {
-  border: 1px solid #ccc;
-  border-radius: 20%;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 3px;
-  width: 40px;
-  height: 40px;
-}
-
 .toggle_container {
   position: absolute;
   top: 0;
@@ -116,13 +103,13 @@
   height: 100%;
   overflow: hidden;
   transition: all 0.6s ease-in-out;
-  border-radius: 150px 0 0 100px;
+  /* border-radius: 150px 0 0 100px; */
   z-index: 1000;
 }
 
 .toggle_container_active {
   transform: translateX(-100%);
-  border-radius: 0 150px 100px 0;
+  /* border-radius: 0 150px 100px 0; */
 }
 
 .toggle {
