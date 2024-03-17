@@ -19,11 +19,21 @@ body {
 }
 
 .home {
-  background-image: url("/assets/home.png");
+  background-image: url("/assets/images/Home.png");
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  width: 100vw;
   height: 100vh;
   gap: 20px;
+}
+
+.welcome {
+  background-color: #c9d6ff;
+  padding: 20px;
+  font-size: 2.5rem;
+  font-weight: 600;
+  border-radius: 30px;
+  text-align: center;
 }

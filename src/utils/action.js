@@ -1,6 +1,6 @@
 "use server";
 
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 import { connectToDatabase } from "./database";
 import User from "@models/user";
