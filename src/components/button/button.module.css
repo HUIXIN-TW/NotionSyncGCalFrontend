@@ -18,7 +18,7 @@
 }
 
 .black_btn:hover {
-  background-color: white;
+  background: transparent;
   color: black;
 }
 
