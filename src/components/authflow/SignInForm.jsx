@@ -1,13 +1,39 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
 
 const SignInForm = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent the form from causing a page reload
+
+    // Attempt to sign in using the credentials
+    const result = await signIn("credentials", {
+      redirect: false, // Prevent redirect to avoid losing state in case of error
+      email: email,
+      password: password,
+    });
+
+    console.log("Sign in result:", result);
+
+    // Handle sign-in result
+    if (result.error) {
+      setErrorMessage(result.error);
+      console.error("Sign in failed:", result.error);
+    } else {
+      console.log("Sign in successful!");
+    }
+  };
+
   return (
-    <form className={styles.sign_in_form}>
+    <form onSubmit={handleSubmit} className={styles.sign_in_form}>
       <h1>Sign In</h1>
       <div className={styles.social_icons}>
         <a href="#">
@@ -24,9 +50,22 @@ const SignInForm = () => {
         </a>
       </div>
       <span>or use your email password</span>
-      <input type="email" placeholder="Email" />
-      <input type="password" placeholder="Password" />
+      <input
+        type="email"
+        placeholder="Email"
+        aria-label="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        aria-label="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       <a href="#">Forget Your Password?</a>
+      {errorMessage && <div className="error_message">{errorMessage}</div>}
       <Button text="Sign In" type="submit" className="black_btn"></Button>
     </form>
   );
