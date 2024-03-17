@@ -1,4 +1,5 @@
 import "../styles/global.css";
+import Provider from "@components/provider/Provider";
 
 export const metadata = {
   title: "Modern Login Page",
@@ -8,7 +9,9 @@ export const metadata = {
 const RootLayout = ({ children }) => (
   <html lang="en">
     <body>
-      <main>{children}</main>
+      <Provider>
+        <main>{children}</main>
+      </Provider>
     </body>
   </html>
 );
