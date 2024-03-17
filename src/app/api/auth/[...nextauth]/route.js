@@ -35,7 +35,12 @@ const handler = NextAuth({
         }
 
         // Return user object if authentication succeeds
-        return { email: user.email };
+        return {
+          id: user._id,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+        };
       },
     }),
   ],
@@ -44,20 +49,30 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       // Add user email to JWT token if user object exists
       if (user) {
+        token.id = user.id;
         token.email = user.email;
+        token.name = user.username;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      // Add user email to session
-      session.user.email = token.email;
+      session.user = {
+        ...session.user,
+        id: token.id,
+        email: token.email,
+        name: token.name,
+        role: token.role,
+      };
       return session;
     },
     async signIn({ user, account, profile, email, credentials }) {
       return true;
     },
     async redirect({ url, baseUrl }) {
-      return baseUrl;
+      const redirectUrl = baseUrl + "/profile";
+      console.log(`Redirecting to: ${redirectUrl}`);
+      return redirectUrl;
     },
   },
   pages: {
