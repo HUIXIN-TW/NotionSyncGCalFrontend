@@ -50,7 +50,9 @@ const SignUpForm = () => {
         className="black_btn"
         disabled={pending}
       ></Button>
-      {errorMessage && <div className={styles.error_message}>{errorMessage.error}</div>}
+      {errorMessage && (
+        <div className={styles.error_message}>{errorMessage.error}</div>
+      )}
     </form>
   );
 };
