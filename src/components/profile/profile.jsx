@@ -1,17 +1,28 @@
-"use client";
+import styles from "./profile.module.css";
+import Button from "@components/button/Button";
 
 const Profile = ({ session, signOut }) => {
   if (!session || !session.user) {
     return <div>Loading...</div>;
   }
+
+  const { email, id, username, role } = session.user;
+
   return (
-    <div>
-      <p>Profile Container</p>
-      <p>Signed in as {session.user.email}</p>
-      <p>ID: {session.user.id}</p>
-      <p>Name: {session.user.username}</p>
-      <p>Role: {session.user.role}</p>
-      <button onClick={() => signOut()}>Sign Out</button>
+    <div className={styles.profile_container}>
+      <div className={styles.profile_detail}>
+        <span className={styles.profile_label}>Email:</span> {email}
+      </div>
+      <div className={styles.profile_detail}>
+        <span className={styles.profile_label}>ID:</span> {id}
+      </div>
+      <div className={styles.profile_detail}>
+        <span className={styles.profile_label}>Name:</span> {username}
+      </div>
+      <div className={styles.profile_detail}>
+        <span className={styles.profile_label}>Role:</span> {role}
+      </div>
+      <Button text="Sign Out" onClick={() => signOut()} />
     </div>
   );
 };

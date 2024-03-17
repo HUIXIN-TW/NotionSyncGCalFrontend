@@ -1,0 +1,21 @@
+.profile_container {
+  background: #f8f9fa; /* Lighter background for a fresher look */
+  border-radius: 20px; /* Slightly reduced for a modern aesthetic */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* More subtle shadow for depth */
+  padding: 40px; /* Increased padding for better space */
+  max-width: 400px; /* Limit width for better readability */
+  margin: auto; /* Center the profile container */
+  display: flex; /* Use flexbox */
+  flex-direction: column; /* Stack elements vertically */
+  gap: 20px; /* Consistent spacing between elements */
+}
+
+.profile_detail {
+  font-size: 16px; /* Increase base font size for readability */
+  color: #343a40; /* Darker text for better contrast */
+}
+
+.profile_label {
+  font-weight: 500; /* Medium font weight for labels */
+  color: #6c757d; /* Soft color for labels */
+}
