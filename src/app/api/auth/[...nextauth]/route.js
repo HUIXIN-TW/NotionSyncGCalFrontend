@@ -51,7 +51,7 @@ const handler = NextAuth({
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        token.name = user.username;
+        token.username = user.username;
         token.role = user.role;
       }
       return token;
@@ -61,18 +61,13 @@ const handler = NextAuth({
         ...session.user,
         id: token.id,
         email: token.email,
-        name: token.name,
+        username: token.username,
         role: token.role,
       };
       return session;
     },
     async signIn({ user, account, profile, email, credentials }) {
       return true;
-    },
-    async redirect({ url, baseUrl }) {
-      const redirectUrl = baseUrl + "/profile";
-      console.log(`Redirecting to: ${redirectUrl}`);
-      return redirectUrl;
     },
   },
   pages: {

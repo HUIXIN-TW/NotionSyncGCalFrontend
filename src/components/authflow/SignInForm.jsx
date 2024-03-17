@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
 
 const SignInForm = () => {
+  const router = useRouter();
+  const { status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -21,8 +24,6 @@ const SignInForm = () => {
       password: password,
     });
 
-    console.log("Sign in result:", result);
-
     // Handle sign-in result
     if (result.error) {
       setErrorMessage(result.error);
@@ -31,6 +32,12 @@ const SignInForm = () => {
       console.log("Sign in successful!");
     }
   };
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/profile");
+    }
+  }, [status, router]);
 
   return (
     <form onSubmit={handleSubmit} className={styles.sign_in_form}>
