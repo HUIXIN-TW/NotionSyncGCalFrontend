@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { connectToDatabase } from "@utils/database";
+import { connectToDatabase } from "@utils/db-connection";
 import User from "@models/user";
 
 const handler = NextAuth({
@@ -13,7 +13,7 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Received credentials:", credentials);
+        console.log("Received credentials:", credentials.email);
 
         await connectToDatabase();
 
@@ -34,9 +34,8 @@ const handler = NextAuth({
           throw new Error("Password is incorrect");
         }
 
-        // Return user object if authentication succeeds
         return {
-          id: user._id,
+          uuid: user.uuid,
           email: user.email,
           username: user.username,
           role: user.role,
@@ -44,12 +43,10 @@ const handler = NextAuth({
       },
     }),
   ],
-  // Add any additional NextAuth configuration here
   callbacks: {
     async jwt({ token, user }) {
-      // Add user email to JWT token if user object exists
       if (user) {
-        token.id = user.id;
+        token.uuid = user.uuid;
         token.email = user.email;
         token.username = user.username;
         token.role = user.role;
@@ -59,7 +56,7 @@ const handler = NextAuth({
     async session({ session, token }) {
       session.user = {
         ...session.user,
-        id: token.id,
+        uuid: token.uuid,
         email: token.email,
         username: token.username,
         role: token.role,

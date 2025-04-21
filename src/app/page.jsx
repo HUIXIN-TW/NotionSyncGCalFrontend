@@ -8,7 +8,7 @@ const Home = () => {
   return (
     <div className="home">
       <div className="welcome">
-        <h1>Welcome to WhatToEat!</h1>
+        <h1>Welcome to NotionSyncGCal!</h1>
         <Button
           text="Let's Get Started"
           type="button"

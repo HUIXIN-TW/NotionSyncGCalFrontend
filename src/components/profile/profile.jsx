@@ -6,7 +6,8 @@ const Profile = ({ session, signOut }) => {
     return <div>Loading...</div>;
   }
 
-  const { email, id, username, role } = session.user;
+  const { email, uuid, username, role } = session.user;
+  // console.log("Session user:", session.user);
 
   return (
     <div className={styles.profile_container}>
@@ -14,7 +15,7 @@ const Profile = ({ session, signOut }) => {
         <span className={styles.profile_label}>Email:</span> {email}
       </div>
       <div className={styles.profile_detail}>
-        <span className={styles.profile_label}>ID:</span> {id}
+        <span className={styles.profile_label}>UUID:</span> {uuid}
       </div>
       <div className={styles.profile_detail}>
         <span className={styles.profile_label}>Name:</span> {username}

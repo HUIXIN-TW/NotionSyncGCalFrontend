@@ -1,13 +1,13 @@
 import User from "@models/user";
-import { connectToDatabase } from "@utils/database";
+import { connectToDatabase } from "@utils/db-connection";
 
 export const GET = async (request, { params }) => {
   try {
-    // Connect to the database, and fetch all users
+    // Connect to the database
     await connectToDatabase();
 
-    // Fetch user by id
-    const userId = params.id;
+    // Fetch user by id using the DynamoDB model
+    const userId = params.uuid;
     const user = await User.findById(userId);
 
     // If user not found, return 404
@@ -19,6 +19,7 @@ export const GET = async (request, { params }) => {
 
     return new Response(JSON.stringify(user), { status: 200 });
   } catch (error) {
-    return new Response("Failed to fetch the uer", { status: 500 });
+    console.error("Error fetching user:", error);
+    return new Response("Failed to fetch the user", { status: 500 });
   }
 };

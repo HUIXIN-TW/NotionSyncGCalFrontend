@@ -6,7 +6,7 @@ import { useFormState, useFormStatus } from "react-dom";
 
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
-import { register } from "@utils/action";
+import { register } from "@utils/auth-actions.js";
 
 const SignUpForm = () => {
   const [errorMessage, dispatch] = useFormState(register, undefined);

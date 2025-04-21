@@ -10,7 +10,6 @@ const MyProfile = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  console.log(session);
 
   useEffect(() => {
     // If the status is not "loading" and there's no session, redirect
