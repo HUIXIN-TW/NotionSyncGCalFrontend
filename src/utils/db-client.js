@@ -8,7 +8,11 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 // Create a DynamoDB client with the configured region
 const client = new DynamoDBClient({
-  region: process.env.AWS_REGION || "us-east-1", // Default to us-east-1 if not specified
+  region: process.env.MYAPP_AWS_REGION || "us-east-1", // Default to us-east-1 if not specified
+  credentials: {
+    accessKeyId: process.env.MYAPP_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.MYAPP_AWS_SECRET_ACCESS_KEY,
+  },
 });
 
 // Create a document client for easier interaction with DynamoDB
