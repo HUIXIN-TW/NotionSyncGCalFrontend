@@ -8,8 +8,6 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE;
 
