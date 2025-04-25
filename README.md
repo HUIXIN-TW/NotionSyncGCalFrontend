@@ -1,5 +1,9 @@
 # NotionSyncGCal Frontend
 
+[![Deploy on Amplify](https://img.shields.io/badge/Deploy-AWS%20Amplify-orange?logo=awsamplify&style=for-the-badge)](https://console.aws.amazon.com/amplify/home)
+
+[![Live Demo](https://img.shields.io/badge/View-Live%20Demo-green?style=for-the-badge)](https://notionsyncgcal.huixinyang.com/)
+
 A modern web application that provides a user interface for synchronizing Notion pages with Google Calendar events. This frontend interfaces with the NotionSyncGCal backend service to help users manage their calendar synchronization seamlessly.
 
 ## Features
