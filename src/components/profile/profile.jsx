@@ -7,7 +7,7 @@ const Profile = ({ session, signOut }) => {
   }
 
   const { email, uuid, username, role } = session.user;
-  // console.log("Session user:", session.user);
+  console.log("Session user:", session.user);
 
   return (
     <div className={styles.profile_container}>
