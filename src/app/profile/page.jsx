@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 
-import Profile from "@components/profile/profile";
+import Profile from "@components/profile/Profile";
 
 const MyProfile = () => {
   const { data: session, status } = useSession();
@@ -14,6 +14,7 @@ const MyProfile = () => {
   useEffect(() => {
     // If the status is not "loading" and there's no session, redirect
     if (status !== "loading" && !session) {
+      console.log("No session, redirecting to authflow");
       router.push("/authflow");
     }
   }, [session, status, router]);
