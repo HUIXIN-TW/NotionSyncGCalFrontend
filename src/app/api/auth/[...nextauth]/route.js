@@ -5,8 +5,8 @@ import { connectToDatabase } from "@utils/db-connection";
 import User from "@models/user";
 
 const handler = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
   debug: true,
+  secret: process.env.NEXTAUTH_SECRET,
 
   providers: [
     CredentialsProvider({
@@ -18,10 +18,17 @@ const handler = NextAuth({
       async authorize(credentials) {
         console.log("🟡 authorize() triggered");
         console.log("📥 Received credentials:", credentials);
+        console.log("🔍 ENV CHECK:");
+        console.log("🔹 NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);
+        console.log("🔹 NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+        console.log("🔹 MYAPP_AWS_ACCESS_KEY_ID:", process.env.MYAPP_AWS_ACCESS_KEY_ID);
+        console.log("🔹 MYAPP_AWS_SECRET_ACCESS_KEY:", process.env.MYAPP_AWS_SECRET_ACCESS_KEY);
+        console.log("🔹 MYAPP_AWS_REGION:", process.env.MYAPP_AWS_REGION);
+        console.log("🔹 DYNAMODB_TABLE:", process.env.DYNAMODB_TABLE);
 
         try {
           await connectToDatabase();
-          console.log("✅ MongoDB connected");
+          console.log("✅ DynamoDB connected");
 
           const user = await User.findOne({ email: credentials.email });
           console.log("🔍 User found:", user?.email ?? "❌ Not found");
