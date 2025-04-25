@@ -11,30 +11,36 @@ import { v4 as uuidv4 } from "uuid";
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE;
 
-// 🧪 Helper: validate username format
+// Helper: validate username format
 const isValidUsername = (username) =>
   /^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username);
 
-// ✅ Create a user with validation and duplicate email check
+// Create a user with validation and duplicate email check
 export const createUser = async (userData) => {
+  const provider = userData.provider || "credentials";
   const username = userData.username || userData.email.split("@")[0];
   const now = new Date().toISOString();
 
   if (!userData.email) throw new Error("Email is required!");
-  if (!userData.password) throw new Error("Password is required!");
-  if (!isValidUsername(username)) {
-    throw new Error(
-      "Username invalid, it should contain 8–20 alphanumeric characters and be unique!"
-    );
+  // enforce password & username only for credentials provider
+  if (provider === "credentials") {
+    if (!userData.password) throw new Error("Password is required!");
+    if (!isValidUsername(username)) {
+      throw new Error(
+        "Username invalid, it should contain 8–20 alphanumeric characters and be unique!",
+      );
+    }
   }
 
   const item = {
     uuid: uuidv4(),
     email: userData.email,
     username,
-    password: userData.password,
+    // include password only for credentials
+    ...(provider === "credentials" && { password: userData.password }),
     role: userData.role || "user",
     image: userData.image || "",
+    provider,
     createdAt: now,
     updatedAt: now,
   };
@@ -45,7 +51,7 @@ export const createUser = async (userData) => {
         TableName: TABLE_NAME,
         Item: item,
         ConditionExpression: "attribute_not_exists(email)", // Prevent duplicates
-      })
+      }),
     );
     return item;
   } catch (error) {
@@ -54,14 +60,14 @@ export const createUser = async (userData) => {
   }
 };
 
-// 🔍 Get user by UUID
+// Get user by UUID
 export const getUserById = async (id) => {
   try {
     const result = await ddb.send(
       new GetCommand({
         TableName: TABLE_NAME,
         Key: { uuid: id },
-      })
+      }),
     );
     return result.Item;
   } catch (error) {
@@ -70,7 +76,7 @@ export const getUserById = async (id) => {
   }
 };
 
-// 🔍 Get user by email (requires GSI: EmailIndex)
+// Get user by email (requires GSI: EmailIndex)
 export const getUserByEmail = async (email) => {
   try {
     const result = await ddb.send(
@@ -81,7 +87,7 @@ export const getUserByEmail = async (email) => {
         ExpressionAttributeValues: {
           ":email": email,
         },
-      })
+      }),
     );
     return result.Items?.[0] || null;
   } catch (error) {
@@ -90,7 +96,7 @@ export const getUserByEmail = async (email) => {
   }
 };
 
-// 🔄 Update user by ID
+// Update user by ID
 export const updateUser = async (id, updateData) => {
   const updateExpressions = [];
   const expressionAttributeNames = {};
@@ -118,7 +124,7 @@ export const updateUser = async (id, updateData) => {
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
         ReturnValues: "ALL_NEW",
-      })
+      }),
     );
     return result.Attributes;
   } catch (error) {
@@ -127,14 +133,14 @@ export const updateUser = async (id, updateData) => {
   }
 };
 
-// ❌ Delete user by ID
+// Delete user by ID
 export const deleteUser = async (id) => {
   try {
     await ddb.send(
       new DeleteCommand({
         TableName: TABLE_NAME,
         Key: { uuid: id },
-      })
+      }),
     );
     return { success: true };
   } catch (error) {
@@ -143,13 +149,13 @@ export const deleteUser = async (id) => {
   }
 };
 
-// 📋 Get all users (scan all)
+// Get all users (scan all)
 export const getAllUsers = async () => {
   try {
     const result = await ddb.send(
       new ScanCommand({
         TableName: TABLE_NAME,
-      })
+      }),
     );
     return result.Items || [];
   } catch (error) {
@@ -158,7 +164,7 @@ export const getAllUsers = async () => {
   }
 };
 
-// 🧩 Compatibility with Mongoose-style usage
+// Compatibility with Mongoose-style usage
 const User = {
   find: async () => {
     return getAllUsers();

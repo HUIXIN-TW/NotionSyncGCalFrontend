@@ -1,29 +1,68 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
 import { register } from "@utils/auth-actions.js";
+import { signIn } from "next-auth/react";
 
 const SignUpForm = () => {
+  const router = useRouter();
   const [errorMessage, dispatch] = useFormState(register, undefined);
   const { pending } = useFormStatus();
-  const router = useRouter();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordRepeat, setPasswordRepeat] = useState("");
+
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    setGoogleError("");
+
+    try {
+      const res = await signIn("google", {
+        callbackUrl: "/profile",
+      });
+
+      if (res?.error) {
+        setGoogleError(res.error);
+        setGoogleLoading(false);
+      } else if (res?.url) {
+        router.push(res.url);
+      }
+    } catch (err) {
+      setGoogleError("Something went wrong with Google sign-in.");
+      console.error("Google sign-in error:", err);
+      setGoogleLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!pending && errorMessage?.success) {
-      router.push("/");
+      (async () => {
+        await signIn("credentials", {
+          email,
+          password,
+          callbackUrl: "/profile",
+        });
+      })();
     }
-  }, [pending, errorMessage, router]);
+  }, [pending, errorMessage, email, password, router]);
 
   return (
     <form action={dispatch} className={styles.sign_up_form}>
       <h1>Create Account</h1>
       <div className={styles.social_icons}>
-        <a href="#">
+        <a
+          type="button"
+          onClick={handleGoogleSignup}
+          disabled={googleLoading || pending}
+          className={styles.social_btn}
+        >
           <i className="fa-brands fa-google-plus-g"></i>
         </a>
         <a href="#">
@@ -37,22 +76,37 @@ const SignUpForm = () => {
         </a>
       </div>
       <span>or use your email for registration</span>
-      <input type="email" placeholder="Email" name="email" />
-      <input type="password" placeholder="Password" name="password" />
+      <input
+        type="email"
+        placeholder="Email"
+        name="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
       <input
         type="password"
-        placeholder="password again"
+        placeholder="Password"
+        name="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password again"
         name="passwordRepeat"
+        value={passwordRepeat}
+        onChange={(e) => setPasswordRepeat(e.target.value)}
       />
       <Button
-        text="Sign Up"
+        text={pending || googleLoading ? "Signing up..." : "Sign Up"}
         type="submit"
         className="black_btn"
         disabled={pending}
       ></Button>
-      {errorMessage && (
+      {errorMessage?.error && (
         <div className={styles.error_message}>{errorMessage.error}</div>
       )}
+      {googleError && <div className={styles.error_message}>{googleError}</div>}
     </form>
   );
 };

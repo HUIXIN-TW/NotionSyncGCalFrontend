@@ -1,6 +1,6 @@
 .container {
   /* background-color: #fff; */
-  background-image: url("/assets/images/People.png");
+  background-image: url("/assets/images/Login.png");
   border-radius: 30px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
   position: relative;
@@ -113,7 +113,7 @@
 }
 
 .toggle {
-  background-image: url("/assets/images/People.png");
+  background-image: url("/assets/images/Login.png");
   height: 100%;
   color: black;
   position: relative;

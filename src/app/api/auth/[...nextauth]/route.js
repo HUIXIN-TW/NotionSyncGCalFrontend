@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { connectToDatabase } from "@utils/db-connection";
@@ -18,64 +19,77 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("Current NODE_ENV:", process.env.NODE_ENV);
-        console.log("authorize() triggered");
-
-        // Optional: log presence of environment vars (not values)
-        if (!isProd) {
-          console.log("Environment check:");
-          console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? "[SET]" : "[MISSING]");
-          console.log("AWS_ACCESS_KEY_ID:", process.env.MYAPP_AWS_ACCESS_KEY_ID ? "[SET]" : "[MISSING]");
+        // connect and fetch credential user
+        await connectToDatabase();
+        const user = await User.findOne({ email: credentials.email });
+        if (!user || user.provider !== "credentials") {
+          throw new Error("Invalid email or login method");
         }
-
-        try {
-          await connectToDatabase();
-          console.log("DynamoDB connected");
-
-          const user = await User.findOne({ email: credentials.email });
-          console.log("User found:", user?.email ?? "Not found");
-
-          if (!user) {
-            throw new Error("No user found with the email");
-          }
-
-          const isValid = await bcrypt.compare(credentials.password, user.password);
-          console.log("Password match:", isValid);
-
-          if (!isValid) {
-            throw new Error("Password is incorrect");
-          }
-
-          console.log("Login success for:", user.email);
-          return {
-            uuid: user.uuid,
-            email: user.email,
-            username: user.username,
-            role: user.role,
-          };
-        } catch (err) {
-          console.error("authorize() error:", err);
-          throw err;
+        const validPassword = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
+        if (!validPassword) {
+          throw new Error("Invalid email or password");
         }
+        return {
+          uuid: user.uuid,
+          email: user.email,
+          username: user.username,
+          role: user.role,
+          image: user.image,
+        };
       },
+    }),
+    GoogleProvider({
+      name: "Google",
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (!isProd) console.log("jwt() — token before:", token);
+
       if (user) {
-        token.uuid = user.uuid;
-        token.email = user.email;
-        token.username = user.username;
-        token.role = user.role;
-        if (!isProd) console.log("jwt() — user merged into token:", token);
+        token.uuid = user.uuid || token.uuid;
+        token.email = user.email || token.email;
+        token.username =
+        user.username || user.name || user.email?.split("@")[0];
+        token.image = user.image || token.image;
+        token.role = user.role || token.role;
+
+        // If user signed in via Google
+        if (account?.provider === "google") {
+          token.provider = "google";
+
+          // Fetch user from database to populate uuid and role
+          await connectToDatabase();
+          const dbUser = await User.findOne({ email: user.email });
+          if (dbUser) {
+            token.uuid = dbUser.uuid;
+            token.role = dbUser.role;
+          } else {
+            console.log("User not found in DB, creating new user...");
+            // Create a new user in the database if not found
+            token.uuid = user.uuid || "pending";
+            token.role = user.role || "pending";
+          }
+        }
+
+        // If user signed in via credentials
+        if (account?.provider === "credentials") {
+          token.provider = "credentials";
+        }
       }
+
       return token;
     },
 
     async session({ session, token }) {
       if (!isProd) console.log("session() — token:", token);
+
       session.user = {
         ...session.user,
         uuid: token.uuid,
@@ -83,18 +97,35 @@ const handler = NextAuth({
         username: token.username,
         role: token.role,
       };
+
       if (!isProd) console.log("session() — session returned:", session);
       return session;
     },
+  },
 
-    async signIn({ user }) {
-      console.log("signIn() called — user:", user?.email ?? "unknown");
-      return true;
+  // Create or update user record when signing in via Google
+  events: {
+    async signIn({ user, account }) {
+      if (account.provider === "google") {
+        await connectToDatabase();
+        const existing = await User.findOne({ email: user.email });
+        if (!existing) {
+          await User.create({
+            email: user.email,
+            username: user.username || user.name || user.email.split("@")[0],
+            provider: "google",
+            image: user.image || "",
+            role: "user",
+          });
+        }
+      }
     },
   },
 
   pages: {
     signIn: "/authflow",
+    signOut: "/",
+    error: "/not-found",
   },
 });
 

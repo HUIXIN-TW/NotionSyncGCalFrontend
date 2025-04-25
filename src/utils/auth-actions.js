@@ -6,74 +6,83 @@ import { connectToDatabase } from "@utils/db-connection";
 
 /**
  * Validates user registration data
- * @param {Object} data - User registration data
- * @returns {Object} Validation result with error message if invalid
+ * @param {string} email - User email
+ * @param {string} password - User password
+ * @param {string} passwordRepeat - Password confirmation
+ * @returns {{isValid: boolean, error?: string}} Validation result
  */
-const validateRegistrationData = (data) => {
-  const { email, password, passwordRepeat } = data;
-  
+const validateRegistrationData = (email, password, passwordRepeat) => {
   if (!email || !password || !passwordRepeat) {
     return { isValid: false, error: "All fields are required" };
   }
-  
+
   if (password !== passwordRepeat) {
     return { isValid: false, error: "Passwords do not match" };
   }
-  
+
   if (password.length < 8) {
-    return { isValid: false, error: "Password must be at least 8 characters long" };
+    return {
+      isValid: false,
+      error: "Password must be at least 8 characters long",
+    };
   }
-  
+
   // Basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return { isValid: false, error: "Invalid email format" };
   }
-  
+
   return { isValid: true };
 };
 
 /**
- * Registers a new user
+ * Registers a new user for credential‑based sign‑ups
  * @param {Object} prevState - Previous state
  * @param {FormData} formData - Form data containing user registration information
  * @returns {Promise<Object>} Result of the registration attempt
  */
-export const register = async (prevState, formData) => {
+export const register = async (_prevState, formData) => {
   try {
     // Ensure database connection
     await connectToDatabase();
-    
+
     // Extract and validate form data
-    const formDataObj = Object.fromEntries(formData);
-    const validation = validateRegistrationData(formDataObj);
-    
+    const { email, password, passwordRepeat, username, image } =
+      Object.fromEntries(formData);
+
+    const validation = validateRegistrationData(
+      email,
+      password,
+      passwordRepeat,
+    );
     if (!validation.isValid) {
-      return { error: validation.error };
+      return { success: false, error: validation.error };
     }
-    
-    const { email, password } = formDataObj;
-    
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return { error: "Email already exists" };
+
+    // Duplicate check
+    if (await User.findOne({ email })) {
+      return { success: false, error: "Email already exists" };
     }
-    
-    // Hash password
+
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    
-    // Create user in DynamoDB
+    const hashed = await bcrypt.hash(password, salt);
+
+    // Create new user data
     await User.create({
       email,
-      password: hashedPassword,
+      username: username || email.split("@")[0],
+      role: "user",
+      provider: "credentials",
+      password: hashed,
+      ...(image && { image }),
     });
-    
-    console.log("✅ User created successfully");
     return { success: true };
   } catch (error) {
-    console.error("❌ Registration error:", error.message);
-    return { error: "Registration failed. Please try again later." };
+    console.error("Registration error:", error);
+    return {
+      success: false,
+      error: "Registration failed. Please try again later.",
+    };
   }
 };
