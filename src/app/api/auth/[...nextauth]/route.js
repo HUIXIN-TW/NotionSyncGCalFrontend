@@ -5,6 +5,7 @@ import { connectToDatabase } from "@utils/db-connection";
 import User from "@models/user";
 
 const handler = NextAuth({
+  debug: true,
   providers: [
     CredentialsProvider({
       name: "Credentials",
