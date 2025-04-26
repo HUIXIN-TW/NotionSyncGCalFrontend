@@ -8,10 +8,12 @@ export default function AuthErrorPage() {
   const error = searchParams.get("error");
 
   const errorMessage = {
-    OAuthSignin: "Error in constructing an authorization URL. Please check your settings.",
+    OAuthSignin:
+      "Error in constructing an authorization URL. Please check your settings.",
     OAuthCallback: "Error in handling the response from Google. Try again.",
     OAuthCreateAccount: "Could not create account with Google credentials.",
-    OAuthAccountNotLinked: "Email already exists with different sign-in method.",
+    OAuthAccountNotLinked:
+      "Email already exists with different sign-in method.",
     EmailCreateAccount: "Error creating account with email.",
     Callback: "Error during callback handling.",
     Configuration: "Server configuration error. Contact support.",

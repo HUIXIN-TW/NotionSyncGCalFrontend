@@ -20,7 +20,10 @@ const SyncButton = ({ onSync }) => {
       const res = await fetch("/api/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uuid: session.user.uuid, email: session.user.email }),
+        body: JSON.stringify({
+          uuid: session.user.uuid,
+          email: session.user.email,
+        }),
       });
 
       const result = await res.json();

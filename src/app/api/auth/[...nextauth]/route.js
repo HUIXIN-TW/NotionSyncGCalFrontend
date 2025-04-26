@@ -55,7 +55,8 @@ const handler = NextAuth({
       if (user) {
         token.uuid = user.uuid || token.uuid;
         token.email = user.email || token.email;
-        token.username = user.username || user.name || user.email?.split("@")[0];
+        token.username =
+          user.username || user.name || user.email?.split("@")[0];
         token.image = user.image || token.image;
         token.role = user.role || token.role;
 
@@ -66,7 +67,7 @@ const handler = NextAuth({
           token.provider = "google";
 
           // Fetch user from database to populate uuid and role
-          
+
           const dbUser = await User.findOne({ email: user.email });
           if (dbUser) {
             token.uuid = dbUser.uuid;

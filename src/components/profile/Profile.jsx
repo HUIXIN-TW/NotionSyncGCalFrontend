@@ -10,9 +10,7 @@ const Profile = ({ session, signOut }) => {
 
   if (!session?.user) {
     return (
-      <div className={styles.profile_loading}>
-        Loading your profile...
-      </div>
+      <div className={styles.profile_loading}>Loading your profile...</div>
     );
   }
 
@@ -36,10 +34,12 @@ const Profile = ({ session, signOut }) => {
       {syncResult && (
         <>
           <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Sync Status:</span> {syncResult.status}
+            <span className={styles.profile_label}>Sync Status:</span>{" "}
+            {syncResult.status}
           </div>
           <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Message:</span> {syncResult.message}
+            <span className={styles.profile_label}>Message:</span>{" "}
+            {syncResult.message}
           </div>
         </>
       )}
