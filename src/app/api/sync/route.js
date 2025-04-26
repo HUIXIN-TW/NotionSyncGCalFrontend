@@ -12,6 +12,14 @@ export async function POST(req) {
     });
   }
 
+  if (!url || !apiKey) {
+    console.error("Missing Lambda URL or API Key");
+    return new Response(
+      JSON.stringify({ error: "Internal Server Error" }),
+      { status: 500 },
+    );
+  }
+
   let uuid;
 
   try {
@@ -34,14 +42,6 @@ export async function POST(req) {
   const timestamp = new Date().toISOString();
 
   try {
-    console.log(`Syncing user ${uuid} at ${timestamp}`);
-    console.log("Request body:", { uuid, timestamp });
-    console.log("Lambda URL:", url);
-    console.log("Lambda API Key:", apiKey);
-    console.log("Request headers:", {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-    });
     const response = await fetch(url, {
       method: "POST",
       headers: {
