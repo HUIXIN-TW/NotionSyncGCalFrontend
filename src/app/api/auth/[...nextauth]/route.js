@@ -126,7 +126,7 @@ const handler = NextAuth({
   pages: {
     signIn: "/authflow",
     signOut: "/",
-    error: "/not-found",
+    error: "/api/auth/error",
   },
 });
 
