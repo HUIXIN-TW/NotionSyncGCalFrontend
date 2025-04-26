@@ -1,9 +1,19 @@
+"use client";
+
+import React, { useState } from "react";
 import styles from "./profile.module.css";
 import Button from "@components/button/Button";
+import SyncButton from "@components/button/SyncButton";
 
 const Profile = ({ session, signOut }) => {
-  if (!session || !session.user) {
-    return <div>Loading...</div>;
+  const [syncResult, setSyncResult] = useState(null);
+
+  if (!session?.user) {
+    return (
+      <div className={styles.profile_loading}>
+        Loading your profile...
+      </div>
+    );
   }
 
   const { email, uuid, username, role } = session.user;
@@ -23,7 +33,18 @@ const Profile = ({ session, signOut }) => {
       <div className={styles.profile_detail}>
         <span className={styles.profile_label}>Role:</span> {role}
       </div>
-      <Button text="Sign Out" onClick={() => signOut()} />
+      {syncResult && (
+        <>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Sync Status:</span> {syncResult.status}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Message:</span> {syncResult.message}
+          </div>
+        </>
+      )}
+      <SyncButton onSync={setSyncResult} />
+      <Button text="Sign Out" onClick={signOut} />
     </div>
   );
 };
