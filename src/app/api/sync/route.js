@@ -53,7 +53,8 @@ export async function POST(req) {
 
     return new Response(JSON.stringify(result), { status: 200 });
   } catch (error) {
-    console.error("Failed to call Lambda:", error);
+    result = JSON.parse(text);
+    console.error("Failed to call Lambda:", error, result);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
