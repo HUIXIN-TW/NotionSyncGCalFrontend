@@ -9,7 +9,6 @@ import { v4 as uuidv4 } from "uuid";
 import User from "../src/models/user.js";
 import { connectToDatabase } from "../src/utils/db-connection.js";
 
-
 describe("User Model Tests", async () => {
   it("should perform CRUD operations on user", async () => {
     try {
@@ -94,7 +93,11 @@ describe("User Model Tests", async () => {
       // 6. Final check (should be undefined)
       console.log("\n6️⃣ Verifying deletion...");
       const shouldBeGone = await User.findById(testUser.uuid);
-      assert.strictEqual(shouldBeGone, undefined, "User should not exist after deletion");
+      assert.strictEqual(
+        shouldBeGone,
+        undefined,
+        "User should not exist after deletion",
+      );
       console.log("✅ Get after delete (should be undefined):", shouldBeGone);
 
       console.log("\n✅ All User model tests completed successfully!");
