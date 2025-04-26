@@ -36,10 +36,8 @@ export async function POST(req) {
         "x-api-key": apiKey,
       },
       body: JSON.stringify({
-        body: {
           uuid,
           timestamp,
-        },
       }),
     });
     
