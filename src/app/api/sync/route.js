@@ -4,7 +4,6 @@ const url = process.env.MY_APP_AWS_LAMBDA_URL;
 const apiKey = process.env.MY_APP_AWS_LAMBDA_API_KEY;
 
 export async function POST(req) {
-  // Check if the request is authenticated
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -36,13 +35,18 @@ export async function POST(req) {
         "x-api-key": apiKey,
       },
       body: JSON.stringify({
-          uuid,
-          timestamp,
+        uuid,
+        timestamp,
       }),
     });
-    
 
-    const result = await response.json();
+    const text = await response.text();
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch {
+      result = { raw: text }; 
+    }
 
     if (!response.ok) {
       console.error("Lambda returned error:", result);
@@ -53,8 +57,7 @@ export async function POST(req) {
 
     return new Response(JSON.stringify(result), { status: 200 });
   } catch (error) {
-    result = JSON.parse(text);
-    console.error("Failed to call Lambda:", error, result);
+    console.error("Failed to call Lambda:", error);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
