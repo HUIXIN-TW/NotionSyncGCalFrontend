@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import styles from "./profile.module.css";
 import Button from "@components/button/Button";
 import SyncButton from "@components/button/SyncButton";
+import RefreshGCalButton from "@components/button/RefreshGCalButton";
 
 const Profile = ({ session, signOut }) => {
   const [syncResult, setSyncResult] = useState(null);
@@ -43,6 +44,7 @@ const Profile = ({ session, signOut }) => {
           </div>
         </>
       )}
+      <RefreshGCalButton/>
       <SyncButton onSync={setSyncResult} />
       <Button text="Sign Out" onClick={signOut} />
     </div>

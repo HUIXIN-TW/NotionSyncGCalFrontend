@@ -7,7 +7,8 @@ import User from "@models/user";
 
 const isProd = process.env.NODE_ENV === "production";
 
-const handler = NextAuth({
+// Define and export NextAuth configuration for shared use
+export const authOptions = {
   debug: !isProd,
   secret: process.env.NEXTAUTH_SECRET,
 
@@ -129,6 +130,9 @@ const handler = NextAuth({
     signOut: "/",
     error: "/api/auth/error",
   },
-});
+};
+
+// Initialize NextAuth with shared configuration
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
