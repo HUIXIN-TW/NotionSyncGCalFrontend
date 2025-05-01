@@ -18,6 +18,10 @@ export async function GET(req) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
+  // Debug: log OAuth client credentials
+  console.log('DEBUG: GOOGLE_CALENDAR_CLIENT_ID =', CLIENT_ID);
+  console.log('DEBUG: GOOGLE_CALENDAR_CLIENT_SECRET =', CLIENT_SECRET ? 'SET' : 'NOT SET');
+
   // Compute redirect URI: use env var or default to <origin>/api/google/callback
   const requestUrl = new URL(req.url);
   const origin = requestUrl.origin;
