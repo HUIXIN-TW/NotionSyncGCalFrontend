@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { parseDatetimeFormat } from "./parse-datetime";
 
 const s3Client = new S3Client({
   region: process.env.MYAPP_AWS_REGION || "us-east-1", // Default to us-east-1 if not specified
@@ -41,7 +42,7 @@ export async function uploadGoogleTokens(userId, tokens) {
     token_uri: GOOGLE_TOKEN_URL,
     client_id: GOOGLE_CLIENT_ID,
     client_secret: GOOGLE_CLIENT_SECRET,
-    expiry: new Date(tokens.expiry_date).toISOString(),
+    expiry: parseDatetimeFormat(tokens.expiry_date),
     scopes: [tokens.scope],
   };
   console.log("Payload:", payload);
