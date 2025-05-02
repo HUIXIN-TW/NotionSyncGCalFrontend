@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { parseDatetimeFormat } from "./parse-datetime";
+import parseDatetimeFormat from "./parse-datetime";
 
 const s3Client = new S3Client({
   region: process.env.MYAPP_AWS_REGION || "us-east-1", // Default to us-east-1 if not specified
