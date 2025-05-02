@@ -29,9 +29,10 @@ const SyncButton = ({ onSync }) => {
       const result = await res.json();
 
       if (res.ok) {
-        alert("Sync successful!");
+        console.log("Sync successful:", result);
       } else {
-        alert("Sync failed: " + (result.error || "Unknown error"));
+        console.error("Sync failed:", result);
+        alert("Sync failed: " + result.message);
       }
       if (onSync) onSync(result);
       return result;
