@@ -9,3 +9,5 @@ function parseDatetimeFormat(msTimestamp) {
   
     return `${datePart}T${time}.${paddedMicroseconds}`;
   }
+
+export default parseDatetimeFormat;
