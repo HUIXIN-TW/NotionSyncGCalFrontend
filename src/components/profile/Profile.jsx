@@ -20,6 +20,22 @@ const Profile = ({ session, signOut }) => {
 
   return (
     <div className={styles.profile_container}>
+      <div className={styles.profile_image_container}>
+        {session.user.image && (
+          <img
+            className={styles.profile_image}
+            src={session.user.image}
+            alt="Profile Image"
+          />
+        )}
+        {!session.user.image && (
+          <img
+            className={styles.profile_default_image}
+            src="./assets/images/App.png"
+            alt="Default Profile Image"
+          />
+        )}
+      </div>
       <div className={styles.profile_detail}>
         <span className={styles.profile_label}>Email:</span> {email}
       </div>

@@ -19,3 +19,31 @@
   font-weight: 500; /* Medium font weight for labels */
   color: #6c757d; /* Soft color for labels */
 }
+
+.profile_image_container {
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center; /* Center the image */
+  align-items: center; /* Center vertically */
+  margin-bottom: 20px; /* Space below the image */
+}
+
+.profile_image {
+  width: 120px; /* Fixed size for profile image */
+  height: 120px; /* Fixed size for profile image */
+  border-radius: 50%; /* Circular profile image */
+  transition: transform 0.3s;
+  &:hover {
+    transform: scale(1.05);
+  }
+  transition: box-shadow 0.3s;
+}
+
+.profile_default_image {
+  width: 180px; /* Fixed size for profile image */
+  height: 180px; /* Fixed size for profile image */
+  transition: transform 0.3s;
+  &:hover {
+    transform: scale(1.05);
+  }
+  transition: box-shadow 0.3s;
+}
