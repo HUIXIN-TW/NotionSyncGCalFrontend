@@ -1,44 +1,55 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../auth/[...nextauth]/route';
-import { google } from 'googleapis';
-import { uploadGoogleTokens } from '@utils/s3-client';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
+import { google } from "googleapis";
+import { uploadGoogleTokens } from "@utils/s3-client";
 
 const CALENDAR_CLIENT_ID = process.env.GOOGLE_CALENDAR_CLIENT_ID;
 const CALENDAR_CLIENT_SECRET = process.env.GOOGLE_CALENDAR_CLIENT_SECRET;
 
-
 export async function GET(req) {
   const url = new URL(req.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
 
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    return NextResponse.redirect(new URL('/profile?refresh=unauthorized', url));
+    return NextResponse.redirect(new URL("/profile?refresh=unauthorized", url));
   }
 
   // Log state and session UUID for debugging
-  console.log('OAuth callback state:', state, 'Session UUID:', session.user.uuid);
+  console.log(
+    "OAuth callback state:",
+    state,
+    "Session UUID:",
+    session.user.uuid,
+  );
   if (state !== session.user.uuid) {
-    console.warn('State mismatch, proceeding anyway');
+    console.warn("State mismatch, proceeding anyway");
   }
 
-  // Compute redirect URI same as auth-url
+  // Compute redirect URI same as auth-url (use production URL if provided)
   const origin = url.origin;
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${origin}/api/google/callback`;
-  console.log('Callback using redirect URI:', redirectUri);
-  const oauth2Client = new google.auth.OAuth2(CALENDAR_CLIENT_ID, CALENDAR_CLIENT_SECRET, redirectUri);
+  const baseUrl = process.env.NEXTAUTH_URL || origin;
+  // Determine callback URL using production NEXTAUTH_URL or origin
+  const callbackUri =
+    process.env.GOOGLE_REDIRECT_URI || `${baseUrl}/api/google/callback`;
+  console.log("Callback using redirect URI:", callbackUri);
+  const oauth2Client = new google.auth.OAuth2(
+    CALENDAR_CLIENT_ID,
+    CALENDAR_CLIENT_SECRET,
+    callbackUri,
+  );
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
-    console.log('Received tokens:', tokens);
+    console.log("Received tokens:", tokens);
     await uploadGoogleTokens(session.user.uuid, tokens);
-    console.log('Tokens uploaded successfully');
-    return NextResponse.redirect(new URL('/profile', url));
+    console.log("Tokens uploaded successfully");
+    return NextResponse.redirect(new URL("/profile", baseUrl));
   } catch (err) {
-    console.error('OAuth callback error:', err);
-    console.log('Error details:', err.response?.data || err.message);
-    return NextResponse.redirect(new URL('/profile', url));
+    console.error("OAuth callback error:", err);
+    console.log("Error details:", err.response?.data || err.message);
+    return NextResponse.redirect(new URL("/profile", baseUrl));
   }
 }

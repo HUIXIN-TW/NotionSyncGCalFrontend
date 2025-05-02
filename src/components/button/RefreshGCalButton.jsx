@@ -22,7 +22,9 @@ const RefreshGCalButton = ({ className, style }) => {
       const data = await res.json();
 
       if (!res.ok || data.error) {
-        alert("Failed to get auth URL: " + (data.error || JSON.stringify(data)));
+        alert(
+          "Failed to get auth URL: " + (data.error || JSON.stringify(data)),
+        );
         return;
       }
       // Redirect user to Google consent screen
@@ -33,7 +35,7 @@ const RefreshGCalButton = ({ className, style }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <Button

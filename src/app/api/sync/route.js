@@ -14,10 +14,9 @@ export async function POST(req) {
 
   if (!url || !apiKey) {
     console.error("Missing Lambda URL or API Key");
-    return new Response(
-      JSON.stringify({ error: "Internal Server Error" }),
-      { status: 500 },
-    );
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+    });
   }
 
   let uuid;

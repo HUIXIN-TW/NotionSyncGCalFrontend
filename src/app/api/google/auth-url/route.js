@@ -1,5 +1,5 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
 import { google } from "googleapis";
 
 const CLIENT_ID = process.env.GOOGLE_CALENDAR_CLIENT_ID;
@@ -10,30 +10,36 @@ const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 export async function GET(req) {
   const session = await getServerSession(authOptions);
 
-  console.log('authOptions:', authOptions);
-  console.log('Session:', session);
-  console.log('Session UUID:', session?.user?.uuid);
+  console.log("authOptions:", authOptions);
+  console.log("Session:", session);
+  console.log("Session UUID:", session?.user?.uuid);
 
   if (!session?.user?.uuid) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   // Debug: log OAuth client credentials
-  console.log('DEBUG: GOOGLE_CALENDAR_CLIENT_ID =', CLIENT_ID);
-  console.log('DEBUG: GOOGLE_CALENDAR_CLIENT_SECRET =', CLIENT_SECRET ? 'SET' : 'NOT SET');
+  console.log("DEBUG: GOOGLE_CALENDAR_CLIENT_ID =", CLIENT_ID);
+  console.log(
+    "DEBUG: GOOGLE_CALENDAR_CLIENT_SECRET =",
+    CLIENT_SECRET ? "SET" : "NOT SET",
+  );
 
-  // Compute redirect URI: use env var or default to <origin>/api/google/callback
+  // Compute redirect URI: use env var or default to <baseUrl>/api/google/callback
   const requestUrl = new URL(req.url);
   const origin = requestUrl.origin;
-  const redirectUri = ENV_REDIRECT_URI || `${origin}/api/google/callback`;
+  const baseUrl = process.env.NEXTAUTH_URL || origin;
+  const redirectUri = ENV_REDIRECT_URI || `${baseUrl}/api/google/callback`;
   if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error('Missing Google OAuth client ID/secret env vars');
+    console.error("Missing Google OAuth client ID/secret env vars");
   }
-  console.log('Using redirect URI:', redirectUri);
+  console.log("Using redirect URI:", redirectUri);
   const oauth2Client = new google.auth.OAuth2(
     CLIENT_ID,
     CLIENT_SECRET,
-    redirectUri
+    redirectUri,
   );
 
   const authUrl = oauth2Client.generateAuthUrl({

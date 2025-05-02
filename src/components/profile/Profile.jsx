@@ -44,7 +44,7 @@ const Profile = ({ session, signOut }) => {
           </div>
         </>
       )}
-      <RefreshGCalButton/>
+      <RefreshGCalButton />
       <SyncButton onSync={setSyncResult} />
       <Button text="Sign Out" onClick={signOut} />
     </div>
