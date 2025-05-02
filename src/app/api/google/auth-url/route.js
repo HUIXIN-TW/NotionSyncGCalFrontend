@@ -2,8 +2,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { google } from "googleapis";
 
-const CLIENT_ID = process.env.GOOGLE_CALENDAR_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_CALENDAR_CLIENT_SECRET;
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const ENV_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
@@ -21,9 +21,9 @@ export async function GET(req) {
   }
 
   // Debug: log OAuth client credentials
-  console.log("DEBUG: GOOGLE_CALENDAR_CLIENT_ID =", CLIENT_ID);
+  console.log("DEBUG: GOOGLE_CLIENT_ID =", CLIENT_ID);
   console.log(
-    "DEBUG: GOOGLE_CALENDAR_CLIENT_SECRET =",
+    "DEBUG: GOOGLE_CLIENT_SECRET =",
     CLIENT_SECRET ? "SET" : "NOT SET",
   );
 

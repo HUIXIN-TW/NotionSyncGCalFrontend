@@ -1,7 +1,7 @@
 import { getToken } from "next-auth/jwt";
 
-const url = process.env.MY_APP_AWS_LAMBDA_URL;
-const apiKey = process.env.MY_APP_AWS_LAMBDA_API_KEY;
+const url = process.env.LAMBDA_URL;
+const apiKey = process.env.LAMBDA_API_KEY;
 
 export async function POST(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

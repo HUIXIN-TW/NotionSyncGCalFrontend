@@ -4,8 +4,8 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 import { google } from "googleapis";
 import { uploadGoogleTokens } from "@utils/s3-client";
 
-const CALENDAR_CLIENT_ID = process.env.GOOGLE_CALENDAR_CLIENT_ID;
-const CALENDAR_CLIENT_SECRET = process.env.GOOGLE_CALENDAR_CLIENT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 export async function GET(req) {
   const url = new URL(req.url);
@@ -36,8 +36,8 @@ export async function GET(req) {
     process.env.GOOGLE_REDIRECT_URI || `${baseUrl}/api/google/callback`;
   console.log("Callback using redirect URI:", callbackUri);
   const oauth2Client = new google.auth.OAuth2(
-    CALENDAR_CLIENT_ID,
-    CALENDAR_CLIENT_SECRET,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET,
     callbackUri,
   );
 

@@ -13,8 +13,8 @@ const S3_KEY = process.env.S3_KEY;
 // Add Google OAuth configuration defaults
 const GOOGLE_TOKEN_URL =
   process.env.GOOGLE_TOKEN_URL || "https://oauth2.googleapis.com/token";
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CALENDAR_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CALENDAR_CLIENT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 /**
  * Upload Google OAuth tokens JSON to S3 under the user's folder
