@@ -28,7 +28,7 @@ export async function uploadGoogleTokens(userId, tokens) {
   const payload = {
     token: tokens.access_token,
     refresh_token: tokens.refresh_token,
-    token_url: GOOGLE_TOKEN_URL,
+    token_uri: GOOGLE_TOKEN_URL,
     client_id: GOOGLE_CLIENT_ID,
     client_secret: GOOGLE_CLIENT_SECRET,
     expiry: tokens.expiry_date,
