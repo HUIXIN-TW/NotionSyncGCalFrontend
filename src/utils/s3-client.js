@@ -31,7 +31,7 @@ export async function uploadGoogleTokens(userId, tokens) {
     token_uri: GOOGLE_TOKEN_URL,
     client_id: GOOGLE_CLIENT_ID,
     client_secret: GOOGLE_CLIENT_SECRET,
-    expiry: tokens.expiry_date,
+    expiry: new Date(tokens.expiry_date).toISOString(),
     scopes: [tokens.scope],
   };
   console.log("Payload:", payload);
