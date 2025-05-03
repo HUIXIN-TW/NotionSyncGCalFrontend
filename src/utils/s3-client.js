@@ -2,6 +2,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
 } from "@aws-sdk/client-s3";
 import parseDatetimeFormat from "./parse-datetime";
 
@@ -85,24 +86,47 @@ export async function uploadNotionConfig(userId, config) {
  * @returns {object} - Parsed config object
  */
 export async function getNotionConfig(userId) {
+  if (!S3_NOTION_KEY) {
+    throw new Error("Missing S3_NOTION_KEY environment variable");
+  }
+  console.log("Retrieving Notion config from S3 for user:", userId);
   const user_key = `${userId}/${S3_NOTION_KEY}`;
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
   });
   const response = await s3Client.send(command);
-  const body = await streamToString(response.Body);
-  const payload = {
-    goback_days: body.goback_days,
-    goforward_days: body.goforward_days,
-    notion_token: "secret_**********************",
-    urlroot: body.urlroot,
-    timecode: body.timecode,
-    timezone: body.timezone,
-    default_event_length: body.default_event_length,
-    default_start_time: body.default_start_time,
-    gcal_dic: body.gcal_dic,
-    page_property: body.page_property,
-  };
-  return JSON.parse(payload);
+  const bodyString = await streamToString(response.Body);
+  const parsed = JSON.parse(bodyString);
+  parsed.notion_token = "secret_**********************";
+  console.log("Loaded config:", parsed);
+  return parsed;
+}
+
+/**
+ * Check the last modified timestamp of a user's Notion config in S3
+ * @param {string} userId - UUID of the user
+ * @returns {Date|null} - LastModified timestamp or null if not found
+ */
+export async function getConfigLastModified(userId) {
+  if (!S3_NOTION_KEY) {
+    throw new Error("Missing S3_NOTION_KEY environment variable");
+  }
+
+  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  const command = new HeadObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: user_key,
+  });
+
+  try {
+    const response = await s3Client.send(command);
+    return response.LastModified || null; // this is a Date object
+  } catch (err) {
+    if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) {
+      return null;
+    }
+    console.error("Failed to get last modified:", err);
+    throw err;
+  }
 }

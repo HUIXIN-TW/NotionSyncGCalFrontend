@@ -7,35 +7,54 @@ export async function POST(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
+    return new Response(
+      JSON.stringify({
+        type: "auth error",
+        message: "Unauthorized",
+        needRefresh: false,
+      }),
+      { status: 401 },
+    );
   }
 
   if (!url || !apiKey) {
     console.error("Missing Lambda URL or API Key");
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        type: "config error",
+        message: "Missing Lambda config",
+        needRefresh: false,
+      }),
+      { status: 500 },
+    );
   }
 
   let uuid;
-
   try {
     const body = await req.json();
     uuid = body.uuid;
   } catch (error) {
     console.error("Failed to parse request body:", error);
-    return new Response(JSON.stringify({ error: "Invalid request body" }), {
-      status: 400,
-    });
+    return new Response(
+      JSON.stringify({
+        type: "parse error",
+        message: "Invalid request body",
+        needRefresh: false,
+      }),
+      { status: 400 },
+    );
   }
 
   if (!uuid || uuid !== token.uuid) {
     console.warn(`UUID mismatch: received=${uuid}, expected=${token.uuid}`);
-    return new Response(JSON.stringify({ error: "Forbidden: UUID mismatch" }), {
-      status: 403,
-    });
+    return new Response(
+      JSON.stringify({
+        type: "auth error",
+        message: "UUID mismatch",
+        needRefresh: false,
+      }),
+      { status: 403 },
+    );
   }
 
   const timestamp = new Date().toISOString();
@@ -47,10 +66,7 @@ export async function POST(req) {
         "Content-Type": "application/json",
         "x-api-key": apiKey,
       },
-      body: JSON.stringify({
-        uuid,
-        timestamp,
-      }),
+      body: JSON.stringify({ uuid, timestamp }),
     });
 
     const text = await response.text();
@@ -58,23 +74,41 @@ export async function POST(req) {
     try {
       result = JSON.parse(text);
     } catch {
-      result = { raw: text }; // fallback if not JSON
+      result = { raw: text };
     }
 
     if (!response.ok) {
       console.error("Lambda returned error:", result);
+      const needRefresh = result.message?.includes("invalid_grant") ?? false;
       return new Response(
-        JSON.stringify({ error: result.error || "Lambda sync failed" }),
-        { status: response.status },
+        JSON.stringify({
+          type: "sync error",
+          message: result.message || "Lambda sync failed",
+          needRefresh,
+        }),
+        { status: 500 },
       );
     }
 
     console.log(`User ${uuid} synced successfully at ${timestamp}`);
-    return new Response(JSON.stringify(result), { status: 200 });
+    return new Response(
+      JSON.stringify({
+        type: "success",
+        message: "Sync successful",
+        needRefresh: false,
+        ...result, // include Lambda details if any
+      }),
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Failed to call Lambda:", error?.message || error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        type: "network error",
+        message: "Internal Server Error",
+        needRefresh: false,
+      }),
+      { status: 500 },
+    );
   }
 }

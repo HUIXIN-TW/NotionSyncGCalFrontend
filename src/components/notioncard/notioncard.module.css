@@ -1,0 +1,102 @@
+/* ---------- Notion Card Container ---------- */
+.notioncard_container {
+  background: #f8f9fa; /* Soft light gray background */
+  border-radius: 20px; /* Rounded corners for a modern look */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle depth shadow */
+  padding: 40px; /* Spacious inner padding */
+  width: 50vw; /* Take up 50% of viewport width */
+  height: 80vh; /* Max height to avoid overflow */
+  margin: auto; /* Center the card horizontally */
+  display: flex; /* Use flexbox for vertical stacking */
+  flex-direction: column;
+  gap: 20px; /* Spacing between content blocks */
+  overflow-y: auto; /* Scroll vertically if content overflows */
+  word-wrap: break-word; /* Wrap long words */
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* ---------- Top-Level Key-Value Rows ---------- */
+.notioncard_row {
+  display: grid;
+  grid-template-columns: 30% 70%; /* 30% for label, 70% for value */
+  align-items: start; /* Align to top of each cell */
+  gap: 1rem; /* Gap between columns */
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee; /* Light separator */
+}
+
+/* ---------- Key Label Styles ---------- */
+.notioncard_key {
+  font-size: 16px;
+  color: #343a40; /* Dark gray for emphasis */
+}
+
+/* ---------- Value Display and Input Field ---------- */
+.notioncard_value {
+  font-size: 0.95rem;
+  color: #495057; /* Softer dark gray */
+  word-break: break-word;
+  width: 100%; /* Take up full grid column */
+  padding: 0.5rem;
+}
+
+.input {
+  font-size: 0.95rem;
+  word-break: break-word;
+  width: 100%; /* Take up full grid column */
+  padding: 0.5rem;
+  border: 1px solid #ccc; /* Light border for inputs */
+  border-radius: 6px;
+  box-sizing: border-box; /* Include padding in width */
+  display: block;
+}
+
+/* ---------- Section for Nested Config Lists ---------- */
+.nested_list {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Nested Rows for Calendar or Property Mapping ---------- */
+.nested_row {
+  display: grid;
+  grid-template-columns: 30% 70%; /* Maintain the same 30/70 layout */
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+}
+
+/* ---------- Nested Key Styling ---------- */
+.nested_key {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #343a40;
+  word-break: break-word;
+}
+
+/* ---------- Nested Value Styling (inherits shared input styles) ---------- */
+.nested_value,
+.input {
+  font-size: 0.9rem;
+  color: #495057;
+  word-break: break-word;
+}
+
+.note {
+  font-size: 0.8rem;
+  color: #6c757d; /* Muted gray for notes */
+}
+
+/* ---------- Responsive: Stack columns on small screens ---------- */
+@media (max-width: 600px) {
+  .notioncard_row,
+  .nested_row {
+    grid-template-columns: 1fr; /* Stack label and value vertically */
+  }
+
+  .notioncard_container {
+    padding: 10px;
+  }
+}
