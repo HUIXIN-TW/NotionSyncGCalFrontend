@@ -98,7 +98,6 @@ export async function getNotionConfig(userId) {
   const response = await s3Client.send(command);
   const bodyString = await streamToString(response.Body);
   const parsed = JSON.parse(bodyString);
-  parsed.notion_token = "secret_**********************";
   console.log("Loaded config:", parsed);
   return parsed;
 }
