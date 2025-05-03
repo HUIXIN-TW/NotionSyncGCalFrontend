@@ -1,4 +1,8 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 import parseDatetimeFormat from "./parse-datetime";
 
 const s3Client = new S3Client({
@@ -89,16 +93,16 @@ export async function getNotionConfig(userId) {
   const response = await s3Client.send(command);
   const body = await streamToString(response.Body);
   const payload = {
-    "goback_days": body.goback_days,
-    "goforward_days": body.goforward_days,
-    "notion_token": "secret_**********************",
-    "urlroot": body.urlroot,
-    "timecode": body.timecode,
-    "timezone": body.timezone,
-    "default_event_length": body.default_event_length,
-    "default_start_time": body.default_start_time,
-    "gcal_dic": body.gcal_dic,
-    "page_property": body.page_property
-  }
+    goback_days: body.goback_days,
+    goforward_days: body.goforward_days,
+    notion_token: "secret_**********************",
+    urlroot: body.urlroot,
+    timecode: body.timecode,
+    timezone: body.timezone,
+    default_event_length: body.default_event_length,
+    default_start_time: body.default_start_time,
+    gcal_dic: body.gcal_dic,
+    page_property: body.page_property,
+  };
   return JSON.parse(payload);
 }
