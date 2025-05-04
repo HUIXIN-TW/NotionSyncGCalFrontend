@@ -37,3 +37,18 @@ body {
   border-radius: 30px;
   text-align: center;
 }
+
+@media (max-width: 480px) {
+  .home {
+    padding: 20px;
+  }
+
+  .welcome {
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+  }
+}

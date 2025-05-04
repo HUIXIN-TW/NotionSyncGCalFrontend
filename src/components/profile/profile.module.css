@@ -47,3 +47,26 @@
   }
   transition: box-shadow 0.3s;
 }
+
+@media (max-width: 480px) {
+  .profile_container {
+    padding: 20px;
+    width: 95vw; /* Full width on small screens */
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  .profile_detail {
+    font-size: 14px;
+  }
+
+  .profile_image {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile_default_image {
+    width: 120px;
+    height: 120px;
+  }
+}

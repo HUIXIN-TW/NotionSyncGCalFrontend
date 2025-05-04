@@ -90,13 +90,14 @@
 }
 
 /* ---------- Responsive: Stack columns on small screens ---------- */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .notioncard_row,
   .nested_row {
     grid-template-columns: 1fr; /* Stack label and value vertically */
   }
 
   .notioncard_container {
-    padding: 10px;
+    width: 95vw; /* Full width on small screens */
+    padding: 20px;
   }
 }

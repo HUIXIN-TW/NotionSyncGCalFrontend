@@ -25,3 +25,10 @@
   margin-top: 10px;
   color: red;
 }
+
+@media (max-width: 480px) {
+  .sign_in_form,
+  .sign_up_form {
+    margin: 30px;
+  }
+}
