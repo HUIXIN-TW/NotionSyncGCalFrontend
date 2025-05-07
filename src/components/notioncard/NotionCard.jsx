@@ -277,9 +277,7 @@ const NotionCard = ({ session }) => {
               />
             ) : (
               <span className={styles.notioncard_value}>
-                {key === "notion_token"
-                  ? "*".repeat(16)
-                  : value}
+                {key === "notion_token" ? "*".repeat(16) : value}
               </span>
             )}
           </div>

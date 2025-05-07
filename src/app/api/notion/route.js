@@ -18,7 +18,7 @@ export async function GET(req) {
         type: "unauthorized",
         message: "Unauthorized",
       }),
-      { status: 401 },
+      { status: 401 }
     );
   }
 
@@ -33,7 +33,7 @@ export async function GET(req) {
         config,
         lastModified: lastModified?.toISOString() ?? null,
       }),
-      { status: 200 },
+      { status: 200 }
     );
   } catch (err) {
     console.error("Error loading config or metadata from S3:", err);
@@ -42,7 +42,7 @@ export async function GET(req) {
         type: "error",
         message: "Failed to load config",
       }),
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -57,7 +57,7 @@ export async function POST(req) {
         type: "unauthorized",
         message: "Unauthorized",
       }),
-      { status: 401 },
+      { status: 401 }
     );
   }
 
@@ -70,7 +70,7 @@ export async function POST(req) {
         type: "error",
         message: "Invalid JSON payload",
       }),
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -80,7 +80,18 @@ export async function POST(req) {
         type: "error",
         message: "Invalid config format",
       }),
-      { status: 400 },
+      { status: 400 }
+    );
+  }
+
+  // Basic validation of required fields
+  if (!incomingConfig.notion_token || !incomingConfig.urlroot) {
+    return new Response(
+      JSON.stringify({
+        type: "error",
+        message: "Missing required config fields: notion_token or urlroot",
+      }),
+      { status: 400 }
     );
   }
 
@@ -93,52 +104,52 @@ export async function POST(req) {
       existingConfig = await getNotionConfig(uuid);
     } catch (err) {
       console.warn("No existing config found, proceeding with new upload.");
+      console.error("Failed to load existing config:", err);
     }
 
+    // Preserve masked token (minimum 6 asterisks)
     if (
-      incomingConfig.notion_token?.startsWith("secret_") &&
-      /^[\*]+$/.test(incomingConfig.notion_token.slice(7)) &&
+      /^[\*]{6,}$/.test(incomingConfig.notion_token) &&
       existingConfig.notion_token
     ) {
+      mergedConfig.notion_token = existingConfig.notion_token;
       if (!isProd) {
         console.log("Masked token detected, preserving original token.");
         console.log("Incoming (masked):", incomingConfig.notion_token);
         console.log("Replacing with:", existingConfig.notion_token);
       }
-      mergedConfig.notion_token = existingConfig.notion_token;
     }
 
+    // Throttle protection if lastModified exists
     const lastModified = await getConfigLastModified(uuid);
-    if (!lastModified) {
-      return new Response(
-        JSON.stringify({
-          type: "error",
-          message: "Missing last modified timestamp",
-        }),
-        { status: 403 },
-      );
+    if (lastModified) {
+      const timeGap = Date.now() - new Date(lastModified).getTime();
+      const waitMinutes = Math.ceil((THROTTLE_MS - timeGap) / (1000 * 60));
+      if (isProd && timeGap < THROTTLE_MS) {
+        console.log(`[UPLOAD BLOCKED] User: ${uuid}, Time Gap: ${timeGap}ms`);
+        return new Response(
+          JSON.stringify({
+            type: "throttle error",
+            message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
+          }),
+          { status: 429 }
+        );
+      }
+    } else {
+      console.log("No previous config timestamp — skipping throttle check.");
     }
 
-    const timeGap = Date.now() - new Date(lastModified).getTime();
-    const waitMinutes = Math.ceil((THROTTLE_MS - timeGap) / (1000 * 60));
-    if (isProd && timeGap < THROTTLE_MS) {
-      console.log(`[UPLOAD BLOCKED] User: ${uuid}, Time Gap: ${timeGap}ms`);
-      return new Response(
-        JSON.stringify({
-          type: "throttle error",
-          message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
-        }),
-        { status: 429 },
-      );
+    if (!isProd) {
+      console.log("Merged config to upload:", mergedConfig);
     }
   } catch (err) {
-    console.error("Failed to check last modified timestamp:", err);
+    console.error("Failed to validate upload frequency:", err);
     return new Response(
       JSON.stringify({
         type: "error",
         message: "Failed to validate upload frequency",
       }),
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -148,8 +159,9 @@ export async function POST(req) {
       JSON.stringify({
         type: "success",
         message: "Uploaded successfully",
+        uuid,
       }),
-      { status: 200 },
+      { status: 200 }
     );
   } catch (err) {
     console.error("Failed to upload config:", err);
@@ -158,7 +170,7 @@ export async function POST(req) {
         type: "error",
         message: "Upload to S3 failed",
       }),
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
