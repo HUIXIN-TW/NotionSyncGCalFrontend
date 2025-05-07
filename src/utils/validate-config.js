@@ -51,16 +51,22 @@ export default function validateConfig(config) {
     !Array.isArray(config.gcal_dic) ||
     config.gcal_dic.some((item) => typeof item !== "object")
   ) {
-    errors.push("Google Calendar Mapping must be an array of key-value objects");
+    errors.push(
+      "Google Calendar Mapping must be an array of key-value objects",
+    );
   } else {
     config.gcal_dic.forEach((item, index) => {
       const entries = Object.entries(item);
       if (entries.length !== 1) {
-        errors.push(`Google Calendar Mapping: row ${index + 1} must have exactly one key-value pair`);
+        errors.push(
+          `Google Calendar Mapping: row ${index + 1} must have exactly one key-value pair`,
+        );
       } else {
         const [k, v] = entries[0];
         if (!k || !v) {
-          errors.push(`Google Calendar Mapping: row ${index + 1} must have non-empty key and value`);
+          errors.push(
+            `Google Calendar Mapping: row ${index + 1} must have non-empty key and value`,
+          );
         }
       }
     });
@@ -75,11 +81,15 @@ export default function validateConfig(config) {
     config.page_property.forEach((item, index) => {
       const entries = Object.entries(item);
       if (entries.length !== 12) {
-        errors.push(`Page Property Mapping: row ${index + 1} must have exactly one key-value pair`);
+        errors.push(
+          `Page Property Mapping: row ${index + 1} must have exactly one key-value pair`,
+        );
       } else {
         const [k, v] = entries[0];
         if (!k || !v) {
-          errors.push(`Page Property Mapping: row ${index + 1} must have non-empty key and value`);
+          errors.push(
+            `Page Property Mapping: row ${index + 1} must have non-empty key and value`,
+          );
         }
       }
     });
