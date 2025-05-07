@@ -144,6 +144,7 @@ const NotionCard = ({ session }) => {
       localStorage.setItem("notionConfigFetchedAt", now);
       setLastFetchedAt(new Date(now).toLocaleString());
     } else {
+      setShowFetchButton(true);
       alert("Failed to save.");
     }
   };
@@ -276,8 +277,8 @@ const NotionCard = ({ session }) => {
               />
             ) : (
               <span className={styles.notioncard_value}>
-                {key === "notion_token" && value.startsWith("secret_")
-                  ? "secret_" + "*".repeat(16)
+                {key === "notion_token"
+                  ? "*".repeat(16)
                   : value}
               </span>
             )}
