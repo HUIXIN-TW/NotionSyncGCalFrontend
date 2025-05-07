@@ -52,6 +52,16 @@
   display: block;
 }
 
+.input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
 /* ---------- Section for Nested Config Lists ---------- */
 .nested_list {
   margin-top: 0.5rem;
@@ -77,8 +87,7 @@
 }
 
 /* ---------- Nested Value Styling (inherits shared input styles) ---------- */
-.nested_value,
-.input {
+.nested_value {
   font-size: 0.9rem;
   color: #495057;
   word-break: break-word;
