@@ -26,18 +26,17 @@ export default function validateConfig(config) {
     }
   });
 
-  // Validate notion_token
-  if (!config.notion_token?.startsWith("secret_")) {
-    errors.push("notion_token must start with 'secret_'");
-  }
+  // Validate notion_token: new secret has no "secret_" prefix
+  // if (!config.notion_token?.startsWith("secret_")) {
+  //   errors.push("notion_token must start with 'secret_'");
+  // }
 
   // Validate urlroot format
   if (
-    !config.urlroot?.startsWith(notionUrlRootPrefix) ||
-    !config.urlroot?.endsWith(notionUrlRootSuffix)
+    !config.urlroot?.startsWith(notionUrlRootPrefix)
   ) {
     errors.push(
-      "urlroot must start with 'https://www.notion.so/' and end with '&p='",
+      "urlroot must start with 'https://www.notion.so/'",
     );
   }
 
