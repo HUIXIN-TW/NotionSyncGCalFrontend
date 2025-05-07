@@ -79,7 +79,12 @@ export async function POST(req) {
 
     if (!response.ok) {
       console.error("Lambda returned error:", result);
-      const needRefresh = result.message?.includes("invalid_grant") ?? false;
+      const needRefresh =
+        result.message?.includes("invalid_grant") ||
+        !result.expiry_date ||
+        result.expiry_date === "" ||
+        false;
+
       return new Response(
         JSON.stringify({
           type: "sync error",

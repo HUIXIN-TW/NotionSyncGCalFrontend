@@ -32,12 +32,8 @@ export default function validateConfig(config) {
   // }
 
   // Validate urlroot format
-  if (
-    !config.urlroot?.startsWith(notionUrlRootPrefix)
-  ) {
-    errors.push(
-      "urlroot must start with 'https://www.notion.so/'",
-    );
+  if (!config.urlroot?.startsWith(notionUrlRootPrefix)) {
+    errors.push("urlroot must start with 'https://www.notion.so/'");
   }
 
   // Validate timecode format
