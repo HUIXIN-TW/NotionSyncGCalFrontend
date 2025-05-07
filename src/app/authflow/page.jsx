@@ -31,7 +31,11 @@ const AuthFlow = () => {
         <>
           {isSignUpActive ? <SignUpForm /> : <SignInForm />}
           <Button
-            text={isSignUpActive ? "Already have an account? Sign In" : "New here? Sign Up"}
+            text={
+              isSignUpActive
+                ? "Already have an account? Sign In"
+                : "New here? Sign Up"
+            }
             type="button"
             onClick={toggleForm}
             className="outline_btn"
@@ -66,7 +70,9 @@ const AuthFlow = () => {
                 }`}
               >
                 <h1>Welcome Back!</h1>
-                <p>Enter your personal details and start your journey with us</p>
+                <p>
+                  Enter your personal details and start your journey with us
+                </p>
                 <Button text="Sign In" type="button" className="outline_btn" />
               </div>
               <div className={`${styles.toggle_panel} ${styles.toggle_right}`}>

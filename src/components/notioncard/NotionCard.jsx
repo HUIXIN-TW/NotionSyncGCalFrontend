@@ -291,7 +291,16 @@ const NotionCard = ({ session }) => {
       {lastModifiedAt && (
         <div className={styles.note}>Last modified in S3: {lastModifiedAt}</div>
       )}
-
+      <div className={styles.note}>
+        Don’t have a Notion page yet? You can use this template:{" "}
+        <a
+          href="https://www.notion.so/huixinyang/aa639e48cfee4216976756f33cf57c8e?v=6db9353f3bc54029807c539ffc3dfdb4"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Notion Template
+        </a>
+      </div>
       {!editMode ? (
         <>
           <Button text="Edit" onClick={handleEditClick} />
