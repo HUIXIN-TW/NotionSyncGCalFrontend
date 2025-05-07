@@ -72,7 +72,7 @@
 /* ---------- Nested Rows for Calendar or Property Mapping ---------- */
 .nested_row {
   display: grid;
-  grid-template-columns: 30% 70%; /* Maintain the same 30/70 layout */
+  grid-template-columns: 30% 60% 10%; /* Maintain the same 30/60/10 layout */
   align-items: center;
   gap: 0.75rem;
   padding: 0.3rem 0;

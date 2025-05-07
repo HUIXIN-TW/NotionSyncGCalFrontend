@@ -119,9 +119,7 @@ const NotionCard = ({ session }) => {
   const handleSaveClick = async () => {
     setLoading(true);
     const errors = validateConfig(editableConfig);
-    if (!isProd) {
-      console.log("Editable config:", editableConfig);
-    }
+    if (!isProd) console.log("Editable config:", editableConfig);
     if (errors.length > 0) {
       alert("Validation failed:\n\n" + errors.join("\n"));
       setLoading(false);
@@ -164,6 +162,21 @@ const NotionCard = ({ session }) => {
 
         // Handle nested objects
         if (key === "gcal_dic" || key === "page_property") {
+          const handleAdd = () => {
+            setEditableConfig((prev) => ({
+              ...prev,
+              [key]: [...prev[key], { "": "" }],
+            }));
+          };
+
+          const handleDelete = (index) => {
+            setEditableConfig((prev) => {
+              const updatedList = [...prev[key]];
+              updatedList.splice(index, 1);
+              return { ...prev, [key]: updatedList };
+            });
+          };
+
           return (
             <div key={key} className={styles.section_block}>
               <h4 className={styles.section_title}>{label}</h4>
@@ -206,6 +219,10 @@ const NotionCard = ({ session }) => {
                               }}
                               className={styles.input}
                             />
+                            <Button
+                              text="🗑️"
+                              onClick={() => handleDelete(index)}
+                            />
                           </>
                         ) : editMode && key === "page_property" ? (
                           <>
@@ -239,6 +256,9 @@ const NotionCard = ({ session }) => {
                   </div>
                 ))}
               </div>
+              {editMode && key === "gcal_dic" && (
+                <Button onClick={handleAdd} text={`➕ Add ${label}`} />
+              )}
             </div>
           );
         }
@@ -300,6 +320,7 @@ const NotionCard = ({ session }) => {
           Notion Template
         </a>
       </div>
+
       {!editMode ? (
         <>
           <Button text="Edit" onClick={handleEditClick} />

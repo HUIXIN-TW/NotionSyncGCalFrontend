@@ -18,7 +18,7 @@ export async function GET(req) {
         type: "unauthorized",
         message: "Unauthorized",
       }),
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -33,7 +33,7 @@ export async function GET(req) {
         config,
         lastModified: lastModified?.toISOString() ?? null,
       }),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.error("Error loading config or metadata from S3:", err);
@@ -42,7 +42,7 @@ export async function GET(req) {
         type: "error",
         message: "Failed to load config",
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -57,7 +57,7 @@ export async function POST(req) {
         type: "unauthorized",
         message: "Unauthorized",
       }),
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -70,7 +70,7 @@ export async function POST(req) {
         type: "error",
         message: "Invalid JSON payload",
       }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -80,7 +80,7 @@ export async function POST(req) {
         type: "error",
         message: "Invalid config format",
       }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -91,7 +91,7 @@ export async function POST(req) {
         type: "error",
         message: "Missing required config fields: notion_token or urlroot",
       }),
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -132,7 +132,7 @@ export async function POST(req) {
             type: "throttle error",
             message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
           }),
-          { status: 429 }
+          { status: 429 },
         );
       }
     } else {
@@ -149,7 +149,7 @@ export async function POST(req) {
         type: "error",
         message: "Failed to validate upload frequency",
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -161,7 +161,7 @@ export async function POST(req) {
         message: "Uploaded successfully",
         uuid,
       }),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     console.error("Failed to upload config:", err);
@@ -170,7 +170,7 @@ export async function POST(req) {
         type: "error",
         message: "Upload to S3 failed",
       }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
