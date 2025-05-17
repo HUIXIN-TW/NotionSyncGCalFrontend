@@ -48,6 +48,27 @@
   transition: box-shadow 0.3s;
 }
 
+.support_section {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.note {
+  display: block;
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.profile_bmac_button img {
+  transition: transform 0.2s ease;
+}
+
+.profile_bmac_button img:hover {
+  transform: scale(1.04);
+}
+
 @media (max-width: 480px) {
   .profile_container {
     padding: 20px;

@@ -174,6 +174,29 @@ const Profile = ({ session, signOut }) => {
       />
 
       <Button text="Sign Out" onClick={signOut} />
+      <div className={styles.support_section}>
+        <span className={styles.note}>
+          Enjoying NotionSyncGCal? Support me:
+        </span>
+        <a
+          href="https://buymeacoffee.com/huixinyang"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.profile_bmac_button}
+        >
+          <img
+            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+            alt="Buy Me a Coffee"
+            style={{
+              height: "36px",
+              width: "130px",
+              marginTop: "0.25rem",
+              borderRadius: "6px",
+              boxShadow: "0 0 4px rgba(0,0,0,0.1)",
+            }}
+          />
+        </a>
+      </div>
     </div>
   );
 };
