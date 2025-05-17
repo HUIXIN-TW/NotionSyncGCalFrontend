@@ -161,7 +161,7 @@ const Profile = ({ session, signOut }) => {
 
       {!isRegistered && (
         <p className={styles.beta_note}>
-          🔐 Beta version: {" "}
+          🔐 Beta version:{" "}
           <a
             href="https://tally.so/r/wQyDK1"
             target="_blank"

@@ -1,6 +1,7 @@
 "use client";
 
 import Button from "@components/button/Button";
+import MediaPreview from "@components/mediapreview/MediaPreview";
 import { useRouter } from "next/navigation";
 
 const Home = () => {
@@ -18,6 +19,7 @@ const Home = () => {
           }}
         ></Button>
       </div>
+      <MediaPreview medianame="NotionSyncGCal_Web.gif" />
     </div>
   );
 };
