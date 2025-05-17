@@ -69,6 +69,19 @@
   transform: scale(1.04);
 }
 
+.beta_note {
+  font-size: 0.8rem;
+  margin-top: 1rem;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.beta_note a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .profile_container {
     padding: 20px;

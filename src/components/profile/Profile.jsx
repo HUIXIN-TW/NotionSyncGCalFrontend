@@ -15,6 +15,7 @@ const Profile = ({ session, signOut }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState(null);
   const [syncCooldownUntil, setSyncCooldownUntil] = useState(null);
+  const registeredUUIDs = JSON.parse(process.env.REGISTER_USER || "[]");
 
   // Load saved cooldown from localStorage on mount
   useEffect(() => {
@@ -70,6 +71,7 @@ const Profile = ({ session, signOut }) => {
   }
 
   const { email, uuid, username } = session.user;
+  const isRegistered = registeredUUIDs.includes(uuid);
 
   const syncDisabled = syncCooldownUntil && now < syncCooldownUntil;
 
@@ -155,6 +157,19 @@ const Profile = ({ session, signOut }) => {
             {syncResult.message}
           </div>
         </>
+      )}
+
+      {!isRegistered && (
+        <p className={styles.beta_note}>
+          🔐 Beta version: {" "}
+          <a
+            href="https://tally.so/r/wQyDK1"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Need to register UUID
+          </a>
+        </p>
       )}
 
       <GetNotionConfigButton />
