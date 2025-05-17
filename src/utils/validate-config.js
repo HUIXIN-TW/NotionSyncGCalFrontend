@@ -57,9 +57,9 @@ export default function validateConfig(config) {
   } else {
     config.gcal_dic.forEach((item, index) => {
       const entries = Object.entries(item);
-      if (entries.length !== 1) {
+      if (entries.length < 1) {
         errors.push(
-          `Google Calendar Mapping: row ${index + 1} must have exactly one key-value pair`,
+          `Google Calendar Mapping: row ${index + 1} must have at least one key-value pair`,
         );
       } else {
         const [k, v] = entries[0];
