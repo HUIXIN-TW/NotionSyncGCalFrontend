@@ -163,7 +163,7 @@ const Profile = ({ session, signOut }) => {
         <p className={styles.beta_note}>
           🔐 Beta version:{" "}
           <a
-            href="https://tally.so/r/wQyDK1"
+            href="https://huixinyang.notion.site/1f66d1a62de481c6bb59d246e450f682?pvs=105"
             target="_blank"
             rel="noopener noreferrer"
           >
