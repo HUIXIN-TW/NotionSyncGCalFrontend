@@ -74,7 +74,6 @@ yarn dev
 This project uses AWS DynamoDB instead of MongoDB. Follow these steps to set up your DynamoDB environment:
 
 1. Create a DynamoDB table named `Users` with the following configuration:
-
    - Partition key: `uuid` (String)
    - Sort key: None (optional)
 
