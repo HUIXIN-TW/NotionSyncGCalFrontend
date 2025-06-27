@@ -19,7 +19,6 @@ const Home = () => {
           }}
         ></Button>
       </div>
-      <MediaPreview medianame="NotionSyncGCal_Web.gif" />
     </div>
   );
 };

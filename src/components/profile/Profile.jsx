@@ -7,7 +7,7 @@ import SyncButton from "@components/button/SyncButton";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
 
-const isProd = true; //process.env.NODE_ENV === "production";
+const isProd = process.env.NODE_ENV === "production";
 
 const Profile = ({ session, signOut }) => {
   const [now, setNow] = useState(Date.now());
@@ -137,39 +137,32 @@ const Profile = ({ session, signOut }) => {
           />
         )}
       </div>
-      <div className={styles.profile_detail}>
-        <span className={styles.profile_label}>UUID:</span> {uuid}
-      </div>
-      <div className={styles.profile_detail}>
-        <span className={styles.profile_label}>Email:</span> {email}
-      </div>
-      <div className={styles.profile_detail}>
-        <span className={styles.profile_label}>Name:</span> {username}
-      </div>
-      {syncResult && (
+      {!isProd && (
         <>
           <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Type:</span>{" "}
-            {syncResult.type}
+            <span className={styles.profile_label}>UUID:</span> {uuid}
           </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Email:</span> {email}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Name:</span> {username}
+          </div>
+        </>
+      )}
+      {syncResult && (
+        <>
+          {!isProd && (
+            <div className={styles.profile_detail}>
+              <span className={styles.profile_label}>Type:</span>{" "}
+              {syncResult.type}
+            </div>
+          )}
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Message:</span>{" "}
             {syncResult.message}
           </div>
         </>
-      )}
-
-      {!isRegistered && (
-        <p className={styles.beta_note}>
-          🔐 Beta version:{" "}
-          <a
-            href="https://huixinyang.notion.site/1f66d1a62de481c6bb59d246e450f682"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Need to register UUID
-          </a>
-        </p>
       )}
 
       <GetNotionConfigButton />
@@ -185,11 +178,24 @@ const Profile = ({ session, signOut }) => {
         }
         onSync={handleSync}
         disabled={syncDisabled || isSyncing}
-        className={syncDisabled ? "cooldown_disabled" : ""}
+        className={syncDisabled && isProd ? "cooldown_disabled" : ""}
       />
 
       <Button text="Sign Out" onClick={signOut} />
+
       <div className={styles.support_section}>
+        {!isRegistered && (
+          <span className={styles.note}>
+            Beta Version:{" "}
+            <a
+              href="https://huixinyang.notion.site/1f66d1a62de481c6bb59d246e450f682"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Need To Register As A User
+            </a>
+          </span>
+        )}
         <span className={styles.note}>
           Enjoying NotionSyncGCal? Support me:
         </span>
