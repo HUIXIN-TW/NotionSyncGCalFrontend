@@ -8,6 +8,7 @@ import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
 
 const isProd = process.env.NODE_ENV === "production";
+const envName = process.env.NODE_ENV
 
 const Profile = ({ session, signOut }) => {
   const [now, setNow] = useState(Date.now());
@@ -15,7 +16,7 @@ const Profile = ({ session, signOut }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState(null);
   const [syncCooldownUntil, setSyncCooldownUntil] = useState(null);
-  const registeredUUIDs = JSON.parse(process.env.REGISTER_USER || "[]");
+  const registeredUUIDs = JSON.parse(process.env.NEXT_PUBLIC_REGISTER_USER || "[]");
 
   // Load saved cooldown from localStorage on mount
   useEffect(() => {
@@ -147,6 +148,15 @@ const Profile = ({ session, signOut }) => {
           </div>
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Name:</span> {username}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Registered User List:</span> {registeredUUIDs}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>isRegistered:</span> {String(isRegistered)}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Environment:</span> {envName}
           </div>
         </>
       )}
