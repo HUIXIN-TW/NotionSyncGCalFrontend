@@ -176,6 +176,9 @@ const Profile = ({ session, signOut }) => {
             <span className={styles.profile_label}>Message:</span>{" "}
             {syncResult.message}
           </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Environment:</span> {envName}
+          </div>
         </>
       )}
 
