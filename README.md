@@ -67,7 +67,9 @@ yarn dev
 
 6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-![image](./images/image.png)
+![image](./images/light.png)
+
+![image](./images/dark.png)
 
 ## DynamoDB Setup
 
