@@ -4,7 +4,6 @@ import { google } from "googleapis";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const ENV_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 const SCOPES = ["https://www.googleapis.com/auth/calendar"];
 
 export async function GET(req) {
@@ -31,7 +30,7 @@ export async function GET(req) {
   const requestUrl = new URL(req.url);
   const origin = requestUrl.origin;
   const baseUrl = process.env.NEXTAUTH_URL || origin;
-  const redirectUri = ENV_REDIRECT_URI || `${baseUrl}/api/google/callback`;
+  const redirectUri = `${baseUrl}/api/auth/callback/google`;
   if (!CLIENT_ID || !CLIENT_SECRET) {
     console.error("Missing Google OAuth client ID/secret env vars");
   }
