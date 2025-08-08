@@ -7,11 +7,7 @@ import {
 import parseDatetimeFormat from "./parse-datetime";
 
 const s3Client = new S3Client({
-  region: process.env.MYAPP_AWS_REGION || "us-east-1", // Default to us-east-1 if not specified
-  credentials: {
-    accessKeyId: process.env.MYAPP_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.MYAPP_AWS_SECRET_ACCESS_KEY,
-  },
+  region: process.env.S3_REGION || "us-east-1", // Default to us-east-1 if not specified
 });
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 const S3_GOOGLE_KEY = process.env.S3_GOOGLE_KEY;
