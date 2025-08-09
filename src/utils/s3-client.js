@@ -87,16 +87,9 @@ export async function uploadTemplates(userId) {
 
   const notionKey = `${userId}/${S3_NOTION_KEY}`;
   const googleKey = `${userId}/${S3_GOOGLE_KEY}`;
+  console.log("S3 Notion Path: ", notionKey);
+  console.log("S3 Google Path: ", googleKey);
 
-  console.log(userId,)
-  console.log(notionKey,)
-  console.log(googleKey,)
-
-  console.log('Notion Template')
-  console.log(JSON.stringify(notionTemplate ?? {}))
-  console.log('Google Template')
-  console.log(JSON.stringify(googleTemplate ?? {}))
-  
   const putNotion = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: notionKey,
@@ -116,7 +109,6 @@ export async function uploadTemplates(userId) {
 
   console.log("Template upload successful for user:", userId);
 }
-
 
 /**
  * Retrieve Notion Config JSON from S3 under the user's folder

@@ -79,7 +79,6 @@ export const register = async (_prevState, formData) => {
       password: hashed,
       ...(image && { image }),
     });
-    console.log(User, newUser);
 
     // Upload Template
     if (!newUser.uuid) {
