@@ -1,3 +1,5 @@
+import notionTemplate from "@/templates/notion_setting.json";
+import googleTemplate from "@/templates/token.json";
 import {
   S3Client,
   PutObjectCommand,
@@ -75,6 +77,39 @@ export async function uploadNotionConfig(userId, config) {
   await s3Client.send(command);
   console.log("Notion config upload successful for user:", userId);
 }
+
+/**
+ * Upload Template JSON to S3 under the user's folder
+ * @param {string} userId - UUID of the user
+ */
+export async function uploadTemplates(userId) {
+  if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
+  if (!S3_NOTION_KEY) throw new Error("Missing S3_NOTION_KEY");
+  if (!S3_GOOGLE_KEY) throw new Error("Missing S3_GOOGLE_KEY");
+
+  const notionKey = `${userId}/${S3_NOTION_KEY}`;
+  const googleKey = `${userId}/${S3_GOOGLE_KEY}`;
+
+  const putNotion = new PutObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: notionKey,
+    Body: JSON.stringify(notionTemplate ?? {}),
+    ContentType: "application/json",
+  });
+
+  const putGoogle = new PutObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: googleKey,
+    Body: JSON.stringify(googleTemplate ?? {}),
+    ContentType: "application/json",
+  });
+
+  // upload templates
+  await Promise.all([s3Client.send(putNotion), s3Client.send(putGoogle)]);
+
+  console.log("Template upload successful for user:", userId);
+}
+
 
 /**
  * Retrieve Notion Config JSON from S3 under the user's folder
