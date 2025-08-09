@@ -85,8 +85,8 @@ export async function uploadNotionConfig(userId, config) {
 export async function uploadTemplates(userId) {
   if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
 
-  const notionKey = `${userId}/token/notion/`;
-  const googleKey = `${userId}/token/google/`;
+  const notionKey = `${userId}/${S3_NOTION_KEY}`;
+  const googleKey = `${userId}/${S3_GOOGLE_KEY}`;
 
   console.log(userId,)
   console.log(notionKey,)
