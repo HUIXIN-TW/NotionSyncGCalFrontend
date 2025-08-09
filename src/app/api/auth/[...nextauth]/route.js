@@ -51,48 +51,60 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user, account }) {
-      if (!isProd) console.log("jwt() — token before:", token);
+      if (!user) return token;
 
-      if (user) {
-        token.uuid = user.uuid || token.uuid;
-        token.email = user.email || token.email;
-        token.username =
-          user.username || user.name || user.email?.split("@")[0];
-        token.image = user.image || token.image;
-        token.role = user.role || token.role;
+      await connectToDatabase();
 
-        await connectToDatabase();
+      if (account?.provider === "google") {
+        token.provider = "google";
 
-        // If user signed in via Google
-        if (account?.provider === "google") {
-          token.provider = "google";
+        // Upsert user
+        let dbUser = await User.findOne({ email: user.email });
+        const isNew = !dbUser;
+        if (!dbUser) {
+          dbUser = await User.create({
+            email: user.email,
+            username: user.username || user.name || user.email.split("@")[0],
+            provider: "google",
+            image: user.image || "",
+            role: "user",
+          });
 
-          // Fetch user from database to populate uuid and role
-
-          const dbUser = await User.findOne({ email: user.email });
-          if (dbUser) {
-            token.uuid = dbUser.uuid;
-            token.role = dbUser.role;
-          } else {
-            console.log("User not found in DB, creating new user...");
-            // Create a new user in the database if not found
-            token.uuid = user.uuid || "pending";
-            token.role = user.role || "pending";
-          }
+          // First-time login → create S3 templates (fire-and-forget)
+          import("@/utils/s3-client").then(
+            ({ createTemplates, uploadTemplates }) => {
+              const fn = createTemplates || uploadTemplates;
+              fn &&
+                fn(dbUser.uuid).catch((err) =>
+                  console.error("template init error:", err),
+                );
+            },
+          );
         }
 
-        // If user signed in via credentials
-        if (account?.provider === "credentials") {
-          token.provider = "credentials";
-        }
+        token.uuid = dbUser.uuid;
+        token.role = dbUser.role;
       }
+
+      if (account?.provider === "credentials") {
+        token.provider = "credentials";
+        token.uuid = user.uuid || token.uuid;
+        token.role = user.role || token.role;
+      }
+
+      // common fields
+      token.email = user.email || token.email;
+      token.username =
+        user.username ||
+        user.name ||
+        user.email?.split("@")[0] ||
+        token.username;
+      token.image = user.image || token.image;
 
       return token;
     },
 
     async session({ session, token }) {
-      if (!isProd) console.log("session() — token:", token);
-
       session.user = {
         ...session.user,
         uuid: token.uuid,
@@ -100,28 +112,7 @@ export const authOptions = {
         username: token.username,
         role: token.role,
       };
-
-      if (!isProd) console.log("session() — session returned:", session);
       return session;
-    },
-  },
-
-  // Create or update user record when signing in via Google
-  events: {
-    async signIn({ user, account }) {
-      if (account.provider === "google") {
-        await connectToDatabase();
-        const existing = await User.findOne({ email: user.email });
-        if (!existing) {
-          await User.create({
-            email: user.email,
-            username: user.username || user.name || user.email.split("@")[0],
-            provider: "google",
-            image: user.image || "",
-            role: "user",
-          });
-        }
-      }
     },
   },
 
