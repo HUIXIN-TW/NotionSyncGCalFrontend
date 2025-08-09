@@ -83,6 +83,7 @@ export const register = async (_prevState, formData) => {
     if (!newUser.uuid) {
       console.error("Cannot resolve uuid from created user:", newUser);
     } else {
+      console.log('Creating Templates')
       uploadTemplates(newUser.uuid)
         .catch(err => console.error('Template upload error:', err));
     }
