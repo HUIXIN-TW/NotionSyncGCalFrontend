@@ -70,6 +70,7 @@ export const register = async (_prevState, formData) => {
     const hashed = await bcrypt.hash(password, salt);
 
     // Create new user data
+    console.log('Creating New User')
     const newUser = await User.create({
       email,
       username: username || email.split("@")[0],
@@ -78,6 +79,7 @@ export const register = async (_prevState, formData) => {
       password: hashed,
       ...(image && { image }),
     });
+    console.log(User, newUser)
 
     //
     if (!newUser.uuid) {
