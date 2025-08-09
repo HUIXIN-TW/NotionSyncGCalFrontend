@@ -15,9 +15,6 @@ const Profile = ({ session, signOut }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState(null);
   const [syncCooldownUntil, setSyncCooldownUntil] = useState(null);
-  const registeredUUIDs = JSON.parse(
-    process.env.NEXT_PUBLIC_REGISTER_USER || "[]",
-  );
 
   // Load saved cooldown from localStorage on mount
   useEffect(() => {
@@ -73,7 +70,6 @@ const Profile = ({ session, signOut }) => {
   }
 
   const { email, uuid, username } = session.user;
-  const isRegistered = registeredUUIDs.includes(uuid);
 
   const syncDisabled = syncCooldownUntil && now < syncCooldownUntil;
 
@@ -150,14 +146,6 @@ const Profile = ({ session, signOut }) => {
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Name:</span> {username}
           </div>
-          <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Registered User List:</span>{" "}
-            {registeredUUIDs}
-          </div>
-          <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>isRegistered:</span>{" "}
-            {String(isRegistered)}
-          </div>
         </>
       )}
       {syncResult && (
@@ -194,18 +182,6 @@ const Profile = ({ session, signOut }) => {
       <Button text="Sign Out" onClick={signOut} />
 
       <div className={styles.support_section}>
-        {!isRegistered && (
-          <span className={styles.note}>
-            Beta Version:{" "}
-            <a
-              href="https://huixinyang.notion.site/1f66d1a62de481c6bb59d246e450f682"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Need To Register As A User
-            </a>
-          </span>
-        )}
         <span className={styles.note}>
           Enjoying NotionSyncGCal? Support me:
         </span>
