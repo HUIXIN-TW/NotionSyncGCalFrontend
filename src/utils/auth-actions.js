@@ -3,6 +3,7 @@
 import bcrypt from "bcrypt";
 import User from "@models/user";
 import { connectToDatabase } from "@utils/db-connection";
+import { uploadTemplates } from "@utils/s3-client";
 
 /**
  * Validates user registration data
@@ -69,7 +70,8 @@ export const register = async (_prevState, formData) => {
     const hashed = await bcrypt.hash(password, salt);
 
     // Create new user data
-    await User.create({
+    console.log("Creating New User");
+    const newUser = await User.create({
       email,
       username: username || email.split("@")[0],
       role: "user",
@@ -77,6 +79,16 @@ export const register = async (_prevState, formData) => {
       password: hashed,
       ...(image && { image }),
     });
+
+    // Upload Template
+    if (!newUser.uuid) {
+      console.error("Cannot resolve uuid from created user:", newUser);
+    } else {
+      console.log("Creating Templates");
+      uploadTemplates(newUser.uuid).catch((err) =>
+        console.error("Template upload error:", err),
+      );
+    }
     return { success: true };
   } catch (error) {
     console.error("Registration error:", error);
