@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
@@ -97,6 +98,10 @@ const SignUpForm = () => {
         value={passwordRepeat}
         onChange={(e) => setPasswordRepeat(e.target.value)}
       />
+      <p>
+        By signing up, you agree to our{" "}
+        <Link href="/privacy">Privacy Policy</Link>.
+      </p>
       <Button
         text={pending || googleLoading ? "Signing up..." : "Sign Up"}
         type="submit"

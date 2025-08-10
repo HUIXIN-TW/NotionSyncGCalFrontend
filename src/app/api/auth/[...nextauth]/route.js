@@ -46,6 +46,12 @@ export const authOptions = {
       name: "Google",
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: "openid email profile",
+          prompt: "select_account",
+        },
+      },
     }),
   ],
 
