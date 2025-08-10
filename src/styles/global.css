@@ -167,6 +167,25 @@ body {
   text-align: center;
 }
 
+.welcome_detail {
+  font-size: 14px;
+  color: #343a40;
+  line-height: 1.6;
+  text-align: left;
+  padding: 20px;
+}
+.welcome_heading {
+  margin: 10px 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.welcome_list {
+  margin: 0 0 8px 18px;
+}
+.welcome_links a {
+  text-decoration: underline;
+}
+
 @media (max-width: 480px) {
   .home {
     display: flex;
