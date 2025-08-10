@@ -62,7 +62,7 @@ export async function GET(req) {
         googleSub,
         googleEmail,
         tokens,
-        updatedAt
+        updatedAt,
       );
       console.log("Tokens uploaded successfully");
     } else {
