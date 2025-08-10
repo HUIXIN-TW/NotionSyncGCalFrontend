@@ -4,7 +4,13 @@ import { google } from "googleapis";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const SCOPES = ["https://www.googleapis.com/auth/calendar"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/calendar.events",
+  "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+  "openid",
+  "email",
+  "profile",
+];
 
 export async function GET(req) {
   const session = await getServerSession(authOptions);
@@ -26,11 +32,11 @@ export async function GET(req) {
     CLIENT_SECRET ? "SET" : "NOT SET",
   );
 
-  // Compute redirect URI: use env var or default to <baseUrl>/api/google/callback
+  // Compute redirect URI: use env var or default to <baseUrl>
   const requestUrl = new URL(req.url);
   const origin = requestUrl.origin;
   const baseUrl = process.env.NEXTAUTH_URL || origin;
-  const redirectUri = `${baseUrl}/api/auth/callback/google`;
+  const redirectUri = `${baseUrl}/api/google/callback`;
   if (!CLIENT_ID || !CLIENT_SECRET) {
     console.error("Missing Google OAuth client ID/secret env vars");
   }

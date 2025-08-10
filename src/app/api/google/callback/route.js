@@ -32,7 +32,7 @@ export async function GET(req) {
   const origin = url.origin;
   const baseUrl = process.env.NEXTAUTH_URL || origin;
   // Determine callback URL using production NEXTAUTH_URL or origin
-  const callbackUri = `${baseUrl}/api/google/callback`;
+  const callbackUri = `${baseUrl}/api/auth/callback/google`;
   console.log("Callback using redirect URI:", callbackUri);
   const oauth2Client = new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
