@@ -35,18 +35,19 @@ const streamToString = (stream) =>
  * @param {string} userId  - UUID of the user
  * @param {object} tokens  - Token object returned by googleapis
  */
-export async function uploadGoogleTokens(userId, tokens) {
+export async function uploadGoogleTokens(userId, userSub, userEmail, tokens, updatedAt) {
   console.log("Uploading Google tokens to S3:", userId, tokens);
   console.log("S3_BUCKET_NAME:", S3_BUCKET_NAME);
   console.log("S3_GOOGLE_KEY:", S3_GOOGLE_KEY);
   const payload = {
+    userId: userId,
+    userSub: userSub,
+    userEmail: userEmail,
     token: tokens.access_token,
     refresh_token: tokens.refresh_token,
-    token_uri: GOOGLE_TOKEN_URL,
-    client_id: GOOGLE_CLIENT_ID,
-    client_secret: GOOGLE_CLIENT_SECRET,
     expiry: parseDatetimeFormat(tokens.expiry_date),
     scopes: [tokens.scope],
+    updatedAt: updatedAt,
   };
   console.log("Payload:", payload);
   const user_key = `${userId}/${S3_GOOGLE_KEY}`;

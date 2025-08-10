@@ -25,7 +25,7 @@ export async function GET(req) {
     session.user.uuid,
   );
   if (state !== session.user.uuid) {
-    console.warn("State mismatch, proceeding anyway");
+    return NextResponse.redirect(new URL("/profile?error=state_mismatch", url));
   }
 
   // Compute redirect URI same as auth-url (use production URL if provided)
@@ -43,8 +43,31 @@ export async function GET(req) {
   try {
     const { tokens } = await oauth2Client.getToken(code);
     console.log("Received tokens:", tokens);
-    await uploadGoogleTokens(session.user.uuid, tokens);
-    console.log("Tokens uploaded successfully");
+
+    // get user information
+    oauth2Client.setCredentials({ access_token: tokens.access_token });
+    const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
+    const { data: profile } = await oauth2.userinfo.get();
+
+    // check access_token belong to current user's email
+    const loginEmail = (session.user.email || "").toLowerCase();
+    const googleEmail = (profile.email || "").toLowerCase();
+    const googleSub = profile.id; // for future use if need a hard match
+
+    // check if the same email
+    const updatedAt = new Date().toISOString();
+    if (loginEmail === googleEmail) {
+      await uploadGoogleTokens(
+        session.user.uuid,
+        googleSub,
+        googleEmail,
+        tokens,
+        updatedAt
+      );
+      console.log("Tokens uploaded successfully");
+    } else {
+      console.error("You need use the same account as your login information");
+    }
     return NextResponse.redirect(new URL("/profile", baseUrl));
   } catch (err) {
     console.error("OAuth callback error:", err);
