@@ -36,7 +36,7 @@ export async function GET(req) {
   const requestUrl = new URL(req.url);
   const origin = requestUrl.origin;
   const baseUrl = process.env.NEXTAUTH_URL || origin;
-  const redirectUri = `${baseUrl}/api/google/callback`;
+  const redirectUri = `${baseUrl}/api/auth/callback/google`;
   if (!CLIENT_ID || !CLIENT_SECRET) {
     console.error("Missing Google OAuth client ID/secret env vars");
   }
