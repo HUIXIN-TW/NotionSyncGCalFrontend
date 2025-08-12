@@ -164,7 +164,8 @@ const Profile = ({ session, signOut }) => {
       )}
 
       <GetNotionConfigButton />
-      {syncResult?.needRefresh && <RefreshGCalButton />}
+      <RefreshGCalButton />
+      {/* {syncResult?.needRefresh && <RefreshGCalButton />} */}
 
       <SyncButton
         text={
