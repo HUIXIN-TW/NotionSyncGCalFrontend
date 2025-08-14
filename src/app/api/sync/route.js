@@ -1,7 +1,8 @@
 import { getToken } from "next-auth/jwt";
+import { sendSyncJobMessage } from "@/utils/sqs-client";
 
-const url = process.env.LAMBDA_URL;
-const apiKey = process.env.LAMBDA_API_KEY;
+// const url = process.env.LAMBDA_URL;
+// const apiKey = process.env.LAMBDA_API_KEY;
 
 export async function POST(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -17,17 +18,18 @@ export async function POST(req) {
     );
   }
 
-  if (!url || !apiKey) {
-    console.error("Missing Lambda URL or API Key");
-    return new Response(
-      JSON.stringify({
-        type: "config error",
-        message: "Missing Lambda config",
-        needRefresh: false,
-      }),
-      { status: 500 },
-    );
-  }
+  // api gateway call lambda function
+  // if (!url || !apiKey) {
+  //   console.error("Missing Lambda URL or API Key");
+  //   return new Response(
+  //     JSON.stringify({
+  //       type: "config error",
+  //       message: "Missing Lambda config",
+  //       needRefresh: false,
+  //     }),
+  //     { status: 500 },
+  //   );
+  // }
 
   let uuid;
   try {
@@ -60,50 +62,72 @@ export async function POST(req) {
   const timestamp = new Date().toISOString();
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-      },
-      body: JSON.stringify({ uuid, timestamp }),
+    // const response = await fetch(url, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "x-api-key": apiKey,
+    //   },
+    //   body: JSON.stringify({ uuid, timestamp }),
+    // });
+
+    // const text = await response.text();
+    // let result;
+    // try {
+    //   result = JSON.parse(text);
+    // } catch {
+    //   result = { raw: text };
+    // }
+
+    // if (!response.ok) {
+    //   console.error("Lambda returned error:", result);
+    //   const needRefresh =
+    //     result?.message?.includes("invalid_grant") ||
+    //     !result?.expiry_date ||
+    //     !result?.refresh_token ||
+    //     !result?.token ||
+    //     !result?.client_id ||
+    //     !result?.client_secret;
+
+    //   return new Response(
+    //     JSON.stringify({
+    //       type: "sync error",
+    //       message: result.message || "Lambda sync failed",
+    //       needRefresh,
+    //     }),
+    //     { status: 500 },
+    //   );
+    // }
+
+    // console.log(`User ${uuid} synced successfully at ${timestamp}`);
+    // return new Response(
+    //   JSON.stringify({
+    //     type: "success",
+    //     message: "Sync successful",
+    //     needRefresh: false,
+    //     ...result, // include Lambda details if any
+    //   }),
+    //   { status: 200 },
+    // );
+
+    // todo action enum -t, -n, -g
+    let action = "user.sync";
+    let source = "api";
+    await sendSyncJobMessage({
+      action,
+      uuid,
+      timestamp,
+      source,
     });
+    console.log(
+      `Sync task enqueued for ${uuid} at ${timestamp}. Action: ${action} from ${source}`,
+    );
 
-    const text = await response.text();
-    let result;
-    try {
-      result = JSON.parse(text);
-    } catch {
-      result = { raw: text };
-    }
-
-    if (!response.ok) {
-      console.error("Lambda returned error:", result);
-      const needRefresh =
-        result?.message?.includes("invalid_grant") ||
-        !result?.expiry_date ||
-        !result?.refresh_token ||
-        !result?.token ||
-        !result?.client_id ||
-        !result?.client_secret;
-
-      return new Response(
-        JSON.stringify({
-          type: "sync error",
-          message: result.message || "Lambda sync failed",
-          needRefresh,
-        }),
-        { status: 500 },
-      );
-    }
-
-    console.log(`User ${uuid} synced successfully at ${timestamp}`);
     return new Response(
       JSON.stringify({
         type: "success",
-        message: "Sync successful",
+        message: "Sync task enqueued",
         needRefresh: false,
-        ...result, // include Lambda details if any
       }),
       { status: 200 },
     );
