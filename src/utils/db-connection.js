@@ -4,7 +4,7 @@
  */
 
 import { ddb } from "./db-client.js";
-import { ListTablesCommand } from "@aws-sdk/client-dynamodb";
+import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 
 // Track the connection state
 let isConnected = false;
@@ -24,7 +24,11 @@ const connectToDatabase = async () => {
 
   try {
     // Check if we can connect to DynamoDB by listing tables
-    await ddb.send(new ListTablesCommand({}));
+    await ddb.send(
+      new DescribeTableCommand({
+        TableName: process.env.DYNAMODB_TABLE,
+      }),
+    );
 
     isConnected = true;
     connectionAttempts = 0;
