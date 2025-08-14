@@ -18,6 +18,8 @@ const nextConfig = {
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME,
     S3_GOOGLE_KEY: process.env.S3_GOOGLE_KEY,
     S3_NOTION_KEY: process.env.S3_NOTION_KEY,
+    SQS_QUEUE_URL: process.env.SQS_QUEUE_URL,
+    SQS_REGION: process.env.SQS_REGION,
     LAMBDA_URL: process.env.LAMBDA_URL,
     LAMBDA_API_KEY: process.env.LAMBDA_API_KEY,
   },
