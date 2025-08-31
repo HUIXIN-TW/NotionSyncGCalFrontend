@@ -11,18 +11,21 @@
     "test:db": "node tests/db-client.test.js",
     "test:user": "node tests/user-model.test.js"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.788.0",
-    "@aws-sdk/client-s3": "^3.800.0",
-    "@aws-sdk/client-sqs": "^3.864.0",
-    "@aws-sdk/lib-dynamodb": "^3.789.0",
-    "bcrypt": "^5.1.1",
-    "dotenv": "^16.5.0",
-    "googleapis": "^148.0.0",
-    "next": "^14.2.28",
+    "@aws-sdk/client-dynamodb": "^3.879.0",
+    "@aws-sdk/client-s3": "^3.879.0",
+    "@aws-sdk/client-sqs": "^3.879.0",
+    "@aws-sdk/lib-dynamodb": "^3.879.0",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.1",
+    "googleapis": "^159.0.0",
+    "next": "^15.5.2",
     "next-auth": "^4.24.11",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "react-markdown": "^10.1.0"
   }
 }
