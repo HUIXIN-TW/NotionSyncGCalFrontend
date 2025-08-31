@@ -11,6 +11,9 @@
     "test:db": "node tests/db-client.test.js",
     "test:user": "node tests/user-model.test.js"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.788.0",
     "@aws-sdk/client-s3": "^3.800.0",
