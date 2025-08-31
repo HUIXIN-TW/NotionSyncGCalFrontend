@@ -112,7 +112,7 @@ export async function POST(req) {
 
     // todo action enum -t, -n, -g
     let action = "user.sync";
-    let source = "api";
+    let source = "NotionSyncGCalFrontend";
     await sendSyncJobMessage({
       action,
       uuid,
