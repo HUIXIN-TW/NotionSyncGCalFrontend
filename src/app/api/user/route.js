@@ -1,4 +1,4 @@
-import User from "@models/user";
+import { getAllUsers } from "@models/user";
 import { connectToDatabase } from "@utils/db-connection";
 
 export const GET = async (request) => {
@@ -7,7 +7,7 @@ export const GET = async (request) => {
     await connectToDatabase();
 
     // Fetch all users using the DynamoDB model
-    const users = await User.find({});
+    const users = await getAllUsers();
 
     return new Response(JSON.stringify(users), { status: 200 });
   } catch (error) {

@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcrypt";
-import User from "@models/user";
+import { createUser, getUserByEmail } from "@models/user";
 import { connectToDatabase } from "@utils/db-connection";
 import { uploadTemplates } from "@utils/s3-client";
 
@@ -62,7 +62,7 @@ export const register = async (_prevState, formData) => {
     }
 
     // Duplicate check
-    if (await User.findOne({ email })) {
+    if (await getUserByEmail(email)) {
       return { success: false, error: "Email already exists" };
     }
 
@@ -71,7 +71,7 @@ export const register = async (_prevState, formData) => {
 
     // Create new user data
     console.log("Creating New User");
-    const newUser = await User.create({
+    const newUser = await createUser({
       email,
       username: username || email.split("@")[0],
       role: "user",

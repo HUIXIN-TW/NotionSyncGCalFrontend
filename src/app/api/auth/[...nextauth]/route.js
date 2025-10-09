@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { connectToDatabase } from "@utils/db-connection";
-import User from "@models/user";
+import { createUser, getUserByEmail } from "@models/user";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -22,7 +22,7 @@ export const authOptions = {
       async authorize(credentials) {
         // connect and fetch credential user
         await connectToDatabase();
-        const user = await User.findOne({ email: credentials.email });
+        const user = await getUserByEmail(credentials.email);
         if (!user || user.provider !== "credentials") {
           throw new Error("Invalid email or login method");
         }
@@ -65,10 +65,10 @@ export const authOptions = {
         token.provider = "google";
 
         // Upsert user
-        let dbUser = await User.findOne({ email: user.email });
+        let dbUser = await getUserByEmail(user.email);
         const isNew = !dbUser;
         if (!dbUser) {
-          dbUser = await User.create({
+          dbUser = await createUser({
             email: user.email,
             username: user.username || user.name || user.email.split("@")[0],
             provider: "google",
