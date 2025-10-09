@@ -1,4 +1,4 @@
-import User from "@models/user";
+import { getUserById } from "@models/user";
 import { connectToDatabase } from "@utils/db-connection";
 
 export const GET = async (request, { params }) => {
@@ -8,7 +8,7 @@ export const GET = async (request, { params }) => {
 
     // Fetch user by id using the DynamoDB model
     const userId = params.uuid;
-    const user = await User.findById(userId);
+    const user = await getUserById(userId);
 
     // If user not found, return 404
     if (!user) {

@@ -165,28 +165,28 @@ export const getAllUsers = async () => {
 };
 
 // Compatibility with Mongoose-style usage
-const User = {
-  find: async () => {
-    return getAllUsers();
-  },
-  findById: async (id) => {
-    return getUserById(id);
-  },
-  findOne: async (query) => {
-    if (query.email) {
-      return getUserByEmail(query.email);
-    }
-    return null;
-  },
-  create: async (userData) => {
-    return createUser(userData);
-  },
-  findByIdAndUpdate: async (id, updateData) => {
-    return updateUser(id, updateData);
-  },
-  findByIdAndDelete: async (id) => {
-    return deleteUser(id);
-  },
-};
+// const User = {
+//   find: async () => {
+//     return getAllUsers();
+//   },
+//   findById: async (id) => {
+//     return getUserById(id);
+//   },
+//   findOne: async (query) => {
+//     if (query.email) {
+//       return getUserByEmail(query.email);
+//     }
+//     return null;
+//   },
+//   create: async (userData) => {
+//     return createUser(userData);
+//   },
+//   findByIdAndUpdate: async (id, updateData) => {
+//     return updateUser(id, updateData);
+//   },
+//   findByIdAndDelete: async (id) => {
+//     return deleteUser(id);
+//   },
+// };
 
-export default User;
+// export default User;

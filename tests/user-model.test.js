@@ -6,7 +6,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { v4 as uuidv4 } from "uuid";
-import User from "../src/models/user.js";
+import {
+  createUser,
+  deleteUser,
+  getAllUsers,
+  getUserByEmail,
+  getUserById,
+  updateUser,
+} from "../src/models/user.js";
 import { connectToDatabase } from "../src/utils/db-connection.js";
 
 describe("User Model Tests", async () => {
@@ -23,7 +30,7 @@ describe("User Model Tests", async () => {
 
       // 1. Create user
       console.log("\n1️⃣ Testing user creation...");
-      const testUser = await User.create({
+      const testUser = await createUser({
         email: testEmail,
         password: "supersecret123",
         username: testUsername, // Explicitly provide a valid username
@@ -43,7 +50,7 @@ describe("User Model Tests", async () => {
 
       // 2. Get by ID
       console.log("\n2️⃣ Testing findById...");
-      const getById = await User.findById(testUser.uuid);
+      const getById = await getUserById(testUser.uuid);
       assert.ok(getById, "Should find user by ID");
       assert.equal(getById.uuid, testUser.uuid, "User IDs should match");
       console.log("✅ Got by ID:", {
@@ -53,7 +60,7 @@ describe("User Model Tests", async () => {
 
       // 3. Get by email
       console.log("\n3️⃣ Testing findOne...");
-      const getByEmail = await User.findOne({ email: testEmail });
+      const getByEmail = await getUserByEmail(testEmail);
       assert.ok(getByEmail, "Should find user by email");
       assert.equal(getByEmail.email, testEmail, "User emails should match");
       console.log("✅ Got by email:", {
@@ -64,7 +71,7 @@ describe("User Model Tests", async () => {
       // 4. Update user
       console.log("\n4️⃣ Testing findByIdAndUpdate...");
       const testImage = "https://example.com/avatar.png";
-      const updated = await User.findByIdAndUpdate(testUser.uuid, {
+      const updated = await updateUser(testUser.uuid, {
         image: testImage,
       });
       assert.ok(updated, "User should be updated");
@@ -76,29 +83,25 @@ describe("User Model Tests", async () => {
 
       // 5. Delete user
       console.log("\n5️⃣ Testing findByIdAndDelete...");
-      const deleted = await User.findByIdAndDelete(testUser.uuid);
-      assert.ok(deleted, "User should be deleted");
-      // Check if deleted is a success object or a user object
-      if (deleted.success) {
-        assert.ok(deleted.success, "Delete operation should be successful");
-      } else {
-        assert.equal(
-          deleted.uuid,
-          testUser.uuid,
-          "Deleted user ID should match",
-        );
-      }
-      console.log("✅ Deleted user:", deleted);
+      const deleted = await deleteUser(testUser.uuid);
+      assert.ok(deleted?.success, "Delete operation should be successful");
+      console.log("✅ Deleted user:", { uuid: testUser.uuid, deleted });
 
       // 6. Final check (should be undefined)
       console.log("\n6️⃣ Verifying deletion...");
-      const shouldBeGone = await User.findById(testUser.uuid);
+      const shouldBeGone = await getUserById(testUser.uuid);
       assert.strictEqual(
         shouldBeGone,
         undefined,
         "User should not exist after deletion",
       );
       console.log("✅ Get after delete (should be undefined):", shouldBeGone);
+
+      // Optional Scan to keep contract parity with previous `find`
+      console.log("\n7️⃣ Listing all users (sanity check)...");
+      const allUsers = await getAllUsers();
+      assert.ok(Array.isArray(allUsers), "getAllUsers should return an array");
+      console.log("✅ Total users fetched:", allUsers.length);
 
       console.log("\n✅ All User model tests completed successfully!");
     } catch (err) {
