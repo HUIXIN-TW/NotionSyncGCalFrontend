@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
@@ -12,7 +12,7 @@ import { signIn } from "next-auth/react";
 
 const SignUpForm = () => {
   const router = useRouter();
-  const [errorMessage, dispatch] = useFormState(register, undefined);
+  const [errorMessage, dispatch] = useActionState(register, undefined);
   const { pending } = useFormStatus();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
