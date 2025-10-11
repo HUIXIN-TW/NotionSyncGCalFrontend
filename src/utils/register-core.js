@@ -1,8 +1,9 @@
 import "server-only";
 import bcrypt from "bcrypt";
-import logger, { maskValue } from "@utils/logger";
+import logger from "@utils/logger";
 import { createUser, getUserByEmail } from "@models/user";
 import { uploadTemplates } from "@utils/s3-client";
+import normalizeEmail from "@utils/normalize-email";
 
 const validateRegistrationData = (email, password, passwordRepeat) => {
   if (!email || !password || !passwordRepeat) {
@@ -45,7 +46,16 @@ export async function registerCore({
       return { success: false, error: validation.error, reason: "validation" };
     }
 
-    if (await getUserByEmail(email)) {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      return {
+        success: false,
+        error: "Invalid email format",
+        reason: "validation",
+      };
+    }
+
+    if (await getUserByEmail(normalizedEmail)) {
       return {
         success: false,
         error: "Email already exists",
@@ -57,8 +67,8 @@ export async function registerCore({
     const hashed = await bcrypt.hash(password, salt);
 
     const newUser = await createUser({
-      email,
-      username: username || email.split("@")[0],
+      email: normalizedEmail,
+      username: username || normalizedEmail.split("@")[0],
       role: "user",
       provider: "credentials",
       password: hashed,

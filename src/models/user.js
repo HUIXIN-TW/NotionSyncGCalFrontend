@@ -9,6 +9,7 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
+import normalizeEmail from "@utils/normalize-email";
 
 const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 
@@ -19,10 +20,12 @@ const isValidUsername = (username) =>
 // Create a user with validation and duplicate email check
 export const createUser = async (userData) => {
   const provider = userData.provider || "credentials";
-  const username = userData.username || userData.email.split("@")[0];
   const now = new Date().toISOString();
+  const normalizedEmail = normalizeEmail(userData.email);
 
-  if (!userData.email) throw new Error("Email is required!");
+  if (!normalizedEmail) throw new Error("Email is required!");
+  const username = userData.username || normalizedEmail.split("@")[0];
+
   // enforce password & username only for credentials provider
   if (provider === "credentials") {
     if (!userData.password) throw new Error("Password is required!");
@@ -35,7 +38,7 @@ export const createUser = async (userData) => {
 
   const item = {
     uuid: uuidv4(),
-    email: userData.email,
+    email: normalizedEmail,
     username,
     // include password only for credentials
     ...(provider === "credentials" && { password: userData.password }),
@@ -79,6 +82,9 @@ export const getUserById = async (id) => {
 
 // Get user by email (requires GSI: EmailIndex)
 export const getUserByEmail = async (email) => {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return null;
+
   try {
     const result = await ddb.send(
       new QueryCommand({
@@ -86,7 +92,7 @@ export const getUserByEmail = async (email) => {
         IndexName: "EmailIndex",
         KeyConditionExpression: "email = :email",
         ExpressionAttributeValues: {
-          ":email": email,
+          ":email": normalizedEmail,
         },
       }),
     );
