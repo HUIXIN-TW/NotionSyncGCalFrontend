@@ -1,23 +1,34 @@
 import logger from "@utils/logger";
+import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { sendSyncJobMessage } from "@/utils/sqs-client";
+import { enforceThrottle } from "@/utils/throttle";
+import { getClientIp } from "get-client-ip";
+import { syncRules } from "@/utils/throttle-rule";
 
 // const url = process.env.LAMBDA_URL;
 // const apiKey = process.env.LAMBDA_API_KEY;
 
 export async function POST(req) {
+  // AuthN
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
   if (!token) {
-    return new Response(
-      JSON.stringify({
-        type: "auth error",
-        message: "Unauthorized",
-        needRefresh: false,
-      }),
+    return NextResponse.json(
+      { type: "auth error", message: "Unauthorized", needRefresh: false },
       { status: 401 },
     );
   }
+
+  // if (!token) {
+  //   return new Response(
+  //     JSON.stringify({
+  //       type: "auth error",
+  //       message: "Unauthorized",
+  //       needRefresh: false,
+  //     }),
+  //     { status: 401 },
+  //   );
+  // }
 
   // api gateway call lambda function
   // if (!url || !apiKey) {
@@ -32,36 +43,56 @@ export async function POST(req) {
   //   );
   // }
 
-  let uuid;
+  let payload = {};
   try {
-    const body = await req.json();
-    uuid = body.uuid;
-  } catch (error) {
-    logger.error("Failed to parse request body", error);
-    return new Response(
-      JSON.stringify({
-        type: "parse error",
-        message: "Invalid request body",
-        needRefresh: false,
-      }),
+    const text = await req.text();
+    payload = text ? JSON.parse(text) : {};
+  } catch (e) {
+    logger.error("Body parse error", e instanceof Error ? e.message : e);
+    return NextResponse.json(
+      { type: "parse error", message: "Invalid JSON body", needRefresh: false },
       { status: 400 },
     );
   }
 
-  if (!uuid || uuid !== token.uuid) {
-    logger.warn(`UUID mismatch: received=${uuid}, expected=${token.uuid}`);
-    return new Response(
-      JSON.stringify({
-        type: "auth error",
-        message: "UUID mismatch",
-        needRefresh: false,
-      }),
+  const uuid = payload?.uuid;
+  if (typeof uuid !== "string" || uuid.length < 8) {
+    return NextResponse.json(
+      { type: "validation error", message: "Invalid uuid", needRefresh: false },
+      { status: 400 },
+    );
+  }
+
+  // AuthZ：uuid must be the same as token
+  if (uuid !== token.uuid) {
+    logger.warn(`UUID mismatch received=${uuid} expected=${token.uuid}`);
+    return NextResponse.json(
+      { type: "auth error", message: "UUID mismatch", needRefresh: false },
       { status: 403 },
     );
   }
 
-  const timestamp = new Date().toISOString();
+  // Throttle by IP and by user UUID
+  const ip = getClientIp(req) || null;
+    if (!ip) {
+      return NextResponse.json(
+        { success: false, error: "Unable to determine client IP" },
+        { status: 400 },
+      );
+    }
+  const throttleResult = await enforceThrottle(syncRules(ip, uuid));
+  if (throttleResult) {
+    return NextResponse.json(
+      {
+        type: "throttle error",
+        message: throttleResult.body.error,
+        needRefresh: false,
+      },
+      { status: throttleResult.status },
+    );
+  }
 
+  const timestamp = new Date().toISOString();
   try {
     // const response = await fetch(url, {
     //   method: "POST",
@@ -112,34 +143,35 @@ export async function POST(req) {
     // );
 
     // todo action enum -t, -n, -g
-    let action = "user.sync";
-    let source = "NotionSyncGCalFrontend";
-    await sendSyncJobMessage({
-      action,
-      uuid,
-      timestamp,
-      source,
-    });
-    logger.info(
-      `Sync task enqueued for ${uuid} at ${timestamp}. Action: ${action} from ${source}`,
-    );
+    const action = "user.sync";
+    const source = "NotionSyncGCalFrontend";
 
-    return new Response(
-      JSON.stringify({
-        type: "success",
+    const res = await sendSyncJobMessage({ action, uuid, timestamp, source });
+    const messageId = res?.MessageId || res?.MessageID || res?.messageId;
+
+    if (!messageId) {
+      throw new Error("SQS enqueue returned no MessageId");
+    }
+
+    logger.info(`Sync enqueued`, { uuid, messageId, action, source });
+
+    return NextResponse.json(
+      {
+        type: "accepted",
         message: "Sync task enqueued",
         needRefresh: false,
-      }),
-      { status: 200 },
+        messageId,
+      },
+      { status: 202 },
     );
-  } catch (error) {
-    logger.error("Failed to call Lambda", error?.message || error);
-    return new Response(
-      JSON.stringify({
-        type: "network error",
+  } catch (err) {
+    logger.error("Enqueue failed", err?.message || err);
+    return NextResponse.json(
+      {
+        type: "queue error",
         message: "Internal Server Error",
         needRefresh: false,
-      }),
+      },
       { status: 500 },
     );
   }

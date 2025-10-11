@@ -2,6 +2,10 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { registerCore } from "@utils/register-core";
 import logger from "@utils/logger";
+import { enforceThrottle } from "@/utils/throttle";
+import { getClientIp } from "get-client-ip";
+import { registerIpRules, registerEmailRules } from "@/utils/throttle-rule";
+import normalizeEmail from "@/utils/normalize-email";
 
 // Keep a server action-compatible function for potential form actions
 export const register = async (_prevState, formData) => {
@@ -13,8 +17,37 @@ export const register = async (_prevState, formData) => {
 // HTTP POST handler for /api/register
 export async function POST(req) {
   try {
+  const ip = getClientIp(req) || null;
+    if (!ip) {
+      return NextResponse.json(
+        { success: false, error: "Unable to determine client IP" },
+        { status: 400 },
+      );
+    }
+    const throttleResult = await enforceThrottle(registerIpRules(ip));
+    if (throttleResult) {
+      return NextResponse.json(
+        { success: false, ...throttleResult.body },
+        { status: throttleResult.status },
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const { email, password, passwordRepeat, username, image } = body || {};
+    const normalizedEmail = normalizeEmail(email);
+
+    // Per-identifier throttling (email)
+    if (normalizedEmail) {
+      const emailThrottle = await enforceThrottle(
+        registerEmailRules(normalizedEmail),
+      );
+      if (emailThrottle) {
+        return NextResponse.json(
+          { success: false, ...emailThrottle.body },
+          { status: emailThrottle.status },
+        );
+      }
+    }
     const result = await registerCore({
       email,
       password,
