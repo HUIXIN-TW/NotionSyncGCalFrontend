@@ -17,7 +17,7 @@ export const register = async (_prevState, formData) => {
 // HTTP POST handler for /api/register
 export async function POST(req) {
   try {
-  const ip = getClientIp(req) || null;
+    const ip = getClientIp(req) || null;
     if (!ip) {
       return NextResponse.json(
         { success: false, error: "Unable to determine client IP" },

@@ -74,12 +74,12 @@ export async function POST(req) {
 
   // Throttle by IP and by user UUID
   const ip = getClientIp(req) || null;
-    if (!ip) {
-      return NextResponse.json(
-        { success: false, error: "Unable to determine client IP" },
-        { status: 400 },
-      );
-    }
+  if (!ip) {
+    return NextResponse.json(
+      { success: false, error: "Unable to determine client IP" },
+      { status: 400 },
+    );
+  }
   const throttleResult = await enforceThrottle(syncRules(ip, uuid));
   if (throttleResult) {
     return NextResponse.json(

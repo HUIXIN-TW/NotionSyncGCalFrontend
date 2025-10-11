@@ -20,7 +20,8 @@ const KEY_WIN_PREFIX = "win:";
 const isCondFail = (e) => e?.name === "ConditionalCheckFailedException";
 
 // Helper: epoch seconds now + N days
-const ttlSeconds = (days = config.RETAIN_DAYS) => Math.floor(Date.now() / 1000) + days * 86400;
+const ttlSeconds = (days = config.RETAIN_DAYS) =>
+  Math.floor(Date.now() / 1000) + days * 86400;
 
 function assertConfigured() {
   if (!TABLE) {

@@ -6,10 +6,18 @@ function json(status, body) {
 
 // 2xx
 export const ok = (data, message) =>
-  json(200, { success: true, ...(message && { message }), ...(data !== undefined && { data }) });
+  json(200, {
+    success: true,
+    ...(message && { message }),
+    ...(data !== undefined && { data }),
+  });
 
 export const created = (data, message) =>
-  json(201, { success: true, ...(message && { message }), ...(data !== undefined && { data }) });
+  json(201, {
+    success: true,
+    ...(message && { message }),
+    ...(data !== undefined && { data }),
+  });
 
 // 4xx
 export const badRequest = (message = "Bad Request", extra = {}) =>
