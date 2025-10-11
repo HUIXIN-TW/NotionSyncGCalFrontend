@@ -8,31 +8,6 @@ import {
 
 let hasWarnedMissingRateLimit = false;
 
-/**
- * Extracts the client IP from a Next.js Request
- */
-export function getClientIp(req) {
-  if (!req?.headers) return null;
-
-  const forwarded = req.headers
-    .get("x-forwarded-for")
-    ?.split(",")
-    .map((ip) => ip.trim())
-    .find(Boolean);
-
-  const candidates = [
-    forwarded,
-    typeof req.ip === "string" ? req.ip : undefined,
-    req.headers.get("x-real-ip"),
-    req.headers.get("cf-connecting-ip"),
-    req.headers.get("fastly-client-ip"),
-    req.headers.get("true-client-ip"),
-    req.headers.get("x-client-ip"),
-  ];
-
-  const ip = candidates.find((value) => typeof value === "string" && value);
-  return ip || null;
-}
 
 /**
  * Enforce an array of throttling rules.
