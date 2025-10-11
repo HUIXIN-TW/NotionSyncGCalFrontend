@@ -1,6 +1,6 @@
 "use server";
 
-import { registerCore } from "@utils/register-core";
+import { registerCore } from "@/utils/server/register-core";
 
 export async function registerAction(prevState, formData) {
   const data = Object.fromEntries(formData);

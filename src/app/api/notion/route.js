@@ -4,7 +4,7 @@ import {
   getConfigLastModified,
   getNotionConfig,
   uploadNotionConfig,
-} from "@utils/s3-client";
+} from "@/utils/server/s3-client";
 
 const isProd = process.env.NODE_ENV === "production";
 const THROTTLE_MS = 30 * 60 * 1000; // 30 minutes

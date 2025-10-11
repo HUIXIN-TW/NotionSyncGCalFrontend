@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./notioncard.module.css";
 import Button from "@components/button/Button";
-import validateConfig from "@utils/validate-config";
+import validateConfigFormat from "@/utils/client/validate-config-format";
 
 const LABEL_MAP = {
   goback_days: "Go Back Days",
@@ -119,7 +119,7 @@ const NotionCard = ({ session }) => {
 
   const handleSaveClick = async () => {
     setLoading(true);
-    const errors = validateConfig(editableConfig);
+    const errors = validateConfigFormat(editableConfig);
     logger.debug("Editable config:", editableConfig);
     if (errors.length > 0) {
       alert("Validation failed:\n\n" + errors.join("\n"));

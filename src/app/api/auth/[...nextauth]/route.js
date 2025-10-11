@@ -74,7 +74,7 @@ export const authOptions = {
           });
 
           // First-time login → create S3 templates (fire-and-forget)
-          import("@/utils/s3-client").then(
+          import("@/utils/server/s3-client").then(
             ({ createTemplates, uploadTemplates }) => {
               const fn = createTemplates || uploadTemplates;
               fn &&

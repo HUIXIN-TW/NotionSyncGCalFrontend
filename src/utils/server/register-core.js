@@ -2,8 +2,8 @@ import "server-only";
 import bcrypt from "bcrypt";
 import logger from "@utils/logger";
 import { createUser, getUserByEmail } from "@models/user";
-import { uploadTemplates } from "@utils/s3-client";
-import normalizeEmail from "@utils/normalize-email";
+import { uploadTemplates } from "@/utils/server/s3-client";
+import normalizeEmail from "@/utils/server/normalize-email";
 
 const validateRegistrationData = (email, password, passwordRepeat) => {
   if (!email || !password || !passwordRepeat) {

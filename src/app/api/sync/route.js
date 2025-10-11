@@ -1,12 +1,12 @@
 import logger from "@utils/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { sendSyncJobMessage } from "@/utils/sqs-client";
-import { enforceThrottle, extractClientIp } from "@/utils/throttle";
-import { syncRules } from "@/utils/throttle-rule";
+import { validateConfig } from "@/utils/server/validate-config";
+import { sendSyncJobMessage } from "@/utils/server/sqs-client";
+import { enforceThrottle, extractClientIp } from "@/utils/server/throttle";
+import { syncRules } from "@/utils/server/throttle-rule";
 
-// const url = process.env.LAMBDA_URL;
-// const apiKey = process.env.LAMBDA_API_KEY;
+const isProd = process.env.NODE_ENV === "production";
 
 export async function POST(req) {
   // AuthN
@@ -17,30 +17,6 @@ export async function POST(req) {
       { status: 401 },
     );
   }
-
-  // if (!token) {
-  //   return new Response(
-  //     JSON.stringify({
-  //       type: "auth error",
-  //       message: "Unauthorized",
-  //       needRefresh: false,
-  //     }),
-  //     { status: 401 },
-  //   );
-  // }
-
-  // api gateway call lambda function
-  // if (!url || !apiKey) {
-  //   console.error("Missing Lambda URL or API Key");
-  //   return new Response(
-  //     JSON.stringify({
-  //       type: "config error",
-  //       message: "Missing Lambda config",
-  //       needRefresh: false,
-  //     }),
-  //     { status: 500 },
-  //   );
-  // }
 
   let payload = {};
   try {
@@ -70,6 +46,9 @@ export async function POST(req) {
       { status: 403 },
     );
   }
+  // Check if notion config exists
+  const { valid, response } = await validateConfig(uuid);
+if (!valid) return response;
 
   // Throttle by IP and by user UUID
   const ip = extractClientIp(req) || null;
@@ -79,68 +58,24 @@ export async function POST(req) {
       { status: 400 },
     );
   }
-  const throttleResult = await enforceThrottle(syncRules(ip, uuid));
-  if (throttleResult) {
-    return NextResponse.json(
-      {
-        type: "throttle error",
-        message: throttleResult.body.error,
-        needRefresh: false,
-      },
-      { status: throttleResult.status },
-    );
+
+  // Only enforce throttle in production environment
+  if (isProd) {
+    const throttleResult = await enforceThrottle(syncRules(ip, uuid));
+    if (throttleResult) {
+      return NextResponse.json(
+        {
+          type: "throttle error",
+          message: throttleResult.body.error,
+          needRefresh: false,
+        },
+        { status: throttleResult.status },
+      );
+    }
   }
 
   const timestamp = new Date().toISOString();
   try {
-    // const response = await fetch(url, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "x-api-key": apiKey,
-    //   },
-    //   body: JSON.stringify({ uuid, timestamp }),
-    // });
-
-    // const text = await response.text();
-    // let result;
-    // try {
-    //   result = JSON.parse(text);
-    // } catch {
-    //   result = { raw: text };
-    // }
-
-    // if (!response.ok) {
-    //   console.error("Lambda returned error:", result);
-    //   const needRefresh =
-    //     result?.message?.includes("invalid_grant") ||
-    //     !result?.expiry_date ||
-    //     !result?.refresh_token ||
-    //     !result?.token ||
-    //     !result?.client_id ||
-    //     !result?.client_secret;
-
-    //   return new Response(
-    //     JSON.stringify({
-    //       type: "sync error",
-    //       message: result.message || "Lambda sync failed",
-    //       needRefresh,
-    //     }),
-    //     { status: 500 },
-    //   );
-    // }
-
-    // console.log(`User ${uuid} synced successfully at ${timestamp}`);
-    // return new Response(
-    //   JSON.stringify({
-    //     type: "success",
-    //     message: "Sync successful",
-    //     needRefresh: false,
-    //     ...result, // include Lambda details if any
-    //   }),
-    //   { status: 200 },
-    // );
-
     // todo action enum -t, -n, -g
     const action = "user.sync";
     const source = "NotionSyncGCalFrontend";
@@ -164,7 +99,7 @@ export async function POST(req) {
       { status: 202 },
     );
   } catch (err) {
-    logger.error("Enqueue failed", err?.message || err);
+    logger.error("Enqueue failed", err);
     return NextResponse.json(
       {
         type: "queue error",

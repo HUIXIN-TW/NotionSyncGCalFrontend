@@ -1,7 +1,7 @@
 import "server-only";
 import config from "@/config";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { ddb } from "@utils/db-client";
+import { ddb } from "@/utils/server/db-client";
 
 /**
  * DynamoDB rate limit helpers

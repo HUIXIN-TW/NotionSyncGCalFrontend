@@ -1,4 +1,4 @@
-export default function validateConfig(config) {
+export default function validateConfigFormat(config) {
   const errors = [];
 
   // Helper to check time offset like "+08:00"

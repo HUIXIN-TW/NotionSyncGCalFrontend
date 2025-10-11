@@ -4,7 +4,7 @@ import logger from "@utils/logger";
  * Provides functions to connect to and check the status of the DynamoDB connection
  */
 import "server-only";
-import { ddb } from "@utils/db-client.js";
+import { ddb } from "@/utils/server/db-client.js";
 import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 
 // Track the connection state

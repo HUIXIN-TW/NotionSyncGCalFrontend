@@ -1,10 +1,10 @@
 import "server-only";
 import { NextResponse } from "next/server";
-import { registerCore } from "@utils/register-core";
+import { registerCore } from "@/utils/server/register-core";
 import logger from "@utils/logger";
-import { enforceThrottle, extractClientIp } from "@/utils/throttle";
-import { registerIpRules, registerEmailRules } from "@/utils/throttle-rule";
-import normalizeEmail from "@/utils/normalize-email";
+import { enforceThrottle, extractClientIp } from "@/utils/server/throttle";
+import { registerIpRules, registerEmailRules } from "@/utils/server/throttle-rule";
+import normalizeEmail from "@/utils/server/normalize-email";
 
 // Keep a server action-compatible function for potential form actions
 export const register = async (_prevState, formData) => {
