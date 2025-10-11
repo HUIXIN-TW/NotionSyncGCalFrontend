@@ -1,5 +1,5 @@
-import logger, { maskValue } from "@utils/logger";
 import "server-only";
+import logger from "@utils/logger";
 import notionTemplate from "@/templates/notion_setting.json";
 import googleTemplate from "@/templates/token.json";
 import {

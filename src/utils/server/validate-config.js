@@ -1,6 +1,6 @@
 import "server-only";
-import { NextResponse } from "next/server";
 import logger from "@utils/logger";
+import { NextResponse } from "next/server";
 import { getNotionConfig } from "@/utils/server/s3-client";
 
 export async function validateConfig(uuid) {
