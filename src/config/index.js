@@ -1,6 +1,9 @@
 // Centralized configuration (non-env). Adjust values here as needed.
 
 const config = {
+  // Retain Days
+  RETAIN_DAYS: 2,
+
   // Sync API throttling
   SYNC_IP_WINDOW_LIMIT: 60, // per IP, per hour
   SYNC_IP_WINDOW_MS: 60 * 60_000,
