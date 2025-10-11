@@ -56,7 +56,7 @@ export const createUser = async (userData) => {
     );
     return item;
   } catch (error) {
-    console.error("Error creating user:", error);
+    logger.error("Error creating user", error);
     throw error;
   }
 };
@@ -72,7 +72,7 @@ export const getUserById = async (id) => {
     );
     return result.Item;
   } catch (error) {
-    console.error("Error getting user by ID:", error);
+    logger.error("Error getting user by ID", error);
     throw error;
   }
 };
@@ -92,7 +92,7 @@ export const getUserByEmail = async (email) => {
     );
     return result.Items?.[0] || null;
   } catch (error) {
-    console.error("Error getting user by email:", error);
+    logger.error("Error getting user by email", error);
     throw error;
   }
 };
@@ -129,7 +129,7 @@ export const updateUser = async (id, updateData) => {
     );
     return result.Attributes;
   } catch (error) {
-    console.error("Error updating user:", error);
+    logger.error("Error updating user", error);
     throw error;
   }
 };
@@ -145,7 +145,7 @@ export const deleteUser = async (id) => {
     );
     return { success: true };
   } catch (error) {
-    console.error("Error deleting user:", error);
+    logger.error("Error deleting user", error);
     throw error;
   }
 };
@@ -160,7 +160,7 @@ export const getAllUsers = async () => {
     );
     return result.Items || [];
   } catch (error) {
-    console.error("Error getting all users:", error);
+    logger.error("Error getting all users", error);
     throw error;
   }
 };

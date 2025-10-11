@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import { getToken } from "next-auth/jwt";
 import {
   getConfigLastModified,
@@ -36,7 +37,7 @@ export async function GET(req) {
       { status: 200 },
     );
   } catch (err) {
-    console.error("Error loading config or metadata from S3:", err);
+    logger.error("Error loading config or metadata from S3", err);
     return new Response(
       JSON.stringify({
         type: "error",
@@ -103,8 +104,8 @@ export async function POST(req) {
     try {
       existingConfig = await getNotionConfig(uuid);
     } catch (err) {
-      console.warn("No existing config found, proceeding with new upload.");
-      console.error("Failed to load existing config:", err);
+      logger.warn("No existing config found, proceeding with new upload.");
+      logger.error("Failed to load existing config", err);
     }
 
     // Preserve masked token (minimum 6 asterisks)
@@ -114,9 +115,9 @@ export async function POST(req) {
     ) {
       mergedConfig.notion_token = existingConfig.notion_token;
       if (!isProd) {
-        console.log("Masked token detected, preserving original token.");
-        console.log("Incoming (masked):", incomingConfig.notion_token);
-        console.log("Replacing with:", existingConfig.notion_token);
+        logger.info("Masked token detected, preserving original token.");
+        logger.sensitive("Incoming (masked)", "[masked]");
+        logger.sensitive("Replacing with", "[masked]");
       }
     }
 
@@ -126,7 +127,7 @@ export async function POST(req) {
       const timeGap = Date.now() - new Date(lastModified).getTime();
       const waitMinutes = Math.ceil((THROTTLE_MS - timeGap) / (1000 * 60));
       if (isProd && timeGap < THROTTLE_MS) {
-        console.log(`[UPLOAD BLOCKED] User: ${uuid}, Time Gap: ${timeGap}ms`);
+        logger.info(`[UPLOAD BLOCKED] User: ${uuid}, Time Gap: ${timeGap}ms`);
         return new Response(
           JSON.stringify({
             type: "throttle error",
@@ -136,14 +137,14 @@ export async function POST(req) {
         );
       }
     } else {
-      console.log("No previous config timestamp — skipping throttle check.");
+      logger.info("No previous config timestamp — skipping throttle check.");
     }
 
     if (!isProd) {
-      console.log("Merged config to upload:", mergedConfig);
+      logger.sensitive("Merged config to upload", "[masked]");
     }
   } catch (err) {
-    console.error("Failed to validate upload frequency:", err);
+    logger.error("Failed to validate upload frequency", err);
     return new Response(
       JSON.stringify({
         type: "error",
@@ -164,7 +165,7 @@ export async function POST(req) {
       { status: 200 },
     );
   } catch (err) {
-    console.error("Failed to upload config:", err);
+    logger.error("Failed to upload config", err);
     return new Response(
       JSON.stringify({
         type: "error",

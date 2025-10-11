@@ -1,3 +1,4 @@
+import logger, { maskValue } from "@utils/logger";
 import "server-only";
 import notionTemplate from "@/templates/notion_setting.json";
 import googleTemplate from "@/templates/token.json";
@@ -7,7 +8,7 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
 } from "@aws-sdk/client-s3";
-import parseDatetimeFormat from "./parse-datetime";
+import parseDatetimeFormat from "@utils/parse-datetime";
 
 const s3Client = new S3Client({
   region: process.env.S3_REGION || "us-east-1", // Default to us-east-1 if not specified
@@ -43,9 +44,12 @@ export async function uploadGoogleTokens(
   tokens,
   updatedAt,
 ) {
-  console.log("Uploading Google tokens to S3:", userId, tokens);
-  console.log("S3_BUCKET_NAME:", S3_BUCKET_NAME);
-  console.log("S3_GOOGLE_KEY:", S3_GOOGLE_KEY);
+  logger.sensitive("Uploading Google tokens to S3", {
+    userId,
+    tokens: "[masked]",
+  });
+  logger.debug("S3_BUCKET_NAME:", S3_BUCKET_NAME);
+  logger.debug("S3_GOOGLE_KEY:", S3_GOOGLE_KEY);
   const payload = {
     userId: userId,
     userSub: userSub,
@@ -56,7 +60,7 @@ export async function uploadGoogleTokens(
     scopes: [tokens.scope],
     updatedAt: updatedAt,
   };
-  console.log("Payload:", payload);
+  logger.sensitive("Payload", "[masked]");
   const user_key = `${userId}/${S3_GOOGLE_KEY}`;
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -65,7 +69,7 @@ export async function uploadGoogleTokens(
     ContentType: "application/json",
   });
   await s3Client.send(command);
-  console.log("Upload successful for user:", userId);
+  logger.info("Upload successful for user", userId);
 }
 
 /**
@@ -74,7 +78,10 @@ export async function uploadGoogleTokens(
  * @param {object} config  - Notion configuration object
  */
 export async function uploadNotionConfig(userId, config) {
-  console.log("Uploading Notion config to S3:", userId, config);
+  logger.sensitive("Uploading Notion config to S3", {
+    userId,
+    config: "[masked]",
+  });
   const user_key = `${userId}/${S3_NOTION_KEY}`;
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -83,7 +90,7 @@ export async function uploadNotionConfig(userId, config) {
     ContentType: "application/json",
   });
   await s3Client.send(command);
-  console.log("Notion config upload successful for user:", userId);
+  logger.info("Notion config upload successful for user", userId);
 }
 
 /**
@@ -95,8 +102,8 @@ export async function uploadTemplates(userId) {
 
   const notionKey = `${userId}/${S3_NOTION_KEY}`;
   const googleKey = `${userId}/${S3_GOOGLE_KEY}`;
-  console.log("S3 Notion Path: ", notionKey);
-  console.log("S3 Google Path: ", googleKey);
+  logger.debug("S3 Notion Path:", notionKey);
+  logger.debug("S3 Google Path:", googleKey);
 
   const putNotion = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -115,7 +122,7 @@ export async function uploadTemplates(userId) {
   // upload templates
   await Promise.all([s3Client.send(putNotion), s3Client.send(putGoogle)]);
 
-  console.log("Template upload successful for user:", userId);
+  logger.info("Template upload successful for user", userId);
 }
 
 /**
@@ -127,7 +134,7 @@ export async function getNotionConfig(userId) {
   if (!S3_NOTION_KEY) {
     throw new Error("Missing S3_NOTION_KEY environment variable");
   }
-  console.log("Retrieving Notion config from S3 for user:", userId);
+  logger.info("Retrieving Notion config from S3 for user", userId);
   const user_key = `${userId}/${S3_NOTION_KEY}`;
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -136,7 +143,7 @@ export async function getNotionConfig(userId) {
   const response = await s3Client.send(command);
   const bodyString = await streamToString(response.Body);
   const parsed = JSON.parse(bodyString);
-  console.log("Loaded config:", parsed);
+  logger.sensitive("Loaded config", "[masked]");
   return parsed;
 }
 
@@ -163,7 +170,7 @@ export async function getConfigLastModified(userId) {
     if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) {
       return null;
     }
-    console.error("Failed to get last modified:", err);
+    logger.error("Failed to get last modified", err);
     throw err;
   }
 }

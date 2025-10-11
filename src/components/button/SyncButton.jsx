@@ -1,5 +1,5 @@
-"use client";
-
+import logger from "@utils/logger";
+("use client");
 import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";
@@ -31,11 +31,11 @@ const SyncButton = ({ text, onSync, disabled }) => {
         const result = await res.json();
         if (!res.ok) {
           alert("Sync failed: " + result.message);
-          console.error("Sync failed:", result);
+          logger.error("Sync failed", result);
         }
         return result;
       } catch (err) {
-        console.error("Sync error:", err);
+        logger.error("Sync error", err);
         return { type: "error", message: err.message };
       } finally {
         setLoading(false);

@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -82,7 +83,7 @@ export const authOptions = {
               const fn = createTemplates || uploadTemplates;
               fn &&
                 fn(dbUser.uuid).catch((err) =>
-                  console.error("template init error:", err),
+                  logger.error("template init error", err),
                 );
             },
           );

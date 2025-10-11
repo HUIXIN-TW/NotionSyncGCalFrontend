@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import "server-only";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
@@ -17,6 +18,6 @@ export async function sendSyncJobMessage(payload) {
   });
 
   const result = await sqsClient.send(command);
-  console.log("SQS message sent, ID:", result.MessageId);
+  logger.info("SQS message sent", { id: result.MessageId });
   return result;
 }

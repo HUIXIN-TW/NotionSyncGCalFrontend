@@ -1,5 +1,5 @@
-"use client";
-
+import logger from "@utils/logger";
+("use client");
 import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";
@@ -30,7 +30,7 @@ const RefreshGCalButton = ({ className, style }) => {
       // Redirect user to Google consent screen
       window.location.href = data.url;
     } catch (err) {
-      console.error(err);
+      logger.error("Refresh GCal failed", err);
       alert("Error fetching auth URL: " + err.message);
     } finally {
       setLoading(false);

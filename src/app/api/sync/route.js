@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import { getToken } from "next-auth/jwt";
 import { sendSyncJobMessage } from "@/utils/sqs-client";
 
@@ -36,7 +37,7 @@ export async function POST(req) {
     const body = await req.json();
     uuid = body.uuid;
   } catch (error) {
-    console.error("Failed to parse request body:", error);
+    logger.error("Failed to parse request body", error);
     return new Response(
       JSON.stringify({
         type: "parse error",
@@ -48,7 +49,7 @@ export async function POST(req) {
   }
 
   if (!uuid || uuid !== token.uuid) {
-    console.warn(`UUID mismatch: received=${uuid}, expected=${token.uuid}`);
+    logger.warn(`UUID mismatch: received=${uuid}, expected=${token.uuid}`);
     return new Response(
       JSON.stringify({
         type: "auth error",
@@ -119,7 +120,7 @@ export async function POST(req) {
       timestamp,
       source,
     });
-    console.log(
+    logger.info(
       `Sync task enqueued for ${uuid} at ${timestamp}. Action: ${action} from ${source}`,
     );
 
@@ -132,7 +133,7 @@ export async function POST(req) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("Failed to call Lambda:", error?.message || error);
+    logger.error("Failed to call Lambda", error?.message || error);
     return new Response(
       JSON.stringify({
         type: "network error",

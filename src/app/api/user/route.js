@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import { getAllUsers } from "@models/user";
 import { connectToDatabase } from "@utils/db-connection";
 
@@ -11,7 +12,7 @@ export const GET = async (request) => {
 
     return new Response(JSON.stringify(users), { status: 200 });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    logger.error("Error fetching users", error);
     return new Response("Failed to fetch all users", { status: 500 });
   }
 };

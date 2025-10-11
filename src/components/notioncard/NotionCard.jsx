@@ -1,4 +1,5 @@
-"use client";
+import logger from "@utils/logger";
+("use client");
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -49,7 +50,7 @@ const NotionCard = ({ session }) => {
       localStorage.setItem("notionConfigFetchedAt", now);
       return true;
     } catch (err) {
-      console.error("Failed to fetch config:", err);
+      logger.error("Failed to fetch config", err);
       alert("Failed to fetch config.");
       return false;
     }
@@ -90,7 +91,7 @@ const NotionCard = ({ session }) => {
 
         return;
       } catch (err) {
-        console.warn("Failed to parse local config:", err);
+        logger.warn("Failed to parse local config", err);
       }
     }
 
@@ -119,7 +120,7 @@ const NotionCard = ({ session }) => {
   const handleSaveClick = async () => {
     setLoading(true);
     const errors = validateConfig(editableConfig);
-    if (!isProd) console.log("Editable config:", editableConfig);
+    logger.debug("Editable config:", editableConfig);
     if (errors.length > 0) {
       alert("Validation failed:\n\n" + errors.join("\n"));
       setLoading(false);

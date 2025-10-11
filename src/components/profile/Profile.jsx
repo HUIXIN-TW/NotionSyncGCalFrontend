@@ -1,4 +1,5 @@
-"use client";
+import logger from "@utils/logger";
+("use client");
 
 import React, { useState, useEffect } from "react";
 import styles from "./profile.module.css";
@@ -51,7 +52,7 @@ const Profile = ({ session, signOut }) => {
       try {
         setSyncResult(JSON.parse(stored));
       } catch {
-        console.warn("Corrupted syncResult");
+        logger.warn("Corrupted syncResult");
       }
     }
   }, []);
@@ -104,7 +105,7 @@ const Profile = ({ session, signOut }) => {
     } catch (err) {
       clearTimeout(timeoutId);
       if (!timeoutTriggered) {
-        console.error("Unexpected sync failure:", err);
+        logger.error("Unexpected sync failure", err);
         setSyncResult({
           type: "error",
           message: "Unexpected sync failure.",

@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
@@ -18,7 +19,7 @@ export async function GET(req) {
   }
 
   // Log state and session UUID for debugging
-  console.log(
+  logger.debug(
     "OAuth callback state:",
     state,
     "Session UUID:",
@@ -33,7 +34,7 @@ export async function GET(req) {
   const baseUrl = process.env.NEXTAUTH_URL || origin;
   // Determine callback URL using production NEXTAUTH_URL or origin
   const callbackUri = `${baseUrl}/api/google/callback`;
-  console.log("Callback using redirect URI:", callbackUri);
+  logger.debug("Callback using redirect URI:", callbackUri);
   const oauth2Client = new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
@@ -42,7 +43,7 @@ export async function GET(req) {
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
-    console.log("Received tokens:", tokens);
+    logger.sensitive("Received tokens", "[masked]");
 
     // get user information
     oauth2Client.setCredentials({ access_token: tokens.access_token });
@@ -64,14 +65,14 @@ export async function GET(req) {
         tokens,
         updatedAt,
       );
-      console.log("Tokens uploaded successfully");
+      logger.info("Tokens uploaded successfully");
     } else {
-      console.error("You need use the same account as your login information");
+      logger.warn("You need use the same account as your login information");
     }
     return NextResponse.redirect(new URL("/profile", baseUrl));
   } catch (err) {
-    console.error("OAuth callback error:", err);
-    console.log("Error details:", err.response?.data || err.message);
+    logger.error("OAuth callback error", err);
+    logger.debug("Error details:", err.response?.data || err.message);
     return NextResponse.redirect(new URL("/profile", baseUrl));
   }
 }

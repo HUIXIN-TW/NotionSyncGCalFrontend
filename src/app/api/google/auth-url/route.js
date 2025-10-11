@@ -1,3 +1,4 @@
+import logger from "@utils/logger";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { google } from "googleapis";
@@ -15,9 +16,9 @@ const SCOPES = [
 export async function GET(req) {
   const session = await getServerSession(authOptions);
 
-  console.log("authOptions:", authOptions);
-  console.log("Session:", session);
-  console.log("Session UUID:", session?.user?.uuid);
+  logger.debug("authOptions:", authOptions);
+  logger.debug("Session:", session);
+  logger.debug("Session UUID:", session?.user?.uuid);
 
   if (!session?.user?.uuid) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -26,8 +27,8 @@ export async function GET(req) {
   }
 
   // Debug: log OAuth client credentials
-  console.log("DEBUG: GOOGLE_CLIENT_ID =", CLIENT_ID);
-  console.log(
+  logger.debug("DEBUG: GOOGLE_CLIENT_ID =", CLIENT_ID);
+  logger.debug(
     "DEBUG: GOOGLE_CLIENT_SECRET =",
     CLIENT_SECRET ? "SET" : "NOT SET",
   );
@@ -38,9 +39,9 @@ export async function GET(req) {
   const baseUrl = process.env.NEXTAUTH_URL || origin;
   const redirectUri = `${baseUrl}/api/google/callback`;
   if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error("Missing Google OAuth client ID/secret env vars");
+    logger.error("Missing Google OAuth client ID/secret env vars");
   }
-  console.log("Using redirect URI:", redirectUri);
+  logger.debug("Using redirect URI:", redirectUri);
   const oauth2Client = new google.auth.OAuth2(
     CLIENT_ID,
     CLIENT_SECRET,
@@ -54,6 +55,6 @@ export async function GET(req) {
     state: session.user.uuid, // Use the UUID as state to verify the callback
   });
 
-  console.log("Generated auth URL:", authUrl);
+  logger.info("Generated auth URL:", authUrl);
   return new Response(JSON.stringify({ url: authUrl }), { status: 200 });
 }
