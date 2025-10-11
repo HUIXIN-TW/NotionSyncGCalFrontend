@@ -10,7 +10,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 
-const TABLE_NAME = process.env.DYNAMODB_TABLE;
+const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 
 // Helper: validate username format
 const isValidUsername = (username) =>

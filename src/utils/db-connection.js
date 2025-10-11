@@ -27,7 +27,7 @@ const connectToDatabase = async () => {
     // Check if we can connect to DynamoDB by listing tables
     await ddb.send(
       new DescribeTableCommand({
-        TableName: process.env.DYNAMODB_TABLE,
+        TableName: process.env.DYNAMODB_USER_TABLE,
       }),
     );
 
