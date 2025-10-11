@@ -11,9 +11,14 @@ const sanitize = (u) => {
 export const GET = async (request, { params }) => {
   try {
     // AuthN
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
     if (!token) {
-      return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+      return new Response(JSON.stringify({ message: "Unauthorized" }), {
+        status: 401,
+      });
     }
 
     // Fetch user by id using the DynamoDB model
@@ -29,7 +34,9 @@ export const GET = async (request, { params }) => {
 
     // AuthZ: only the same user (owner) or admin can read
     if (token.role !== "admin" && token.uuid !== user.uuid) {
-      return new Response(JSON.stringify({ message: "Forbidden" }), { status: 403 });
+      return new Response(JSON.stringify({ message: "Forbidden" }), {
+        status: 403,
+      });
     }
 
     return new Response(JSON.stringify(sanitize(user)), { status: 200 });

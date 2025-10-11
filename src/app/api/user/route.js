@@ -11,14 +11,21 @@ const sanitize = (u) => {
 export const GET = async (request) => {
   try {
     // AuthN: require a valid session token
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
     if (!token) {
-      return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+      return new Response(JSON.stringify({ message: "Unauthorized" }), {
+        status: 401,
+      });
     }
 
     // AuthZ: only admin can list all users
     if (token.role !== "admin") {
-      return new Response(JSON.stringify({ message: "Forbidden" }), { status: 403 });
+      return new Response(JSON.stringify({ message: "Forbidden" }), {
+        status: 403,
+      });
     }
 
     // Fetch all users using the DynamoDB model

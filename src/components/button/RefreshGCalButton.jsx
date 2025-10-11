@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import logger from "@utils/logger";
 import { useState } from "react";
 import Button from "@components/button/Button";
