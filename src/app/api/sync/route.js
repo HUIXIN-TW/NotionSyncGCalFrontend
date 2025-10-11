@@ -2,8 +2,7 @@ import logger from "@utils/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { sendSyncJobMessage } from "@/utils/sqs-client";
-import { enforceThrottle } from "@/utils/throttle";
-import { getClientIp } from "get-client-ip";
+import { enforceThrottle, extractClientIp } from "@/utils/throttle";
 import { syncRules } from "@/utils/throttle-rule";
 
 // const url = process.env.LAMBDA_URL;
@@ -73,7 +72,7 @@ export async function POST(req) {
   }
 
   // Throttle by IP and by user UUID
-  const ip = getClientIp(req) || null;
+  const ip = extractClientIp(req) || null;
   if (!ip) {
     return NextResponse.json(
       { success: false, error: "Unable to determine client IP" },

@@ -1,5 +1,6 @@
 import "server-only";
 import logger from "@/utils/logger";
+import { getClientIp } from "get-client-ip";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
@@ -7,6 +8,32 @@ import {
 } from "@/models/rate-limit";
 
 let hasWarnedMissingRateLimit = false;
+
+/**
+ * Extracts the client IP from a Next.js Request
+ */
+export function extractClientIp(req) {
+  try {
+    const ip = getClientIp(req);
+    if (ip) return ip;
+  } catch (e) {
+    logger.debug("get-client-ip failed:", e);
+  }
+
+  // Fallback to x-forwarded-for header
+  try {
+    const forwarded = req?.headers
+      ?.get?.("x-forwarded-for")
+      ?.split(",")
+      .map((ip) => ip.trim())
+      .find(Boolean);
+    if (forwarded) return forwarded;
+  } catch (e) {
+    logger.warn("Failed to extract client IP", e);
+  }
+
+  return null; // 明確回傳 null 讓呼叫者判斷錯誤
+}
 
 /**
  * Enforce an array of throttling rules.

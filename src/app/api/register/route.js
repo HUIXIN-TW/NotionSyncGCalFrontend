@@ -2,8 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { registerCore } from "@utils/register-core";
 import logger from "@utils/logger";
-import { enforceThrottle } from "@/utils/throttle";
-import { getClientIp } from "get-client-ip";
+import { enforceThrottle, extractClientIp } from "@/utils/throttle";
 import { registerIpRules, registerEmailRules } from "@/utils/throttle-rule";
 import normalizeEmail from "@/utils/normalize-email";
 
@@ -17,7 +16,7 @@ export const register = async (_prevState, formData) => {
 // HTTP POST handler for /api/register
 export async function POST(req) {
   try {
-    const ip = getClientIp(req) || null;
+    const ip = extractClientIp(req) || null;
     if (!ip) {
       return NextResponse.json(
         { success: false, error: "Unable to determine client IP" },
