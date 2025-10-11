@@ -1,6 +1,5 @@
 import "server-only";
 import logger from "@/utils/logger";
-import { getClientIp } from "get-client-ip";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
@@ -14,25 +13,23 @@ let hasWarnedMissingRateLimit = false;
  */
 export function extractClientIp(req) {
   try {
-    const ip = getClientIp(req);
-    if (ip) return ip;
-  } catch (e) {
-    logger.debug("get-client-ip failed:", e);
-  }
-
-  // Fallback to x-forwarded-for header
-  try {
+    // x-forwarded-for
     const forwarded = req?.headers
       ?.get?.("x-forwarded-for")
       ?.split(",")
       .map((ip) => ip.trim())
       .find(Boolean);
     if (forwarded) return forwarded;
+
+    // x-real-ip used by some proxies
+    const realIp = req?.headers?.get?.("x-real-ip");
+    if (realIp) return realIp;
+
   } catch (e) {
     logger.warn("Failed to extract client IP", e);
   }
 
-  return null; // 明確回傳 null 讓呼叫者判斷錯誤
+  return null;
 }
 
 /**
