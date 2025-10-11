@@ -1,10 +1,12 @@
 import "server-only";
 import logger from "@/utils/logger";
+import { getConfigLastModified } from "@/utils/server/s3-client";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
   rateLimitWindowDdb,
 } from "@/models/rate-limit";
+import config from "@/config";
 
 let hasWarnedMissingRateLimit = false;
 
@@ -24,7 +26,6 @@ export function extractClientIp(req) {
     // x-real-ip used by some proxies
     const realIp = req?.headers?.get?.("x-real-ip");
     if (realIp) return realIp;
-
   } catch (e) {
     logger.warn("Failed to extract client IP", e);
   }
@@ -36,7 +37,7 @@ export function extractClientIp(req) {
  * Enforce an array of throttling rules.
  * Returns null if allowed; otherwise an object { status, body } suitable for a Response.
  */
-export async function enforceThrottle(rules = []) {
+export async function enforceDDBThrottle(rules = []) {
   if (!isDdbRateLimitEnabled()) {
     if (!hasWarnedMissingRateLimit) {
       logger.warn(
@@ -81,5 +82,32 @@ export async function enforceThrottle(rules = []) {
     }
   }
 
+  return null;
+}
+
+export async function enforceS3Throttle(user) {
+  const id = user.uuid;
+  if (!id) return null;
+  const THROTTLE_UPLOAD_MIN_MS = config.UPLOAD_MIN_MS; // 30 minutes default
+  const lastModified = await getConfigLastModified(id);
+  if (!lastModified) {
+    logger.info("No previous config timestamp — skipping throttle check.");
+    return null;
+  }
+
+  const timeGap = Date.now() - new Date(lastModified).getTime();
+  if (timeGap < THROTTLE_UPLOAD_MIN_MS) {
+    const waitMinutes = Math.ceil(
+      (THROTTLE_UPLOAD_MIN_MS - timeGap) / (1000 * 60),
+    );
+    logger.info(`[UPLOAD BLOCKED] User: ${id}, Time Gap: ${timeGap}ms`);
+    return {
+      status: 429,
+      body: {
+        type: "throttle error",
+        message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
+      },
+    };
+  }
   return null;
 }

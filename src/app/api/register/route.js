@@ -2,8 +2,11 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { registerCore } from "@/utils/server/register-core";
 import logger from "@utils/logger";
-import { enforceThrottle, extractClientIp } from "@/utils/server/throttle";
-import { registerIpRules, registerEmailRules } from "@/utils/server/throttle-rule";
+import { enforceDDBThrottle, extractClientIp } from "@/utils/server/throttle";
+import {
+  registerIpRules,
+  registerEmailRules,
+} from "@/utils/server/throttle-rule";
 import normalizeEmail from "@/utils/server/normalize-email";
 
 // Keep a server action-compatible function for potential form actions
@@ -23,7 +26,7 @@ export async function POST(req) {
         { status: 400 },
       );
     }
-    const throttleResult = await enforceThrottle(registerIpRules(ip));
+    const throttleResult = await enforceDDBThrottle(registerIpRules(ip));
     if (throttleResult) {
       return NextResponse.json(
         { success: false, ...throttleResult.body },
@@ -37,7 +40,7 @@ export async function POST(req) {
 
     // Per-identifier throttling (email)
     if (normalizedEmail) {
-      const emailThrottle = await enforceThrottle(
+      const emailThrottle = await enforceDDBThrottle(
         registerEmailRules(normalizedEmail),
       );
       if (emailThrottle) {

@@ -78,7 +78,8 @@ export function syncRules(ip, uuid) {
         ms: config.SYNC_USER_WINDOW_MS,
       },
       messages: {
-        tooFrequent: "Please wait a moment before retrying. One hour per sync per user.",
+        tooFrequent:
+          "Please wait a moment before retrying. One hour per sync per user.",
         windowExceeded: "Too many syncs in a short period.",
       },
     });

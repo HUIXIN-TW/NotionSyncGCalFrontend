@@ -144,7 +144,8 @@ const NotionCard = ({ session }) => {
       setLastFetchedAt(new Date(now).toLocaleString());
     } else {
       setShowFetchButton(true);
-      alert("Failed to save.");
+      const { message } = await res.json();
+      alert("Save failed: " + message);
     }
   };
 

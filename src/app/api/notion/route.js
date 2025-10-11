@@ -5,9 +5,9 @@ import {
   getNotionConfig,
   uploadNotionConfig,
 } from "@/utils/server/s3-client";
+import { enforceS3Throttle } from "@/utils/server/throttle";
 
 const isProd = process.env.NODE_ENV === "production";
-const THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -114,35 +114,16 @@ export async function POST(req) {
       existingConfig.notion_token
     ) {
       mergedConfig.notion_token = existingConfig.notion_token;
-      if (!isProd) {
-        logger.info("Masked token detected, preserving original token.");
-        logger.sensitive("Incoming (masked)", "[masked]");
-        logger.sensitive("Replacing with", "[masked]");
-      }
+      logger.info("Masked token detected, preserving original token.");
+      logger.sensitive("Incoming (masked)", "[masked]");
+      logger.sensitive("Replacing with", "[masked]");
     }
 
-    // Throttle protection if lastModified exists
-    const lastModified = await getConfigLastModified(uuid);
-    if (lastModified) {
-      const timeGap = Date.now() - new Date(lastModified).getTime();
-      const waitMinutes = Math.ceil((THROTTLE_MS - timeGap) / (1000 * 60));
-      if (isProd && timeGap < THROTTLE_MS) {
-        logger.info(`[UPLOAD BLOCKED] User: ${uuid}, Time Gap: ${timeGap}ms`);
-        return new Response(
-          JSON.stringify({
-            type: "throttle error",
-            message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
-          }),
-          { status: 429 },
-        );
-      }
-    } else {
-      logger.info("No previous config timestamp — skipping throttle check.");
-    }
-
-    if (!isProd) {
-      logger.sensitive("Merged config to upload", "[masked]");
-    }
+    const s3Block = await enforceS3Throttle({ uuid });
+    if (s3Block && isProd)
+      return new Response(JSON.stringify(s3Block.body), {
+        status: s3Block.status,
+      });
   } catch (err) {
     logger.error("Failed to validate upload frequency", err);
     return new Response(

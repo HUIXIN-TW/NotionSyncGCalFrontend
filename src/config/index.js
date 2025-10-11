@@ -21,6 +21,9 @@ const config = {
   REGISTER_EMAIL_MIN_MS: 5000,
   REGISTER_EMAIL_WINDOW_LIMIT: 3,
   REGISTER_EMAIL_WINDOW_MS: 5 * 60_000,
+
+  // S3 Upload throttling
+  UPLOAD_MIN_MS: 30 * 60_000, // per user UUID: 30 minutes
 };
 
 export default config;

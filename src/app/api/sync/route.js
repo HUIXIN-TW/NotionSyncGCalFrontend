@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { validateConfig } from "@/utils/server/validate-config";
 import { sendSyncJobMessage } from "@/utils/server/sqs-client";
-import { enforceThrottle, extractClientIp } from "@/utils/server/throttle";
+import { enforceDDBThrottle, extractClientIp } from "@/utils/server/throttle";
 import { syncRules } from "@/utils/server/throttle-rule";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -48,7 +48,7 @@ export async function POST(req) {
   }
   // Check if notion config exists
   const { valid, response } = await validateConfig(uuid);
-if (!valid) return response;
+  if (!valid) return response;
 
   // Throttle by IP and by user UUID
   const ip = extractClientIp(req) || null;
@@ -61,7 +61,7 @@ if (!valid) return response;
 
   // Only enforce throttle in production environment
   if (isProd) {
-    const throttleResult = await enforceThrottle(syncRules(ip, uuid));
+    const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
     if (throttleResult) {
       return NextResponse.json(
         {
