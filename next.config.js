@@ -8,10 +8,8 @@ const nextConfig = {
     return config;
   },
   // bundle in frontend code that uses process.env.NEXT_PUBLIC_*
-  env: {
-    DYNAMODB_REGION: process.env.DYNAMODB_REGION,
-    S3_REGION: process.env.S3_REGION,
-  },
+  // env: {
+  // },
 };
 
 module.exports = nextConfig;
