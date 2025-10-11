@@ -49,7 +49,11 @@ export async function registerCore({
     }
 
     if (await getUserByEmail(email)) {
-      return { success: false, error: "Email already exists", reason: "conflict" };
+      return {
+        success: false,
+        error: "Email already exists",
+        reason: "conflict",
+      };
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -69,12 +73,14 @@ export async function registerCore({
         logger.error("Template upload error", err?.message || err),
       );
     } else {
-      logger.error("Cannot resolve uuid from created user", { id: newUser?.id || null });
+      logger.error("Cannot resolve uuid from created user", {
+        id: newUser?.id || null,
+      });
     }
 
     return { success: true };
   } catch (error) {
-  logger.error("Registration error", error);
+    logger.error("Registration error", error);
     return {
       success: false,
       error: "Registration failed. Please try again later.",

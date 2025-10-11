@@ -1,8 +1,7 @@
-import "server-only";  
+import "server-only";
 import { NextResponse } from "next/server";
 import { registerCore } from "@utils/register-core";
 import logger from "@utils/logger";
-
 
 // Keep a server action-compatible function for potential form actions
 export const register = async (_prevState, formData) => {
@@ -25,8 +24,16 @@ export async function POST(req) {
     });
 
     if (!result?.success) {
-      const status = result?.reason === "validation" ? 400 : result?.reason === "conflict" ? 409 : 500;
-      return NextResponse.json({ success: false, error: result?.error || "Registration failed" }, { status });
+      const status =
+        result?.reason === "validation"
+          ? 400
+          : result?.reason === "conflict"
+            ? 409
+            : 500;
+      return NextResponse.json(
+        { success: false, error: result?.error || "Registration failed" },
+        { status },
+      );
     }
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
