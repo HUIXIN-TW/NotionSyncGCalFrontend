@@ -1,3 +1,4 @@
+import "server-only";
 import notionTemplate from "@/templates/notion_setting.json";
 import googleTemplate from "@/templates/token.json";
 import {

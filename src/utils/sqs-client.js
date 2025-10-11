@@ -1,4 +1,4 @@
-// src/utils/sqs-client.js
+import "server-only";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 const sqsQueueUrl = process.env.SQS_QUEUE_URL;

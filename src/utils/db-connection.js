@@ -2,7 +2,7 @@
  * Database connection management
  * Provides functions to connect to and check the status of the DynamoDB connection
  */
-
+import "server-only";
 import { ddb } from "./db-client.js";
 import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 

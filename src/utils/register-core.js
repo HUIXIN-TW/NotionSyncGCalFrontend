@@ -1,17 +1,10 @@
-"use server";
-
+import "server-only";
 import bcrypt from "bcrypt";
+import logger, { maskValue } from "@utils/logger";
 import { createUser, getUserByEmail } from "@models/user";
 import { connectToDatabase } from "@utils/db-connection";
 import { uploadTemplates } from "@utils/s3-client";
 
-/**
- * Validates user registration data
- * @param {string} email - User email
- * @param {string} password - User password
- * @param {string} passwordRepeat - Password confirmation
- * @returns {{isValid: boolean, error?: string}} Validation result
- */
 const validateRegistrationData = (email, password, passwordRepeat) => {
   if (!email || !password || !passwordRepeat) {
     return { isValid: false, error: "All fields are required" };
@@ -28,7 +21,6 @@ const validateRegistrationData = (email, password, passwordRepeat) => {
     };
   }
 
-  // Basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return { isValid: false, error: "Invalid email format" };
@@ -37,20 +29,15 @@ const validateRegistrationData = (email, password, passwordRepeat) => {
   return { isValid: true };
 };
 
-/**
- * Registers a new user for credential‑based sign‑ups
- * @param {Object} prevState - Previous state
- * @param {FormData} formData - Form data containing user registration information
- * @returns {Promise<Object>} Result of the registration attempt
- */
-export const register = async (_prevState, formData) => {
+export async function registerCore({
+  email,
+  password,
+  passwordRepeat,
+  username,
+  image,
+}) {
   try {
-    // Ensure database connection
     await connectToDatabase();
-
-    // Extract and validate form data
-    const { email, password, passwordRepeat, username, image } =
-      Object.fromEntries(formData);
 
     const validation = validateRegistrationData(
       email,
@@ -58,19 +45,16 @@ export const register = async (_prevState, formData) => {
       passwordRepeat,
     );
     if (!validation.isValid) {
-      return { success: false, error: validation.error };
+      return { success: false, error: validation.error, reason: "validation" };
     }
 
-    // Duplicate check
     if (await getUserByEmail(email)) {
-      return { success: false, error: "Email already exists" };
+      return { success: false, error: "Email already exists", reason: "conflict" };
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
 
-    // Create new user data
-    console.log("Creating New User");
     const newUser = await createUser({
       email,
       username: username || email.split("@")[0],
@@ -80,21 +64,23 @@ export const register = async (_prevState, formData) => {
       ...(image && { image }),
     });
 
-    // Upload Template
-    if (!newUser.uuid) {
-      console.error("Cannot resolve uuid from created user:", newUser);
-    } else {
-      console.log("Creating Templates");
+    if (newUser?.uuid) {
       uploadTemplates(newUser.uuid).catch((err) =>
-        console.error("Template upload error:", err),
+        logger.error("Template upload error", err?.message || err),
       );
+    } else {
+      logger.error("Cannot resolve uuid from created user", { id: newUser?.id || null });
     }
+
     return { success: true };
   } catch (error) {
-    console.error("Registration error:", error);
+  logger.error("Registration error", error);
     return {
       success: false,
       error: "Registration failed. Please try again later.",
+      reason: "server",
     };
   }
-};
+}
+
+export default registerCore;

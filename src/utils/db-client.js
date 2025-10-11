@@ -2,7 +2,7 @@
  * DynamoDB client configuration
  * Creates and exports a DynamoDB document client for database operations
  */
-
+import "server-only";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
