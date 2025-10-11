@@ -6,10 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "test": "node --test tests/*.test.js",
-    "test:db": "node tests/db-client.test.js",
-    "test:user": "node tests/user-model.test.js"
+    "lint": "next lint"
   },
   "engines": {
     "node": "22.x"

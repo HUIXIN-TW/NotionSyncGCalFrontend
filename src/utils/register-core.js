@@ -2,7 +2,6 @@ import "server-only";
 import bcrypt from "bcrypt";
 import logger, { maskValue } from "@utils/logger";
 import { createUser, getUserByEmail } from "@models/user";
-import { connectToDatabase } from "@utils/db-connection";
 import { uploadTemplates } from "@utils/s3-client";
 
 const validateRegistrationData = (email, password, passwordRepeat) => {
@@ -37,8 +36,6 @@ export async function registerCore({
   image,
 }) {
   try {
-    await connectToDatabase();
-
     const validation = validateRegistrationData(
       email,
       password,

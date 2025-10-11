@@ -1,6 +1,5 @@
 import logger from "@utils/logger";
 import { getAllUsers } from "@models/user";
-import { connectToDatabase } from "@utils/db-connection";
 import { getToken } from "next-auth/jwt";
 
 const sanitize = (u) => {
@@ -21,9 +20,6 @@ export const GET = async (request) => {
     if (token.role !== "admin") {
       return new Response(JSON.stringify({ message: "Forbidden" }), { status: 403 });
     }
-
-    // Connect to the database
-    await connectToDatabase();
 
     // Fetch all users using the DynamoDB model
     const users = await getAllUsers();

@@ -1,5 +1,5 @@
+"use client"
 import logger from "@utils/logger";
-("use client");
 
 import React, { useState, useEffect } from "react";
 import styles from "./profile.module.css";

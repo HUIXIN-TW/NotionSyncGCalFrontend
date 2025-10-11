@@ -1,6 +1,5 @@
 import logger from "@utils/logger";
 import { getUserById } from "@models/user";
-import { connectToDatabase } from "@utils/db-connection";
 import { getToken } from "next-auth/jwt";
 
 const sanitize = (u) => {
@@ -16,9 +15,6 @@ export const GET = async (request, { params }) => {
     if (!token) {
       return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
     }
-
-    // Connect to the database
-    await connectToDatabase();
 
     // Fetch user by id using the DynamoDB model
     const userId = params.uuid || params.id || params?.userId;
