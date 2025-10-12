@@ -6,15 +6,15 @@ export const runtime = "nodejs";
 export async function GET() {
   const secretKeys = [
     "NODE_ENV",
-    "NEXTAUTH_SECRET",
-    "GOOGLE_CLIENT_SECRET",
-    "AWS_REGION",
-    "DYNAMODB_USER_TABLE",
-    "DYNAMODB_RATE_LIMIT_TABLE",
-    "S3_BUCKET_NAME",
-    "S3_GOOGLE_KEY",
-    "S3_NOTION_KEY",
-    "SQS_QUEUE_URL",
+    // "NEXTAUTH_SECRET",
+    // "GOOGLE_CLIENT_SECRET",
+    // "AWS_REGION",
+    // "DYNAMODB_USER_TABLE",
+    // "DYNAMODB_RATE_LIMIT_TABLE",
+    // "S3_BUCKET_NAME",
+    // "S3_GOOGLE_KEY",
+    // "S3_NOTION_KEY",
+    // "SQS_QUEUE_URL",
   ];
   const presence = Object.fromEntries(
     secretKeys.map((k) => [k, process.env[k] ? true : false]),
