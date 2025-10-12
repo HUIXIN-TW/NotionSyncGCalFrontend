@@ -16,6 +16,9 @@ frontend:
         # list masked .env
         - echo "Masked .env preview:" && sed -E 's/^([^=]+=)(...).*$/\1\2*******/' .env | sort
 
+        # list unmasked .env (for debugging only, remove in production)
+        - echo "Unmasked .env preview:" && cat .env | sort
+
         # list all env vars
         - echo "All env vars:" && printenv | sort
 
