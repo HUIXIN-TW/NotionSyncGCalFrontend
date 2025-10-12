@@ -3,7 +3,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        - set -euo pipefail
         # --- fetch SSM to .env ---
         - set -euo pipefail
         - >
