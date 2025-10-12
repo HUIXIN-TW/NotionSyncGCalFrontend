@@ -2,6 +2,7 @@ import "server-only";
 
 export const runtime = "nodejs";
 
+// curl -s -u '<username>:<password>' <endpoint> | jq
 export async function GET() {
   const keys = [
     "NODE_ENV",
