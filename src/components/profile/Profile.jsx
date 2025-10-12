@@ -8,7 +8,7 @@ import SyncButton from "@components/button/SyncButton";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.APP_ENV === "production";
 
 const Profile = ({ session, signOut }) => {
   const [now, setNow] = useState(Date.now());

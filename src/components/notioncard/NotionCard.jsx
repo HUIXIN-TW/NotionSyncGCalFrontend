@@ -20,7 +20,7 @@ const LABEL_MAP = {
   page_property: "Page Property Mapping",
 };
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.APP_ENV === "production";
 
 const NotionCard = ({ session }) => {
   const router = useRouter();
