@@ -11,7 +11,7 @@ import {
 import parseDatetimeFormat from "@/utils/client/parse-datetime";
 
 const s3Client = new S3Client({
-  region: process.env.S3_REGION || "us-east-1", // Default to us-east-1 if not specified
+  region: process.env.AWS_REGION, // Default to us-east-1 if not specified
 });
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 const S3_GOOGLE_KEY = process.env.S3_GOOGLE_KEY;
