@@ -7,7 +7,7 @@ import {
 } from "@/utils/server/s3-client";
 import { enforceS3Throttle } from "@/utils/server/throttle";
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = ["master", "production"].includes((process.env.AWS_BRANCH || "").toLowerCase());
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

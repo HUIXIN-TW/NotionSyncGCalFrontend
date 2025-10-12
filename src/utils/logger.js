@@ -2,8 +2,7 @@
 // - In production, suppress debug logs and optionally sensitive logs
 // - In non-production, print helpful messages for debugging
 
-const ENV = process.env.NODE_ENV || "development";
-const isProd = ENV === "production";
+const isProd = ["master", "production"].includes((process.env.AWS_BRANCH || "").toLowerCase());
 
 // Basic mask helpers to avoid printing full secrets
 export function maskValue(value, visible = 4) {
