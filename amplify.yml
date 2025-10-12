@@ -11,16 +11,19 @@ frontend:
           | awk -F'\t' '{k=$1; gsub(".*/","",k); printf("%s=%s\n", toupper(k), $2)}' > .env
 
         # list keys only
-        - echo "Loaded keys:" && awk -F'=' '{print $1}' .env | sort
+        # - echo "Loaded keys:" && awk -F'=' '{print $1}' .env | sort
 
         # list masked .env
         - echo "Masked .env preview:" && sed -E 's/^([^=]+=)(...).*$/\1\2*******/' .env | sort
 
         # list unmasked .env (for debugging only, remove in production)
-        - echo "Unmasked .env preview:" && cat .env | sort
+        # - echo "Unmasked .env preview:" && cat .env | sort
 
         # list all env vars
-        - echo "All env vars:" && printenv | sort
+        # - echo "All env vars:" && printenv | sort
+
+        # list specific env vars: AWS_BRANCH=staging
+        - echo "Specific env vars:" && echo "AWS_BRANCH=$AWS_BRANCH" && echo "NODE_ENV=$NODE_ENV"
 
         # Node version
         - export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
