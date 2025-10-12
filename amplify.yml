@@ -14,9 +14,9 @@ frontend:
         - echo "Loaded keys:" && awk -F'=' '{print $1}' .env | sort
 
         # list masked .env
-        - echo "Masked .env preview:" && sed -E 's/^(.*=).+$/\1*******/' .env | sort
+        - echo "Masked .env preview:" && sed -E 's/^([^=]+=)(...).*$/\1\2*******/' .env | sort
 
-        # 5) Node version
+        # Node version
         - export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
         - nvm install 20 && nvm use 20
         - node -v
