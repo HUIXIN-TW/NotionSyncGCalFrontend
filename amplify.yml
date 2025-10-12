@@ -3,19 +3,22 @@ frontend:
   phases:
     preBuild:
       commands:
-        # --- fetch SSM to .env ---
         - set -euo pipefail
+        # store SSM parameters to .env
         - >
           aws ssm get-parameters-by-path --region us-east-1 --path "/notion-sync-gcal/" --recursive --with-decryption
           --query 'Parameters[].{K:Name,V:Value}' --output text
           | awk -F'\t' '{k=$1; gsub(".*/","",k); printf("%s=%s\n", toupper(k), $2)}' > .env
+
+        # list keys only
         - echo "Loaded keys:" && awk -F'=' '{print $1}' .env | sort
+
+        # list masked .env
+        - echo "Masked .env preview:" && sed -E 's/^(.*=).+$/\1*******/' .env | sort
+
+        # 5) Node version
         - export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-        # --- Node version via nvm ---
-        - export NVM_DIR="$HOME/.nvm"
-        - '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
-        - nvm install 20
-        - nvm use 20
+        - nvm install 20 && nvm use 20
         - node -v
         - npm ci
     build:
