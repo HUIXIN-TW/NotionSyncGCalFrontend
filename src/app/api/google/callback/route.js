@@ -10,20 +10,21 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 export async function GET(req) {
   const url = new URL(req.url);
+  const BaseUrl = process.env.NEXTAUTH_URL || url.origin;
   const code = url.searchParams.get("code");
   const returned = url.searchParams.get("state");
   const err = url.searchParams.get("error");
 
   // check error
   if (err || !code) {
-    return NextResponse.redirect(new URL("/profile?google=error", url.origin));
+    return NextResponse.redirect(new URL("/profile?google=error", BaseUrl));
   }
 
   // verify uuid, state, code_verifier
   const session = await getServerSession(authOptions);
   if (!session?.user?.uuid || !session?.user?.email) {
     return NextResponse.redirect(
-      new URL("/profile?google=error&reason=unauthorized", url.origin),
+      new URL("/profile?google=error&reason=unauthorized", BaseUrl),
     );
   }
   const allowedEmail = session.user.email.toLowerCase();
@@ -34,13 +35,13 @@ export async function GET(req) {
   const codeVerifier = jar.get("google_code_verifier")?.value || "";
   if (!returned || returned !== expected || !codeVerifier) {
     return NextResponse.redirect(
-      new URL("/profile?google=error&reason=state", url.origin),
+      new URL("/profile?google=error&reason=state", BaseUrl),
     );
   }
   const [userUuid] = returned.split(":");
   if (!userUuid) {
     return NextResponse.redirect(
-      new URL("/profile?google=error&reason=uuid", url.origin),
+      new URL("/profile?google=error&reason=uuid", BaseUrl),
     );
   }
 
@@ -52,7 +53,7 @@ export async function GET(req) {
       code,
       code_verifier: codeVerifier,
       grant_type: "authorization_code",
-      redirect_uri: `${process.env.NEXTAUTH_URL || url.origin}/api/google/callback`,
+      redirect_uri: `${BaseUrl}/api/google/callback`,
     });
 
     const tokenResp = await fetch("https://oauth2.googleapis.com/token", {
@@ -64,7 +65,7 @@ export async function GET(req) {
     if (!tokenResp.ok) {
       logger.error("Google token exchange failed", t);
       return NextResponse.redirect(
-        new URL("/profile?google=error&reason=token", url.origin),
+        new URL("/profile?google=error&reason=token", BaseUrl),
       );
     }
 
@@ -79,14 +80,14 @@ export async function GET(req) {
     if (!uiResp.ok) {
       logger.error("Failed to fetch userinfo", profile);
       return NextResponse.redirect(
-        new URL("/profile?google=error&reason=userinfo", url.origin),
+        new URL("/profile?google=error&reason=userinfo", BaseUrl),
       );
     }
     const googleEmail = (profile.email || "").toLowerCase();
     if (googleEmail !== allowedEmail) {
       logger.warn("Email mismatch", { googleEmail, allowedEmail });
       return NextResponse.redirect(
-        new URL("/profile?google=error&reason=email_mismatch", url.origin),
+        new URL("/profile?google=error&reason=email_mismatch", BaseUrl),
       );
     }
 
@@ -106,7 +107,7 @@ export async function GET(req) {
 
     // clean up cookies & redirect
     const res = NextResponse.redirect(
-      new URL("/profile?google=connected", url.origin),
+      new URL("/profile?google=connected", BaseUrl),
     );
     res.cookies.set("google_oauth_state", "", { maxAge: 0, path: "/" });
     res.cookies.set("google_code_verifier", "", { maxAge: 0, path: "/" });
@@ -114,7 +115,7 @@ export async function GET(req) {
   } catch (e) {
     logger.error("OAuth callback error", e);
     return NextResponse.redirect(
-      new URL("/profile?google=error&reason=server", url.origin),
+      new URL("/profile?google=error&reason=server", BaseUrl),
     );
   }
 }

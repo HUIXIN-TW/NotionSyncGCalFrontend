@@ -9,13 +9,14 @@ function clearState(res) {
 
 export async function GET(req) {
   const url = new URL(req.url);
+  const BaseUrl = process.env.NEXTAUTH_URL || url.origin;
   const code = url.searchParams.get("code");
   const returnedState = url.searchParams.get("state");
   const oauthErr = url.searchParams.get("error");
 
   if (oauthErr || !code) {
     const res = NextResponse.redirect(
-      new URL("/profile?notion=error", url.origin),
+      new URL("/profile?notion=error", BaseUrl),
     );
     clearState(res);
     return res;
@@ -26,7 +27,7 @@ export async function GET(req) {
   if (!returnedState || returnedState !== expectedState) {
     logger.error("State mismatch");
     const res = NextResponse.redirect(
-      new URL("/profile?notion=error&reason=state", url.origin),
+      new URL("/profile?notion=error&reason=state", BaseUrl),
     );
     clearState(res);
     return res;
@@ -36,7 +37,7 @@ export async function GET(req) {
   const [userUuid] = returnedState.split(":");
   if (!userUuid) {
     const res = NextResponse.redirect(
-      new URL("/profile?notion=error&reason=uuid", url.origin),
+      new URL("/profile?notion=error&reason=uuid", BaseUrl),
     );
     clearState(res);
     return res;
@@ -65,7 +66,7 @@ export async function GET(req) {
     if (!tokenRes.ok) {
       logger.error("Notion token exchange failed", { status: tokenRes.status });
       const res = NextResponse.redirect(
-        new URL("/profile?notion=error&reason=token", url.origin),
+        new URL("/profile?notion=error&reason=token", BaseUrl),
       );
       clearState(res);
       return res;
@@ -90,7 +91,7 @@ export async function GET(req) {
     const res = NextResponse.redirect(
       new URL(
         `/profile?notion=connected&workspace=${encodeURIComponent(workspace_name || workspace_id || "ok")}`,
-        url.origin,
+        BaseUrl,
       ),
     );
     clearState(res);
@@ -98,7 +99,7 @@ export async function GET(req) {
   } catch (e) {
     logger.error("Callback error", { message: e?.message });
     const res = NextResponse.redirect(
-      new URL("/profile?notion=error&reason=server", url.origin),
+      new URL("/profile?notion=error&reason=server", BaseUrl),
     );
     clearState(res);
     return res;
