@@ -10,11 +10,13 @@ function clearState(res) {
 export async function GET(req) {
   const url = new URL(req.url);
   const BaseUrl = process.env.NEXTAUTH_URL || url.origin;
+  const redirectUri = `${BaseUrl}/api/notion/callback`;
   const code = url.searchParams.get("code");
   const returnedState = url.searchParams.get("state");
   const oauthErr = url.searchParams.get("error");
 
   if (oauthErr || !code) {
+    logger.error("OAuth error", { error: oauthErr });
     const res = NextResponse.redirect(
       new URL("/profile?notion=error", BaseUrl),
     );
@@ -22,8 +24,9 @@ export async function GET(req) {
     return res;
   }
 
-  const expectedState =
-    (await cookies().get("notion_oauth_state")?.value) || "";
+  const jar = await cookies();
+  const expectedState = jar.get("notion_oauth_state")?.value || "";
+
   if (!returnedState || returnedState !== expectedState) {
     logger.error("State mismatch");
     const res = NextResponse.redirect(
@@ -36,6 +39,7 @@ export async function GET(req) {
   // check user uuid
   const [userUuid] = returnedState.split(":");
   if (!userUuid) {
+    logger.error("Missing user uuid in state");
     const res = NextResponse.redirect(
       new URL("/profile?notion=error&reason=uuid", BaseUrl),
     );
@@ -58,13 +62,16 @@ export async function GET(req) {
       body: JSON.stringify({
         grant_type: "authorization_code",
         code,
-        redirect_uri: process.env.NOTION_REDIRECT_URI,
+        redirect_uri: redirectUri,
       }),
     });
 
     const tokenJson = await tokenRes.json();
     if (!tokenRes.ok) {
-      logger.error("Notion token exchange failed", { status: tokenRes.status });
+      logger.error("Notion Client ID: " + process.env.NOTION_CLIENT_ID);
+      logger.error("Notion Client Secret: " + process.env.NOTION_CLIENT_SECRET);
+      logger.error("Notion Redirect URI: " + redirectUri);
+      logger.error("Token exchange failed", { body: tokenJson });
       const res = NextResponse.redirect(
         new URL("/profile?notion=error&reason=token", BaseUrl),
       );
