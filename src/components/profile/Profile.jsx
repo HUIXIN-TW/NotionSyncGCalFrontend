@@ -6,11 +6,12 @@ import styles from "./profile.module.css";
 import Button from "@components/button/Button";
 import SyncButton from "@components/button/SyncButton";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
+import RefreshNotionButton from "@components/button/RefreshNotionButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
 
 const isProd = process.env.APP_ENV === "production";
 
-const Profile = ({ session, signOut }) => {
+const Profile = ({ session, signOut, notice }) => {
   const [now, setNow] = useState(Date.now());
   const [syncResult, setSyncResult] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -165,8 +166,8 @@ const Profile = ({ session, signOut }) => {
       )}
 
       <GetNotionConfigButton />
+      <RefreshNotionButton />
       <RefreshGCalButton />
-      {/* {syncResult?.needRefresh && <RefreshGCalButton />} */}
 
       <SyncButton
         text={
@@ -182,6 +183,11 @@ const Profile = ({ session, signOut }) => {
       />
 
       <Button text="Sign Out" onClick={signOut} />
+      {notice && (
+        <div className={styles.support_section}>
+          <span className={styles.note}>{notice}</span>
+        </div>
+      )}
 
       <div className={styles.support_section}>
         <span className={styles.note}>
