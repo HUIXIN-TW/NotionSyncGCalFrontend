@@ -6,7 +6,9 @@ import { sendSyncJobMessage } from "@/utils/server/sqs-client";
 import { enforceDDBThrottle, extractClientIp } from "@/utils/server/throttle";
 import { syncRules } from "@/utils/server/throttle-rule";
 
-const isProd = ["master", "production"].includes((process.env.AWS_BRANCH || "").toLowerCase());
+const isProd = ["master", "production"].includes(
+  (process.env.AWS_BRANCH || "").toLowerCase(),
+);
 
 export async function POST(req) {
   // AuthN

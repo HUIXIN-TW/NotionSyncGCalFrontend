@@ -105,7 +105,8 @@ const SignUpForm = () => {
       />
       <p>
         By signing up, you agree to our{" "}
-        <Link href="/privacy">Privacy Policy</Link>.
+        <Link href="/privacy">Privacy Policy</Link> and{" "}
+        <Link href="/terms">Terms of Service</Link>.
       </p>
       <Button
         text={pending || googleLoading ? "Signing up..." : "Sign Up"}

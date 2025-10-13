@@ -2,7 +2,11 @@ const isServer = typeof window === "undefined";
 
 function resolveIsProd() {
   if (isServer) {
-    const b = (process.env.AWS_BRANCH || process.env.APP_ENV || "").toLowerCase();
+    const b = (
+      process.env.AWS_BRANCH ||
+      process.env.APP_ENV ||
+      ""
+    ).toLowerCase();
     return ["master", "production"].includes(b);
   } else {
     const env = (process.env.NEXT_PUBLIC_APP_ENV || "").toLowerCase();
@@ -20,25 +24,32 @@ export function maskValue(value, visible = 4) {
 
 // sinks
 const noop = () => {};
-const sinks = (!isServer && isProd)
-  ? { debug: noop, info: noop, warn: noop, error: noop, sensitive: noop }
-  : {
-      debug: (...args) => { if (!isProd) console.debug("[DEBUG]", ...args); },
-      info:  (...args) => { if (!isProd) console.info("[INFO]", ...args); },
-      warn:  (...args) => { if (!isProd) console.warn("[WARN]", ...args); },
-      error: (...args) => {
-        if (isProd) {
-          const safe = args.map(a => (a instanceof Error ? a.message : a));
-          console.error("[ERROR]", ...safe);
-        } else {
-          console.error("[ERROR]", ...args);
-        }
-      },
-      sensitive: (...args) => {
-        if (!isServer) return;
-        if (!isProd) console.log("[SENSITIVE]", ...args);
-      },
-    };
+const sinks =
+  !isServer && isProd
+    ? { debug: noop, info: noop, warn: noop, error: noop, sensitive: noop }
+    : {
+        debug: (...args) => {
+          if (!isProd) console.debug("[DEBUG]", ...args);
+        },
+        info: (...args) => {
+          if (!isProd) console.info("[INFO]", ...args);
+        },
+        warn: (...args) => {
+          if (!isProd) console.warn("[WARN]", ...args);
+        },
+        error: (...args) => {
+          if (isProd) {
+            const safe = args.map((a) => (a instanceof Error ? a.message : a));
+            console.error("[ERROR]", ...safe);
+          } else {
+            console.error("[ERROR]", ...args);
+          }
+        },
+        sensitive: (...args) => {
+          if (!isServer) return;
+          if (!isProd) console.log("[SENSITIVE]", ...args);
+        },
+      };
 
 export default sinks;
 export const isProdRuntime = isProd;
