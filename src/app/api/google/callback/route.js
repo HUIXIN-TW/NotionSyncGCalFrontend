@@ -1,9 +1,9 @@
-import logger from "@utils/logger";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { google } from "googleapis";
 import { uploadGoogleTokens } from "@/utils/server/s3-client";
+import logger from "@utils/logger";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -11,68 +11,110 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 export async function GET(req) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state");
+  const returned = url.searchParams.get("state");
+  const err = url.searchParams.get("error");
 
+  // check error
+  if (err || !code) {
+    return NextResponse.redirect(new URL("/profile?google=error", url.origin));
+  }
+
+  // verify uuid, state, code_verifier
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    return NextResponse.redirect(new URL("/profile?refresh=unauthorized", url));
+  if (!session?.user?.uuid || !session?.user?.email) {
+    return NextResponse.redirect(
+      new URL("/profile?google=error&reason=unauthorized", url.origin),
+    );
+  }
+  const allowedEmail = session.user.email.toLowerCase();
+
+  // verify state & code_verifier
+  const jar = await cookies();
+  const expected = jar.get("google_oauth_state")?.value || "";
+  const codeVerifier = jar.get("google_code_verifier")?.value || "";
+  if (!returned || returned !== expected || !codeVerifier) {
+    return NextResponse.redirect(
+      new URL("/profile?google=error&reason=state", url.origin),
+    );
+  }
+  const [userUuid] = returned.split(":");
+  if (!userUuid) {
+    return NextResponse.redirect(
+      new URL("/profile?google=error&reason=uuid", url.origin),
+    );
   }
 
-  // Log state and session UUID for debugging
-  logger.debug(
-    "OAuth callback state:",
-    state,
-    "Session UUID:",
-    session.user.uuid,
-  );
-  if (state !== session.user.uuid) {
-    return NextResponse.redirect(new URL("/profile?error=state_mismatch", url));
-  }
-
-  // Compute redirect URI same as auth-url (use production URL if provided)
-  const origin = url.origin;
-  const baseUrl = process.env.NEXTAUTH_URL || origin;
-  // Determine callback URL using production NEXTAUTH_URL or origin
-  const callbackUri = `${baseUrl}/api/google/callback`;
-  logger.debug("Callback using redirect URI:", callbackUri);
-  const oauth2Client = new google.auth.OAuth2(
-    GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET,
-    callbackUri,
-  );
-
+  // exchange token & fetch userinfo
   try {
-    const { tokens } = await oauth2Client.getToken(code);
-    logger.sensitive("Received tokens", "[masked]");
+    const tokenBody = new URLSearchParams({
+      client_id: GOOGLE_CLIENT_ID,
+      client_secret: GOOGLE_CLIENT_SECRET,
+      code,
+      code_verifier: codeVerifier,
+      grant_type: "authorization_code",
+      redirect_uri: `${process.env.NEXTAUTH_URL || url.origin}/api/google/callback`,
+    });
 
-    // get user information
-    oauth2Client.setCredentials({ access_token: tokens.access_token });
-    const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
-    const { data: profile } = await oauth2.userinfo.get();
-
-    // check access_token belong to current user's email
-    const loginEmail = (session.user.email || "").toLowerCase();
-    const googleEmail = (profile.email || "").toLowerCase();
-    const googleSub = profile.id; // for future use if need a hard match
-
-    // check if the same email
-    const updatedAt = new Date().toISOString();
-    if (loginEmail === googleEmail) {
-      await uploadGoogleTokens(
-        session.user.uuid,
-        googleSub,
-        googleEmail,
-        tokens,
-        updatedAt,
+    const tokenResp = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: tokenBody,
+    });
+    const t = await tokenResp.json();
+    if (!tokenResp.ok) {
+      logger.error("Google token exchange failed", t);
+      return NextResponse.redirect(
+        new URL("/profile?google=error&reason=token", url.origin),
       );
-      logger.info("Tokens uploaded successfully");
-    } else {
-      logger.warn("You need use the same account as your login information");
     }
-    return NextResponse.redirect(new URL("/profile", baseUrl));
-  } catch (err) {
-    logger.error("OAuth callback error", err);
-    logger.debug("Error details:", err.response?.data || err.message);
-    return NextResponse.redirect(new URL("/profile", baseUrl));
+
+    // compare email with allowed email
+    const uiResp = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: { Authorization: `Bearer ${t.access_token}` },
+      },
+    );
+    const profile = await uiResp.json();
+    if (!uiResp.ok) {
+      logger.error("Failed to fetch userinfo", profile);
+      return NextResponse.redirect(
+        new URL("/profile?google=error&reason=userinfo", url.origin),
+      );
+    }
+    const googleEmail = (profile.email || "").toLowerCase();
+    if (googleEmail !== allowedEmail) {
+      logger.warn("Email mismatch", { googleEmail, allowedEmail });
+      return NextResponse.redirect(
+        new URL("/profile?google=error&reason=email_mismatch", url.origin),
+      );
+    }
+
+    // store tokens
+    await uploadGoogleTokens(
+      userUuid,
+      profile.id || null, // sub
+      googleEmail, // email
+      {
+        access_token: t.access_token,
+        refresh_token: t.refresh_token,
+        expiry_date: Date.now() + (t.expires_in || 0) * 1000,
+        scope: t.scope,
+      },
+      new Date().toISOString(),
+    );
+
+    // clean up cookies & redirect
+    const res = NextResponse.redirect(
+      new URL("/profile?google=connected", url.origin),
+    );
+    res.cookies.set("google_oauth_state", "", { maxAge: 0, path: "/" });
+    res.cookies.set("google_code_verifier", "", { maxAge: 0, path: "/" });
+    return res;
+  } catch (e) {
+    logger.error("OAuth callback error", e);
+    return NextResponse.redirect(
+      new URL("/profile?google=error&reason=server", url.origin),
+    );
   }
 }
