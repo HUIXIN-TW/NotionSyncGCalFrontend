@@ -18,12 +18,6 @@ const S3_GOOGLE_KEY = process.env.S3_GOOGLE_KEY;
 const S3_NOTION_KEY = process.env.S3_NOTION_KEY;
 const S3_NOTION_TOKEN_KEY = process.env.S3_NOTION_TOKEN_KEY;
 
-// Add Google OAuth configuration defaults
-// const GOOGLE_TOKEN_URL =
-//   process.env.GOOGLE_TOKEN_URL || "https://oauth2.googleapis.com/token";
-// const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-// const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-
 // Helper to convert AWS S3 stream to string
 const streamToString = (stream) =>
   new Promise((resolve, reject) => {
@@ -45,32 +39,44 @@ export async function uploadGoogleTokens(
   tokens,
   updatedAt,
 ) {
+  if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
+  if (!S3_GOOGLE_KEY) throw new Error("Missing S3_GOOGLE_KEY");
+  if (!userId) throw new Error("Missing userId");
+  if (!tokens?.access_token) throw new Error("Missing access_token");
+
+  // Normalize scopes to array of unique strings
+  const scopes = Array.isArray(tokens.scope)
+    ? [...new Set(tokens.scope)]
+    : typeof tokens.scope === "string"
+      ? [...new Set(tokens.scope.trim().split(/\s+/).filter(Boolean))]
+      : [];
+
+  const payload = {
+    userId,
+    userSub: userSub || null,
+    userEmail: userEmail || null,
+    token: tokens.access_token,
+    refresh_token: tokens.refresh_token || null,
+    expiry: tokens.expiry_date ? parseDatetimeFormat(tokens.expiry_date) : null,
+    scopes,
+    updatedAt: updatedAt || new Date().toISOString(),
+  };
+
   logger.sensitive("Uploading Google tokens to S3", {
     userId,
     tokens: "[masked]",
   });
-  logger.debug("S3_BUCKET_NAME:", S3_BUCKET_NAME);
-  logger.debug("S3_GOOGLE_KEY:", S3_GOOGLE_KEY);
-  const payload = {
-    userId: userId,
-    userSub: userSub,
-    userEmail: userEmail,
-    token: tokens.access_token,
-    refresh_token: tokens.refresh_token,
-    expiry: parseDatetimeFormat(tokens.expiry_date),
-    scopes: [tokens.scope],
-    updatedAt: updatedAt,
-  };
-  logger.sensitive("Payload", "[masked]");
-  const user_key = `${userId}/${S3_GOOGLE_KEY}`;
+  const key = `${userId}/${S3_GOOGLE_KEY}`;
+
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
-    Key: user_key,
+    Key: key,
     Body: JSON.stringify(payload),
     ContentType: "application/json",
   });
+
   await s3Client.send(command);
-  logger.info("Upload successful for user", userId);
+  logger.info("Google tokens uploaded", { userId, key });
 }
 
 /**
