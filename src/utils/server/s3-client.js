@@ -1,7 +1,7 @@
 import "server-only";
 import logger from "@utils/logger";
-import notionTemplate from "@/templates/notion_setting.json";
-import googleTemplate from "@/templates/token.json";
+import notionTemplate from "@/templates/notion_config.json";
+import googleTemplate from "@/templates/google_token.json";
 import {
   S3Client,
   PutObjectCommand,

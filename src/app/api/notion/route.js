@@ -88,11 +88,11 @@ export async function POST(req) {
   }
 
   // Basic validation of required fields
-  if (!incomingConfig.notion_token || !incomingConfig.urlroot) {
+  if (!incomingConfig.database_id) {
     return new Response(
       JSON.stringify({
         type: "error",
-        message: "Missing required config fields: notion_token or urlroot",
+        message: "Missing required config fields: database id",
       }),
       { status: 400 },
     );
