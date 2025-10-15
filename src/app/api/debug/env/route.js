@@ -12,8 +12,9 @@ export async function GET() {
     // "DYNAMODB_USER_TABLE",
     // "DYNAMODB_RATE_LIMIT_TABLE",
     // "S3_BUCKET_NAME",
-    // "S3_GOOGLE_KEY",
-    // "S3_NOTION_KEY",
+    // "S3_GOOGLE_TOKEN_PATH",
+    // "S3_NOTION_CONFIG_PATH",
+    // "S3_NOTION_TOKEN_PATH",
     // "SQS_QUEUE_URL",
   ];
   const presence = Object.fromEntries(

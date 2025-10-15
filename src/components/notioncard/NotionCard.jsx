@@ -11,7 +11,7 @@ const LABEL_MAP = {
   goback_days: "Go Back Days",
   goforward_days: "Go Forward Days",
   notion_token: "Notion Token",
-  urlroot: "Notion URL Root",
+  database_id: "Notion Database ID",
   timecode: "Time Code",
   timezone: "Time Zone",
   default_event_length: "Default Event Length (min)",

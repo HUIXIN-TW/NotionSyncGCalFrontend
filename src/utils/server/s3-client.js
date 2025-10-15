@@ -14,9 +14,9 @@ const s3Client = new S3Client({
   region: process.env.AWS_REGION, // Default to us-east-1 if not specified
 });
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
-const S3_GOOGLE_KEY = process.env.S3_GOOGLE_KEY;
-const S3_NOTION_KEY = process.env.S3_NOTION_KEY;
-const S3_NOTION_TOKEN_KEY = process.env.S3_NOTION_TOKEN_KEY;
+const S3_GOOGLE_TOKEN_PATH = process.env.S3_GOOGLE_TOKEN_PATH;
+const S3_NOTION_CONFIG_PATH = process.env.S3_NOTION_CONFIG_PATH;
+const S3_NOTION_TOKEN_PATH = process.env.S3_NOTION_TOKEN_PATH;
 
 // Helper to convert AWS S3 stream to string
 const streamToString = (stream) =>
@@ -40,7 +40,7 @@ export async function uploadGoogleTokens(
   updatedAt,
 ) {
   if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
-  if (!S3_GOOGLE_KEY) throw new Error("Missing S3_GOOGLE_KEY");
+  if (!S3_GOOGLE_TOKEN_PATH) throw new Error("Missing S3_GOOGLE_TOKEN_PATH");
   if (!userId) throw new Error("Missing userId");
   if (!tokens?.access_token) throw new Error("Missing access_token");
 
@@ -66,7 +66,7 @@ export async function uploadGoogleTokens(
     userId,
     tokens: "[masked]",
   });
-  const key = `${userId}/${S3_GOOGLE_KEY}`;
+  const key = `${userId}/${S3_GOOGLE_TOKEN_PATH}`;
 
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -89,7 +89,7 @@ export async function uploadNotionConfig(userId, config) {
     userId,
     config: "[masked]",
   });
-  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  const user_key = `${userId}/${S3_NOTION_CONFIG_PATH}`;
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
@@ -107,8 +107,8 @@ export async function uploadNotionConfig(userId, config) {
 export async function uploadTemplates(userId) {
   if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
 
-  const notionKey = `${userId}/${S3_NOTION_KEY}`;
-  const googleKey = `${userId}/${S3_GOOGLE_KEY}`;
+  const notionKey = `${userId}/${S3_NOTION_CONFIG_PATH}`;
+  const googleKey = `${userId}/${S3_GOOGLE_TOKEN_PATH}`;
   logger.debug("S3 Notion Path:", notionKey);
   logger.debug("S3 Google Path:", googleKey);
 
@@ -138,11 +138,11 @@ export async function uploadTemplates(userId) {
  * @returns {object} - Parsed config object
  */
 export async function getNotionConfig(userId) {
-  if (!S3_NOTION_KEY) {
-    throw new Error("Missing S3_NOTION_KEY environment variable");
+  if (!S3_NOTION_CONFIG_PATH) {
+    throw new Error("Missing S3_NOTION_CONFIG_PATH environment variable");
   }
   logger.info("Retrieving Notion config from S3 for user", userId);
-  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  const user_key = `${userId}/${S3_NOTION_CONFIG_PATH}`;
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
@@ -160,11 +160,11 @@ export async function getNotionConfig(userId) {
  * @returns {Date|null} - LastModified timestamp or null if not found
  */
 export async function getConfigLastModified(userId) {
-  if (!S3_NOTION_KEY) {
-    throw new Error("Missing S3_NOTION_KEY environment variable");
+  if (!S3_NOTION_CONFIG_PATH) {
+    throw new Error("Missing S3_NOTION_CONFIG_PATH environment variable");
   }
 
-  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  const user_key = `${userId}/${S3_NOTION_CONFIG_PATH}`;
   const command = new HeadObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
@@ -192,7 +192,7 @@ export async function uploadNotionTokens(userId, payload) {
     userId,
     tokens: "[masked]",
   });
-  const key = `${userId}/${S3_NOTION_TOKEN_KEY}`;
+  const key = `${userId}/${S3_NOTION_TOKEN_PATH}`;
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: key,
