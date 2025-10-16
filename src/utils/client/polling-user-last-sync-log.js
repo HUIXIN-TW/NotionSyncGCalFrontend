@@ -67,7 +67,7 @@ export async function pollLastSyncLog({ isProd, triggerTimeMs }) {
       updatedAtMs >= triggerTimeMs - skewMs
     ) {
       const result = parseAndVerifyLastSyncLog(currentLastSyncLog);
-      logger.debug("poll-done-trigger", { result });
+      logger.info("poll-done-trigger", { result });
       return {
         type: result.status,
         message: result.message,
