@@ -79,43 +79,23 @@ const Profile = ({ session, signOut, notice }) => {
     setIsSyncing(true);
     setSyncStartedAt(Date.now());
 
-    let timeoutTriggered = false;
-
-    const timeoutId = setTimeout(() => {
-      timeoutTriggered = true;
-      setSyncResult({
-        type: "timeout",
-        message:
-          "Sync is still running in the background and may take a bit longer. Feel free to check back shortly — your data will update when it’s ready.",
-      });
-      setIsSyncing(false);
-    }, 25_000);
-
     try {
       const result = await syncPromise;
-      if (!timeoutTriggered) {
-        clearTimeout(timeoutId);
-        setSyncResult(result);
+      setSyncResult(result);
 
-        if (isProd && result?.type === "success") {
-          const cooldownUntil = Date.now() + 180_000;
-          setSyncCooldownUntil(cooldownUntil);
-          localStorage.setItem("syncCooldownUntil", cooldownUntil.toString());
-        }
+      if (isProd && result?.type === "success") {
+        const cooldownUntil = Date.now() + 180_000;
+        setSyncCooldownUntil(cooldownUntil);
+        localStorage.setItem("syncCooldownUntil", cooldownUntil.toString());
       }
     } catch (err) {
-      clearTimeout(timeoutId);
-      if (!timeoutTriggered) {
-        logger.error("Unexpected sync failure", err);
-        setSyncResult({
-          type: "error",
-          message: "Unexpected sync failure.",
-        });
-      }
+      logger.error("Unexpected sync failure", err);
+      setSyncResult({
+        type: "error",
+        message: "Unexpected sync failure.",
+      });
     } finally {
-      if (!timeoutTriggered) {
-        setIsSyncing(false);
-      }
+      setIsSyncing(false);
     }
   };
 
