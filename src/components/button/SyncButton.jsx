@@ -1,5 +1,5 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger from "@utils/logger";
 import { pollLastSyncLog } from "@/utils/client/polling-user-last-sync-log";
 import { useState } from "react";
 import Button from "@components/button/Button";
@@ -43,7 +43,6 @@ const SyncButton = ({ text, onSync, disabled }) => {
         logger.debug("[SyncButton] sync enqueued", triggerResult);
         // poll for completion
         return await pollLastSyncLog({
-          isProd,
           triggerTimeMs: enqueueAtMs,
         });
       } catch (err) {

@@ -141,8 +141,6 @@ const Profile = ({ session, signOut }) => {
         </>
       )}
 
-      <GetNotionConfigButton />
-
       <SyncButton
         text={
           isSyncing && syncStartedAt
@@ -155,7 +153,7 @@ const Profile = ({ session, signOut }) => {
         disabled={syncDisabled || isSyncing}
         className={syncDisabled && isProd ? "cooldown_disabled" : ""}
       />
-
+      <GetNotionConfigButton />
       <Button text="Sign Out" onClick={signOut} />
 
       <div className={styles.support_section}>
