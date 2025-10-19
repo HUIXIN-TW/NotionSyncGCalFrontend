@@ -1,4 +1,4 @@
-export default function validateConfig(config) {
+export default function validateConfigFormat(config) {
   const errors = [];
 
   // Helper to check time offset like "+08:00"
@@ -32,9 +32,9 @@ export default function validateConfig(config) {
   // }
 
   // Validate urlroot format
-  if (!config.urlroot?.startsWith(notionUrlRootPrefix)) {
-    errors.push("urlroot must start with 'https://www.notion.so/'");
-  }
+  // if (!config.urlroot?.startsWith(notionUrlRootPrefix)) {
+  //   errors.push("urlroot must start with 'https://www.notion.so/'");
+  // }
 
   // Validate timecode format
   if (!timecodeRegex.test(config.timecode || "")) {

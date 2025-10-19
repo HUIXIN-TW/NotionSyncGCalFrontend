@@ -4,7 +4,7 @@ import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";
 
-const RefreshGCalButton = ({ className, style }) => {
+const RefreshNotionButton = ({ className, style }) => {
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
 
@@ -17,8 +17,8 @@ const RefreshGCalButton = ({ className, style }) => {
     setLoading(true);
 
     try {
-      // Request an auth URL for Google OAuth
-      const res = await fetch("/api/google/auth-url");
+      // Request an auth URL for Notion OAuth
+      const res = await fetch("/api/notion/auth-url");
       const data = await res.json();
 
       if (!res.ok || data.error) {
@@ -30,7 +30,7 @@ const RefreshGCalButton = ({ className, style }) => {
       // Redirect user to Google consent screen
       window.location.href = data.url;
     } catch (err) {
-      logger.error("Refresh GCal failed", err);
+      logger.error("Refresh Notion failed", err);
       alert("Error fetching auth URL: " + err.message);
     } finally {
       setLoading(false);
@@ -40,11 +40,11 @@ const RefreshGCalButton = ({ className, style }) => {
   return (
     <Button
       type="button"
-      text={loading ? "Refreshing..." : "Connect or Refresh GCal Token"}
+      text={loading ? "Refreshing..." : "Connect or Refresh Notion Token"}
       onClick={handleClick}
       disabled={loading}
     />
   );
 };
 
-export default RefreshGCalButton;
+export default RefreshNotionButton;

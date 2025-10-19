@@ -1,15 +1,15 @@
 import { promises as fs } from "fs";
 import path from "path";
 import ReactMarkdown from "react-markdown";
-import styles from "./privacy.module.css";
+import styles from "./terms.module.css";
 
 export const metadata = {
-  title: "Privacy Policy — NotionSyncGCal",
-  description: "Privacy Policy for NotionSyncGCal",
+  title: "Terms of Service — NotionSyncGCal",
+  description: "Terms of Service for NotionSyncGCal",
 };
 
-export default async function PrivacyPage() {
-  const mdPath = path.join(process.cwd(), "PRIVACY.md");
+export default async function TermsPage() {
+  const mdPath = path.join(process.cwd(), "TERMS.md");
   const content = await fs.readFile(mdPath, "utf8");
 
   return (

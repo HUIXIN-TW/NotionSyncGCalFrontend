@@ -1,16 +1,17 @@
 "use client";
+import logger from "@utils/logger";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./notioncard.module.css";
 import Button from "@components/button/Button";
-import validateConfig from "@utils/validate-config";
+import validateConfigFormat from "@/utils/client/validate-config-format";
 
 const LABEL_MAP = {
   goback_days: "Go Back Days",
   goforward_days: "Go Forward Days",
   notion_token: "Notion Token",
-  urlroot: "Notion URL Root",
+  database_id: "Notion Database ID",
   timecode: "Time Code",
   timezone: "Time Zone",
   default_event_length: "Default Event Length (min)",
@@ -19,7 +20,7 @@ const LABEL_MAP = {
   page_property: "Page Property Mapping",
 };
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.APP_ENV === "production";
 
 const NotionCard = ({ session }) => {
   const router = useRouter();
@@ -29,6 +30,8 @@ const NotionCard = ({ session }) => {
   const [lastFetchedAt, setLastFetchedAt] = useState(null);
   const [lastModifiedAt, setLastModifiedAt] = useState(null);
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
+  // Keep draft of gcal_dic keys to avoid reordering on each keystroke
+  const [draftGcalKeys, setDraftGcalKeys] = useState({});
 
   const loadRemoteConfig = async () => {
     try {
@@ -49,7 +52,7 @@ const NotionCard = ({ session }) => {
       localStorage.setItem("notionConfigFetchedAt", now);
       return true;
     } catch (err) {
-      console.error("Failed to fetch config:", err);
+      logger.error("Failed to fetch config", err);
       alert("Failed to fetch config.");
       return false;
     }
@@ -90,7 +93,7 @@ const NotionCard = ({ session }) => {
 
         return;
       } catch (err) {
-        console.warn("Failed to parse local config:", err);
+        logger.warn("Failed to parse local config", err);
       }
     }
 
@@ -118,8 +121,8 @@ const NotionCard = ({ session }) => {
 
   const handleSaveClick = async () => {
     setLoading(true);
-    const errors = validateConfig(editableConfig);
-    if (!isProd) console.log("Editable config:", editableConfig);
+    const errors = validateConfigFormat(editableConfig);
+    logger.debug("Editable config:", editableConfig);
     if (errors.length > 0) {
       alert("Validation failed:\n\n" + errors.join("\n"));
       setLoading(false);
@@ -143,7 +146,8 @@ const NotionCard = ({ session }) => {
       setLastFetchedAt(new Date(now).toLocaleString());
     } else {
       setShowFetchButton(true);
-      alert("Failed to save.");
+      const { message } = await res.json();
+      alert("Save failed: " + message);
     }
   };
 
@@ -183,15 +187,31 @@ const NotionCard = ({ session }) => {
               <div className={styles.nested_list}>
                 {value.map((item, index) => (
                   <div key={index}>
-                    {Object.entries(item).map(([subKey, subVal]) => (
-                      <div key={subKey} className={styles.nested_row}>
+                    {Object.entries(item).map(([subKey, subVal], entryIndex) => (
+                      <div key={`${key}-${index}-${entryIndex}`} className={styles.nested_row}>
                         {editMode && key === "gcal_dic" ? (
                           <>
                             <input
                               type="text"
-                              value={subKey}
+                              id={`gcal_dic-${index}-${entryIndex}-k`}
+                              name={`gcal_dic-${index}-${entryIndex}-k`}
+                              value={draftGcalKeys[`${index}-${entryIndex}`] ?? subKey}
                               onChange={(e) => {
+                                const rid = `${index}-${entryIndex}`;
+                                const newDraft = e.target.value;
+                                setDraftGcalKeys((prev) => ({ ...prev, [rid]: newDraft }));
+                              }}
+                              onBlur={(e) => {
+                                const rid = `${index}-${entryIndex}`;
                                 const newKey = e.target.value;
+                                if (newKey === subKey) {
+                                  setDraftGcalKeys((prev) => {
+                                    const next = { ...prev };
+                                    delete next[rid];
+                                    return next;
+                                  });
+                                  return;
+                                }
                                 setEditableConfig((prev) => {
                                   const updatedList = [...prev[key]];
                                   const updatedItem = { ...updatedList[index] };
@@ -201,11 +221,18 @@ const NotionCard = ({ session }) => {
                                   updatedList[index] = updatedItem;
                                   return { ...prev, [key]: updatedList };
                                 });
+                                setDraftGcalKeys((prev) => {
+                                  const next = { ...prev };
+                                  delete next[rid];
+                                  return next;
+                                });
                               }}
                               className={styles.input}
                             />
                             <input
                               type="text"
+                              id={`gcal_dic-${index}-${entryIndex}-v`}
+                              name={`gcal_dic-${index}-${entryIndex}-v`}
                               value={subVal}
                               onChange={(e) => {
                                 const newValue = e.target.value;
@@ -313,7 +340,7 @@ const NotionCard = ({ session }) => {
       <div className={styles.note}>
         Don’t have a Notion page yet? You can use this template:{" "}
         <a
-          href="https://www.notion.so/huixinyang/aa639e48cfee4216976756f33cf57c8e?v=6db9353f3bc54029807c539ffc3dfdb4"
+          href="https://www.notion.so/28b438de0d88819db5f6c28a33ccbfdc?v=28b438de0d8881158789000cba8aab6f"
           target="_blank"
           rel="noopener noreferrer"
         >

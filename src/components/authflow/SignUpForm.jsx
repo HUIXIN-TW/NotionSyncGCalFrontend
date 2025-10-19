@@ -3,22 +3,24 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
 
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
-import { register } from "@utils/auth-actions.js";
 import { signIn } from "next-auth/react";
+import { registerAction } from "@app/api/register/actions";
+import logger from "@utils/logger";
 
 const SignUpForm = () => {
   const router = useRouter();
-  const [errorMessage, dispatch] = useActionState(register, undefined);
-  const { pending } = useFormStatus();
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordRepeat, setPasswordRepeat] = useState("");
+  const [actionState, formAction, pending] = useActionState(registerAction, {
+    success: false,
+    error: "",
+  });
 
   const handleGoogleSignup = async () => {
     setGoogleLoading(true);
@@ -37,25 +39,28 @@ const SignUpForm = () => {
       }
     } catch (err) {
       setGoogleError("Something went wrong with Google sign-in.");
-      console.error("Google sign-in error:", err);
+      logger.error("Google sign-in error", err);
       setGoogleLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!pending && errorMessage?.success) {
-      (async () => {
-        await signIn("credentials", {
+    (async () => {
+      if (actionState?.success && !pending) {
+        const signInRes = await signIn("credentials", {
           email,
           password,
+          redirect: false,
           callbackUrl: "/profile",
         });
-      })();
-    }
-  }, [pending, errorMessage, email, password, router]);
+        if (signInRes?.url) router.push(signInRes.url);
+        else if (!signInRes?.error) router.push("/profile");
+      }
+    })();
+  }, [actionState?.success, pending, email, password, router]);
 
   return (
-    <form action={dispatch} className={styles.sign_up_form}>
+    <form action={formAction} className={styles.sign_up_form}>
       <h1>Create Account</h1>
       <div className={styles.social_icons}>
         <a
@@ -100,16 +105,17 @@ const SignUpForm = () => {
       />
       <p>
         By signing up, you agree to our{" "}
-        <Link href="/privacy">Privacy Policy</Link>.
+        <Link href="/privacy">Privacy Policy</Link> and{" "}
+        <Link href="/terms">Terms of Service</Link>.
       </p>
       <Button
         text={pending || googleLoading ? "Signing up..." : "Sign Up"}
         type="submit"
         className="black_btn"
-        disabled={pending}
+        disabled={pending || googleLoading}
       ></Button>
-      {errorMessage?.error && (
-        <div className={styles.error_message}>{errorMessage.error}</div>
+      {actionState?.error && (
+        <div className={styles.error_message}>{actionState.error}</div>
       )}
       {googleError && <div className={styles.error_message}>{googleError}</div>}
     </form>

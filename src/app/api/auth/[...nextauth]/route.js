@@ -1,11 +1,13 @@
+import logger from "@utils/logger";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { connectToDatabase } from "@utils/db-connection";
 import { createUser, getUserByEmail } from "@models/user";
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = ["master", "production"].includes(
+  (process.env.AWS_BRANCH || "").toLowerCase(),
+);
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
@@ -20,8 +22,7 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // connect and fetch credential user
-        await connectToDatabase();
+        // fetch credential user
         const user = await getUserByEmail(credentials.email);
         if (!user || user.provider !== "credentials") {
           throw new Error("Invalid email or login method");
@@ -59,8 +60,6 @@ export const authOptions = {
     async jwt({ token, user, account }) {
       if (!user) return token;
 
-      await connectToDatabase();
-
       if (account?.provider === "google") {
         token.provider = "google";
 
@@ -77,12 +76,12 @@ export const authOptions = {
           });
 
           // First-time login → create S3 templates (fire-and-forget)
-          import("@/utils/s3-client").then(
+          import("@/utils/server/s3-client").then(
             ({ createTemplates, uploadTemplates }) => {
               const fn = createTemplates || uploadTemplates;
               fn &&
                 fn(dbUser.uuid).catch((err) =>
-                  console.error("template init error:", err),
+                  logger.error("template init error", err),
                 );
             },
           );

@@ -1,10 +1,16 @@
-# NotionSyncGCal Privacy Policy
+# **Privacy Policy**
 
-_Last updated: 2025-08-10_
+Last updated: 2025-10-13
 
-We access your Google Calendar data **only** to synchronize events you explicitly select between Google Calendar and Notion.
+## 1. Overview
 
-## What We Access
+NotionSyncGCal (“the Service”, operated by WhatNow Studio) connects your Google Calendar and Notion workspace to synchronize events securely and privately.
+
+We collect and process only the minimum information necessary to perform synchronization between your accounts.
+
+## 2. What We Access
+
+### Google Access
 
 - **Calendar events** (`https://www.googleapis.com/auth/calendar.events`)
   Used to create, update, delete, and move events between calendars you select.
@@ -14,25 +20,41 @@ We access your Google Calendar data **only** to synchronize events you explicitl
 
 We do **not** request the full calendar management scope (`https://www.googleapis.com/auth/calendar`).
 
-## How It Works
+### Notion Access
 
-- Authorization happens in the frontend using Google OAuth 2.0.
-- Event synchronization is processed by our backend service (AWS Lambda) on-demand or on a schedule you configure.
-- Event details are processed **transiently** for synchronization and are **not stored permanently** on our servers.
+- **Databases and pages metadata**
+  (`read` and `write` capabilities under your authorized integration)
+  Used to insert or update page properties when syncing events from Google Calendar.
+  We do **not** access unrelated pages, content, or blocks outside the database(s) you explicitly select.
 
-## Tokens & Security
+## 3. How It Works
+
+- Authorization uses OAuth 2.0 for both Google and Notion.
+- Event synchronization occurs on our backend (AWS Lambda) when triggered manually or on a configured schedule.
+- Event and page data are processed transiently for synchronization and not stored permanently.
+
+## 4. Tokens & Security
 
 - We store the minimum required tokens (e.g., refresh token) to run background synchronization.
 - Tokens are **encrypted at rest** (AWS-managed encryption) and access is restricted using **least-privilege IAM policies**.
 
-## Data Retention & Deletion
+## 5. Data Retention & Deletion
 
 - We keep only identifiers necessary for synchronization (e.g., event IDs, timestamps).
-- You can revoke access anytime in your Google Account → Security → Third-party access.
-- To request deletion of stored identifiers/tokens, contact us at: **[anguesin@gmail.com](mailto:anguesin@gmail.com)** or **[huixin.yang.tw@gmail.com](mailto:huixin.yang.tw@gmail.com)**.
+- You can revoke access anytime from:
+  - Google → Account → Security → Third-party access
+  - Notion → Settings → My integrations
+- To request deletion of stored identifiers/tokens, contact us at: **[whtnw.studio@gmail.com](mailto:whtnw.studio@gmail.com)** or **[huixin.yang.tw@gmail.com](mailto:huixin.yang.tw@gmail.com)**.
   We will confirm deletion within 30 days.
 
-## Ads & Sharing
+## 6. Ads & Sharing
 
 - We do **not** sell your data or use it for advertising.
 - Data is **not shared** with third parties except the cloud providers required to operate the service.
+
+## 7. Contact
+
+For any privacy questions or deletion requests:
+
+- **[whtnw.studio@gmail.com](mailto:whtnw.studio@gmail.com)** or
+- **[huixin.yang.tw@gmail.com](mailto:huixin.yang.tw@gmail.com)**

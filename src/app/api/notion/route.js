@@ -1,12 +1,15 @@
+import logger from "@utils/logger";
 import { getToken } from "next-auth/jwt";
 import {
   getConfigLastModified,
   getNotionConfig,
   uploadNotionConfig,
-} from "@utils/s3-client";
+} from "@/utils/server/s3-client";
+import { enforceS3Throttle } from "@/utils/server/throttle";
 
-const isProd = process.env.NODE_ENV === "production";
-const THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
+const isProd = ["master", "production"].includes(
+  (process.env.AWS_BRANCH || "").toLowerCase(),
+);
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -36,7 +39,7 @@ export async function GET(req) {
       { status: 200 },
     );
   } catch (err) {
-    console.error("Error loading config or metadata from S3:", err);
+    logger.error("Error loading config or metadata from S3", err);
     return new Response(
       JSON.stringify({
         type: "error",
@@ -85,11 +88,11 @@ export async function POST(req) {
   }
 
   // Basic validation of required fields
-  if (!incomingConfig.notion_token || !incomingConfig.urlroot) {
+  if (!incomingConfig.database_id) {
     return new Response(
       JSON.stringify({
         type: "error",
-        message: "Missing required config fields: notion_token or urlroot",
+        message: "Missing required config fields: database id",
       }),
       { status: 400 },
     );
@@ -103,8 +106,8 @@ export async function POST(req) {
     try {
       existingConfig = await getNotionConfig(uuid);
     } catch (err) {
-      console.warn("No existing config found, proceeding with new upload.");
-      console.error("Failed to load existing config:", err);
+      logger.warn("No existing config found, proceeding with new upload.");
+      logger.error("Failed to load existing config", err);
     }
 
     // Preserve masked token (minimum 6 asterisks)
@@ -113,37 +116,18 @@ export async function POST(req) {
       existingConfig.notion_token
     ) {
       mergedConfig.notion_token = existingConfig.notion_token;
-      if (!isProd) {
-        console.log("Masked token detected, preserving original token.");
-        console.log("Incoming (masked):", incomingConfig.notion_token);
-        console.log("Replacing with:", existingConfig.notion_token);
-      }
+      logger.info("Masked token detected, preserving original token.");
+      logger.sensitive("Incoming (masked)", "[masked]");
+      logger.sensitive("Replacing with", "[masked]");
     }
 
-    // Throttle protection if lastModified exists
-    const lastModified = await getConfigLastModified(uuid);
-    if (lastModified) {
-      const timeGap = Date.now() - new Date(lastModified).getTime();
-      const waitMinutes = Math.ceil((THROTTLE_MS - timeGap) / (1000 * 60));
-      if (isProd && timeGap < THROTTLE_MS) {
-        console.log(`[UPLOAD BLOCKED] User: ${uuid}, Time Gap: ${timeGap}ms`);
-        return new Response(
-          JSON.stringify({
-            type: "throttle error",
-            message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
-          }),
-          { status: 429 },
-        );
-      }
-    } else {
-      console.log("No previous config timestamp — skipping throttle check.");
-    }
-
-    if (!isProd) {
-      console.log("Merged config to upload:", mergedConfig);
-    }
+    const s3Block = await enforceS3Throttle({ uuid });
+    if (s3Block && isProd)
+      return new Response(JSON.stringify(s3Block.body), {
+        status: s3Block.status,
+      });
   } catch (err) {
-    console.error("Failed to validate upload frequency:", err);
+    logger.error("Failed to validate upload frequency", err);
     return new Response(
       JSON.stringify({
         type: "error",
@@ -164,7 +148,7 @@ export async function POST(req) {
       { status: 200 },
     );
   } catch (err) {
-    console.error("Failed to upload config:", err);
+    logger.error("Failed to upload config", err);
     return new Response(
       JSON.stringify({
         type: "error",

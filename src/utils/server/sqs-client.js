@@ -1,14 +1,15 @@
-// src/utils/sqs-client.js
+import "server-only";
+import logger from "@utils/logger";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 const sqsQueueUrl = process.env.SQS_QUEUE_URL;
-const sqsRegion = process.env.SQS_REGION;
+const sqsRegion = process.env.AWS_REGION;
 
 const sqsClient = new SQSClient({ region: sqsRegion });
 
 export async function sendSyncJobMessage(payload) {
   if (!sqsQueueUrl || !sqsRegion) {
-    throw new Error("Missing SQS_QUEUE_URL or SQS_REGION in env");
+    throw new Error("Missing SQS_QUEUE_URL or AWS_REGION in env");
   }
 
   const command = new SendMessageCommand({
@@ -17,6 +18,6 @@ export async function sendSyncJobMessage(payload) {
   });
 
   const result = await sqsClient.send(command);
-  console.log("SQS message sent, ID:", result.MessageId);
+  logger.info("SQS message sent", { id: result.MessageId });
   return result;
 }

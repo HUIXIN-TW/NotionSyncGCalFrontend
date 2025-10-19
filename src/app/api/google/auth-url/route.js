@@ -1,9 +1,9 @@
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
-import { google } from "googleapis";
+import logger from "@utils/logger";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
   "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
@@ -14,46 +14,57 @@ const SCOPES = [
 
 export async function GET(req) {
   const session = await getServerSession(authOptions);
+  const uuid = session?.user?.uuid;
+  if (!uuid)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  console.log("authOptions:", authOptions);
-  console.log("Session:", session);
-  console.log("Session UUID:", session?.user?.uuid);
+  const nonce = crypto.randomUUID();
+  const state = `${uuid}:${nonce}`;
 
-  if (!session?.user?.uuid) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-    });
-  }
-
-  // Debug: log OAuth client credentials
-  console.log("DEBUG: GOOGLE_CLIENT_ID =", CLIENT_ID);
-  console.log(
-    "DEBUG: GOOGLE_CLIENT_SECRET =",
-    CLIENT_SECRET ? "SET" : "NOT SET",
+  const codeVerifier = crypto.randomUUID().replace(/-/g, "");
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(codeVerifier),
   );
+  const codeChallenge = Buffer.from(digest)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
 
-  // Compute redirect URI: use env var or default to <baseUrl>
-  const requestUrl = new URL(req.url);
-  const origin = requestUrl.origin;
+  const origin = new URL(req.url).origin;
   const baseUrl = process.env.NEXTAUTH_URL || origin;
   const redirectUri = `${baseUrl}/api/google/callback`;
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error("Missing Google OAuth client ID/secret env vars");
-  }
-  console.log("Using redirect URI:", redirectUri);
-  const oauth2Client = new google.auth.OAuth2(
-    CLIENT_ID,
-    CLIENT_SECRET,
-    redirectUri,
-  );
+  logger.debug("Redirect URI for Google OAuth:", redirectUri);
 
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline",
-    prompt: "consent",
-    scope: SCOPES,
-    state: session.user.uuid, // Use the UUID as state to verify the callback
+  const u = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  u.searchParams.set("client_id", CLIENT_ID);
+  u.searchParams.set("redirect_uri", redirectUri);
+  u.searchParams.set("response_type", "code");
+  u.searchParams.set("scope", SCOPES.join(" "));
+  u.searchParams.set("access_type", "offline");
+  u.searchParams.set("include_granted_scopes", "true");
+  u.searchParams.set("state", state);
+  u.searchParams.set("prompt", "consent");
+  u.searchParams.set("code_challenge", codeChallenge);
+  u.searchParams.set("code_challenge_method", "S256");
+  logger.debug("Google OAuth URL:", u.toString());
+  logger.sensitive("State:", state, "Code Verifier:", codeVerifier);
+
+  const res = NextResponse.json({ url: u.toString() });
+  res.cookies.set("google_oauth_state", state, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 600,
   });
-
-  console.log("Generated auth URL:", authUrl);
-  return new Response(JSON.stringify({ url: authUrl }), { status: 200 });
+  res.cookies.set("google_code_verifier", codeVerifier, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: true,
+    path: "/",
+    maxAge: 600,
+  });
+  return res;
 }

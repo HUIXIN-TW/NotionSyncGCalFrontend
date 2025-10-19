@@ -8,9 +8,8 @@ const sanitize = (u) => {
   return rest;
 };
 
-export const GET = async (request, { params }) => {
+export const GET = async (request) => {
   try {
-    // AuthN
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
@@ -21,27 +20,23 @@ export const GET = async (request, { params }) => {
       });
     }
 
-    // Fetch user by id using the DynamoDB model
-    const userId = params.uuid;
-    const user = await getUserById(userId);
+    const uuid = token.uuid;
+    if (!uuid || typeof uuid !== "string") {
+      return new Response(JSON.stringify({ message: "Invalid token" }), {
+        status: 400,
+      });
+    }
 
-    // If user not found, return 404
+    const user = await getUserById(uuid);
     if (!user) {
       return new Response(JSON.stringify({ message: "User not found" }), {
         status: 404,
       });
     }
 
-    // AuthZ: only the same user (owner) or admin can read
-    if (token.role !== "admin" && token.uuid !== user.uuid) {
-      return new Response(JSON.stringify({ message: "Forbidden" }), {
-        status: 403,
-      });
-    }
-
     return new Response(JSON.stringify(sanitize(user)), { status: 200 });
   } catch (error) {
-    logger.error("Error fetching user", error);
-    return new Response("Failed to fetch the user", { status: 500 });
+    logger.error("Error fetching current user", error);
+    return new Response("Failed to fetch the current user", { status: 500 });
   }
 };

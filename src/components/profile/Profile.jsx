@@ -1,15 +1,17 @@
 "use client";
+import logger from "@utils/logger";
 
 import React, { useState, useEffect } from "react";
 import styles from "./profile.module.css";
 import Button from "@components/button/Button";
 import SyncButton from "@components/button/SyncButton";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
+import RefreshNotionButton from "@components/button/RefreshNotionButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env.APP_ENV === "production";
 
-const Profile = ({ session, signOut }) => {
+const Profile = ({ session, signOut, notice }) => {
   const [now, setNow] = useState(Date.now());
   const [syncResult, setSyncResult] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -51,7 +53,7 @@ const Profile = ({ session, signOut }) => {
       try {
         setSyncResult(JSON.parse(stored));
       } catch {
-        console.warn("Corrupted syncResult");
+        logger.warn("Corrupted syncResult");
       }
     }
   }, []);
@@ -77,43 +79,23 @@ const Profile = ({ session, signOut }) => {
     setIsSyncing(true);
     setSyncStartedAt(Date.now());
 
-    let timeoutTriggered = false;
-
-    const timeoutId = setTimeout(() => {
-      timeoutTriggered = true;
-      setSyncResult({
-        type: "timeout",
-        message:
-          "Sync is still running in the background and may take a bit longer. Feel free to check back shortly — your data will update when it’s ready.",
-      });
-      setIsSyncing(false);
-    }, 25_000);
-
     try {
       const result = await syncPromise;
-      if (!timeoutTriggered) {
-        clearTimeout(timeoutId);
-        setSyncResult(result);
+      setSyncResult(result);
 
-        if (isProd && result?.type === "success") {
-          const cooldownUntil = Date.now() + 180_000;
-          setSyncCooldownUntil(cooldownUntil);
-          localStorage.setItem("syncCooldownUntil", cooldownUntil.toString());
-        }
+      if (isProd && result?.type === "success") {
+        const cooldownUntil = Date.now() + 180_000;
+        setSyncCooldownUntil(cooldownUntil);
+        localStorage.setItem("syncCooldownUntil", cooldownUntil.toString());
       }
     } catch (err) {
-      clearTimeout(timeoutId);
-      if (!timeoutTriggered) {
-        console.error("Unexpected sync failure:", err);
-        setSyncResult({
-          type: "error",
-          message: "Unexpected sync failure.",
-        });
-      }
+      logger.error("Unexpected sync failure", err);
+      setSyncResult({
+        type: "error",
+        message: "Unexpected sync failure.",
+      });
     } finally {
-      if (!timeoutTriggered) {
-        setIsSyncing(false);
-      }
+      setIsSyncing(false);
     }
   };
 
@@ -135,13 +117,13 @@ const Profile = ({ session, signOut }) => {
           />
         )}
       </div>
+      <div className={styles.profile_detail}>
+        <span className={styles.profile_label}>GCal Account:</span> {email}
+      </div>
       {!isProd && (
         <>
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>UUID:</span> {uuid}
-          </div>
-          <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Email:</span> {email}
           </div>
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Name:</span> {username}
@@ -164,8 +146,8 @@ const Profile = ({ session, signOut }) => {
       )}
 
       <GetNotionConfigButton />
+      <RefreshNotionButton />
       <RefreshGCalButton />
-      {/* {syncResult?.needRefresh && <RefreshGCalButton />} */}
 
       <SyncButton
         text={
@@ -181,6 +163,11 @@ const Profile = ({ session, signOut }) => {
       />
 
       <Button text="Sign Out" onClick={signOut} />
+      {notice && (
+        <div className={styles.support_section}>
+          <span className={styles.note}>{notice}</span>
+        </div>
+      )}
 
       <div className={styles.support_section}>
         <span className={styles.note}>

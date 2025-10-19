@@ -1,8 +1,7 @@
 {
   "goback_days": 1,
   "goforward_days": 2,
-  "notion_token": "xxxxxxx",
-  "urlroot": "https://www.notion.so/",
+  "database_id": "xxxxxxx",
   "timecode": "+08:00",
   "timezone": "Asia/Taipei",
   "default_event_length": 60,

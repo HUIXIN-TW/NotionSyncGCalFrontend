@@ -14,7 +14,8 @@ const Home = () => {
           <p>
             We use the Google Calendar API to sync selected calendars with
             Notion. By continuing, you agree to our{" "}
-            <Link href="/privacy">Privacy Policy</Link>.
+            <Link href="/privacy">Privacy Policy</Link> and{" "}
+            <Link href="/terms">Terms of Service</Link>.
           </p>
 
           <h3 className="welcome_heading">What this app does</h3>

@@ -1,4 +1,5 @@
 "use client";
+import logger from "@utils/logger";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -32,9 +33,9 @@ const SignInForm = () => {
 
     if (result?.error) {
       setErrorMessage(result.error);
-      console.error("Sign in failed:", result.error);
+      logger.error("Sign in failed", result.error);
     } else if (result?.url) {
-      console.log("Sign in successful, redirecting to:", result.url);
+      logger.info("Sign in successful, redirecting to:", result.url);
       router.push(result.url);
     }
   };
@@ -51,14 +52,14 @@ const SignInForm = () => {
 
       if (result?.error) {
         setGoogleError("Google sign-in failed. Please try again.");
-        console.error("Google sign-in error:", result.error);
+        logger.error("Google sign-in error", result.error);
         setLoading(false);
       } else if (result?.url) {
         router.push(result.url);
       }
     } catch (err) {
       setGoogleError("Something went wrong with Google sign-in.");
-      console.error("Google sign-in exception:", err);
+      logger.error("Google sign-in exception", err);
       setLoading(false);
     }
   };

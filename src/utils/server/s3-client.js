@@ -1,25 +1,22 @@
-import notionTemplate from "@/templates/notion_setting.json";
-import googleTemplate from "@/templates/token.json";
+import "server-only";
+import logger from "@utils/logger";
+import notionTemplate from "@/templates/notion_config.json";
+import googleTemplate from "@/templates/google_token.json";
 import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
 } from "@aws-sdk/client-s3";
-import parseDatetimeFormat from "./parse-datetime";
+import parseDatetimeFormat from "@/utils/client/parse-datetime";
 
 const s3Client = new S3Client({
-  region: process.env.S3_REGION || "us-east-1", // Default to us-east-1 if not specified
+  region: process.env.AWS_REGION, // Default to us-east-1 if not specified
 });
 const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
-const S3_GOOGLE_KEY = process.env.S3_GOOGLE_KEY;
-const S3_NOTION_KEY = process.env.S3_NOTION_KEY;
-
-// Add Google OAuth configuration defaults
-const GOOGLE_TOKEN_URL =
-  process.env.GOOGLE_TOKEN_URL || "https://oauth2.googleapis.com/token";
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const S3_GOOGLE_TOKEN_PATH = process.env.S3_GOOGLE_TOKEN_PATH;
+const S3_NOTION_CONFIG_PATH = process.env.S3_NOTION_CONFIG_PATH;
+const S3_NOTION_TOKEN_PATH = process.env.S3_NOTION_TOKEN_PATH;
 
 // Helper to convert AWS S3 stream to string
 const streamToString = (stream) =>
@@ -42,29 +39,44 @@ export async function uploadGoogleTokens(
   tokens,
   updatedAt,
 ) {
-  console.log("Uploading Google tokens to S3:", userId, tokens);
-  console.log("S3_BUCKET_NAME:", S3_BUCKET_NAME);
-  console.log("S3_GOOGLE_KEY:", S3_GOOGLE_KEY);
+  if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
+  if (!S3_GOOGLE_TOKEN_PATH) throw new Error("Missing S3_GOOGLE_TOKEN_PATH");
+  if (!userId) throw new Error("Missing userId");
+  if (!tokens?.access_token) throw new Error("Missing access_token");
+
+  // Normalize scopes to array of unique strings
+  const scopes = Array.isArray(tokens.scope)
+    ? [...new Set(tokens.scope)]
+    : typeof tokens.scope === "string"
+      ? [...new Set(tokens.scope.trim().split(/\s+/).filter(Boolean))]
+      : [];
+
   const payload = {
-    userId: userId,
-    userSub: userSub,
-    userEmail: userEmail,
+    userId,
+    userSub: userSub || null,
+    userEmail: userEmail || null,
     token: tokens.access_token,
-    refresh_token: tokens.refresh_token,
-    expiry: parseDatetimeFormat(tokens.expiry_date),
-    scopes: [tokens.scope],
-    updatedAt: updatedAt,
+    refresh_token: tokens.refresh_token || null,
+    expiry: tokens.expiry_date ? parseDatetimeFormat(tokens.expiry_date) : null,
+    scopes,
+    updatedAt: updatedAt || new Date().toISOString(),
   };
-  console.log("Payload:", payload);
-  const user_key = `${userId}/${S3_GOOGLE_KEY}`;
+
+  logger.sensitive("Uploading Google tokens to S3", {
+    userId,
+    tokens: "[masked]",
+  });
+  const key = `${userId}/${S3_GOOGLE_TOKEN_PATH}`;
+
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
-    Key: user_key,
+    Key: key,
     Body: JSON.stringify(payload),
     ContentType: "application/json",
   });
+
   await s3Client.send(command);
-  console.log("Upload successful for user:", userId);
+  logger.info("Google tokens uploaded", { userId, key });
 }
 
 /**
@@ -73,8 +85,11 @@ export async function uploadGoogleTokens(
  * @param {object} config  - Notion configuration object
  */
 export async function uploadNotionConfig(userId, config) {
-  console.log("Uploading Notion config to S3:", userId, config);
-  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  logger.sensitive("Uploading Notion config to S3", {
+    userId,
+    config: "[masked]",
+  });
+  const user_key = `${userId}/${S3_NOTION_CONFIG_PATH}`;
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
@@ -82,7 +97,7 @@ export async function uploadNotionConfig(userId, config) {
     ContentType: "application/json",
   });
   await s3Client.send(command);
-  console.log("Notion config upload successful for user:", userId);
+  logger.info("Notion config upload successful for user", userId);
 }
 
 /**
@@ -92,10 +107,10 @@ export async function uploadNotionConfig(userId, config) {
 export async function uploadTemplates(userId) {
   if (!S3_BUCKET_NAME) throw new Error("Missing S3_BUCKET_NAME");
 
-  const notionKey = `${userId}/${S3_NOTION_KEY}`;
-  const googleKey = `${userId}/${S3_GOOGLE_KEY}`;
-  console.log("S3 Notion Path: ", notionKey);
-  console.log("S3 Google Path: ", googleKey);
+  const notionKey = `${userId}/${S3_NOTION_CONFIG_PATH}`;
+  const googleKey = `${userId}/${S3_GOOGLE_TOKEN_PATH}`;
+  logger.debug("S3 Notion Path:", notionKey);
+  logger.debug("S3 Google Path:", googleKey);
 
   const putNotion = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -114,7 +129,7 @@ export async function uploadTemplates(userId) {
   // upload templates
   await Promise.all([s3Client.send(putNotion), s3Client.send(putGoogle)]);
 
-  console.log("Template upload successful for user:", userId);
+  logger.info("Template upload successful for user", userId);
 }
 
 /**
@@ -123,11 +138,11 @@ export async function uploadTemplates(userId) {
  * @returns {object} - Parsed config object
  */
 export async function getNotionConfig(userId) {
-  if (!S3_NOTION_KEY) {
-    throw new Error("Missing S3_NOTION_KEY environment variable");
+  if (!S3_NOTION_CONFIG_PATH) {
+    throw new Error("Missing S3_NOTION_CONFIG_PATH environment variable");
   }
-  console.log("Retrieving Notion config from S3 for user:", userId);
-  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  logger.info("Retrieving Notion config from S3 for user", userId);
+  const user_key = `${userId}/${S3_NOTION_CONFIG_PATH}`;
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
@@ -135,7 +150,7 @@ export async function getNotionConfig(userId) {
   const response = await s3Client.send(command);
   const bodyString = await streamToString(response.Body);
   const parsed = JSON.parse(bodyString);
-  console.log("Loaded config:", parsed);
+  logger.sensitive("Loaded config", "[masked]");
   return parsed;
 }
 
@@ -145,11 +160,11 @@ export async function getNotionConfig(userId) {
  * @returns {Date|null} - LastModified timestamp or null if not found
  */
 export async function getConfigLastModified(userId) {
-  if (!S3_NOTION_KEY) {
-    throw new Error("Missing S3_NOTION_KEY environment variable");
+  if (!S3_NOTION_CONFIG_PATH) {
+    throw new Error("Missing S3_NOTION_CONFIG_PATH environment variable");
   }
 
-  const user_key = `${userId}/${S3_NOTION_KEY}`;
+  const user_key = `${userId}/${S3_NOTION_CONFIG_PATH}`;
   const command = new HeadObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: user_key,
@@ -162,7 +177,28 @@ export async function getConfigLastModified(userId) {
     if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) {
       return null;
     }
-    console.error("Failed to get last modified:", err);
+    logger.error("Failed to get last modified", err);
     throw err;
   }
+}
+
+/**
+ * Upload Notion OAuth tokens JSON to S3 under the user's folder
+ * @param {string} userId - UUID of the user
+ * @param {object} payload - Token object returned by Notion OAuth
+ */
+export async function uploadNotionTokens(userId, payload) {
+  logger.sensitive("Uploading Notion tokens to S3", {
+    userId,
+    tokens: "[masked]",
+  });
+  const key = `${userId}/${S3_NOTION_TOKEN_PATH}`;
+  const command = new PutObjectCommand({
+    Bucket: S3_BUCKET_NAME,
+    Key: key,
+    Body: JSON.stringify(payload),
+    ContentType: "application/json",
+  });
+  await s3Client.send(command);
+  logger.info("Notion tokens uploaded successfully for user", userId);
 }

@@ -1,4 +1,5 @@
-import { ddb } from "@utils/db-client";
+import logger from "@utils/logger";
+import { ddb } from "@/utils/server/db-client";
 import {
   PutCommand,
   GetCommand,
@@ -8,8 +9,9 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
+import normalizeEmail from "@/utils/server/normalize-email";
 
-const TABLE_NAME = process.env.DYNAMODB_TABLE;
+const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 
 // Helper: validate username format
 const isValidUsername = (username) =>
@@ -18,10 +20,12 @@ const isValidUsername = (username) =>
 // Create a user with validation and duplicate email check
 export const createUser = async (userData) => {
   const provider = userData.provider || "credentials";
-  const username = userData.username || userData.email.split("@")[0];
   const now = new Date().toISOString();
+  const normalizedEmail = normalizeEmail(userData.email);
 
-  if (!userData.email) throw new Error("Email is required!");
+  if (!normalizedEmail) throw new Error("Email is required!");
+  const username = userData.username || normalizedEmail.split("@")[0];
+
   // enforce password & username only for credentials provider
   if (provider === "credentials") {
     if (!userData.password) throw new Error("Password is required!");
@@ -34,7 +38,7 @@ export const createUser = async (userData) => {
 
   const item = {
     uuid: uuidv4(),
-    email: userData.email,
+    email: normalizedEmail,
     username,
     // include password only for credentials
     ...(provider === "credentials" && { password: userData.password }),
@@ -55,7 +59,7 @@ export const createUser = async (userData) => {
     );
     return item;
   } catch (error) {
-    console.error("Error creating user:", error);
+    logger.error("Error creating user", error);
     throw error;
   }
 };
@@ -71,13 +75,16 @@ export const getUserById = async (id) => {
     );
     return result.Item;
   } catch (error) {
-    console.error("Error getting user by ID:", error);
+    logger.error("Error getting user by ID", error);
     throw error;
   }
 };
 
 // Get user by email (requires GSI: EmailIndex)
 export const getUserByEmail = async (email) => {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return null;
+
   try {
     const result = await ddb.send(
       new QueryCommand({
@@ -85,13 +92,13 @@ export const getUserByEmail = async (email) => {
         IndexName: "EmailIndex",
         KeyConditionExpression: "email = :email",
         ExpressionAttributeValues: {
-          ":email": email,
+          ":email": normalizedEmail,
         },
       }),
     );
     return result.Items?.[0] || null;
   } catch (error) {
-    console.error("Error getting user by email:", error);
+    logger.error("Error getting user by email", error);
     throw error;
   }
 };
@@ -128,7 +135,7 @@ export const updateUser = async (id, updateData) => {
     );
     return result.Attributes;
   } catch (error) {
-    console.error("Error updating user:", error);
+    logger.error("Error updating user", error);
     throw error;
   }
 };
@@ -144,7 +151,7 @@ export const deleteUser = async (id) => {
     );
     return { success: true };
   } catch (error) {
-    console.error("Error deleting user:", error);
+    logger.error("Error deleting user", error);
     throw error;
   }
 };
@@ -159,34 +166,7 @@ export const getAllUsers = async () => {
     );
     return result.Items || [];
   } catch (error) {
-    console.error("Error getting all users:", error);
+    logger.error("Error getting all users", error);
     throw error;
   }
 };
-
-// Compatibility with Mongoose-style usage
-// const User = {
-//   find: async () => {
-//     return getAllUsers();
-//   },
-//   findById: async (id) => {
-//     return getUserById(id);
-//   },
-//   findOne: async (query) => {
-//     if (query.email) {
-//       return getUserByEmail(query.email);
-//     }
-//     return null;
-//   },
-//   create: async (userData) => {
-//     return createUser(userData);
-//   },
-//   findByIdAndUpdate: async (id, updateData) => {
-//     return updateUser(id, updateData);
-//   },
-//   findByIdAndDelete: async (id) => {
-//     return deleteUser(id);
-//   },
-// };
-
-// export default User;
