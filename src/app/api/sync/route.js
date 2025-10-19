@@ -62,8 +62,8 @@ export async function POST(req) {
   }
 
   // Only enforce throttle in production environment
-  logger.info(`isProd: ${isProd}`);
-  logger.info(`Sync request received`, { uuid, ip });
+  logger.error(`isProd: ${isProd}`);
+  logger.error(`Sync request received`, { uuid, ip });
   if (isProd) {
     const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
     if (throttleResult) {
