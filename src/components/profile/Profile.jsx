@@ -117,13 +117,13 @@ const Profile = ({ session, signOut, notice }) => {
           />
         )}
       </div>
+      <div className={styles.profile_detail}>
+        <span className={styles.profile_label}>GCal Account:</span> {email}
+      </div>
       {!isProd && (
         <>
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>UUID:</span> {uuid}
-          </div>
-          <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Email:</span> {email}
           </div>
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Name:</span> {username}
