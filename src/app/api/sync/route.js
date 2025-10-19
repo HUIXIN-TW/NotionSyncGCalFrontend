@@ -61,8 +61,6 @@ export async function POST(req) {
 
   // Only enforce throttle in production environment
   logger.error(`isProd: ${isProd}`);
-  logger.error(`AWS_BRANCH: ${process.env.AWS_BRANCH}`);
-  logger.error(`Sync request received`, { uuid, ip });
   if (isProd) {
     const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
     if (throttleResult) {

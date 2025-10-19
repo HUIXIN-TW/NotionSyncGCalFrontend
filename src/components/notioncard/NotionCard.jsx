@@ -1,10 +1,12 @@
 "use client";
-import logger from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@utils/logger";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./notioncard.module.css";
 import Button from "@components/button/Button";
+import RefreshGCalButton from "@components/button/RefreshGCalButton";
+import RefreshNotionButton from "@components/button/RefreshNotionButton";
 import validateConfigFormat from "@/utils/client/validate-config-format";
 
 const LABEL_MAP = {
@@ -20,10 +22,10 @@ const LABEL_MAP = {
   page_property: "Page Property Mapping",
 };
 
-const isProd = process.env.APP_ENV === "production";
-
 const NotionCard = ({ session }) => {
   const router = useRouter();
+  const params = useSearchParams();
+  const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editableConfig, setEditableConfig] = useState(null);
@@ -32,6 +34,41 @@ const NotionCard = ({ session }) => {
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
   // Keep draft of gcal_dic keys to avoid reordering on each keystroke
   const [draftGcalKeys, setDraftGcalKeys] = useState({});
+
+  // Read query params for connection notices; auto-clear after 4s
+  useEffect(() => {
+    const google = params.get("google");
+    const notion = params.get("notion");
+    const reason = params.get("reason");
+
+    let msg;
+
+    if (google === "connected") msg = "✅ Google connected successfully";
+    else if (google === "error") {
+      if (reason === "email_mismatch")
+        msg = "⚠️ Google account does not match your login account";
+      else if (reason === "token")
+        msg = "❌ Token exchange failed, please reauthorize";
+      else if (reason === "state")
+        msg = "⚠️ OAuth security verification failed";
+      else msg = "❌ Google authorization failed, please try again later";
+    }
+
+    if (notion === "connected") msg = "✅ Notion connected successfully";
+    else if (notion === "error") {
+      if (reason === "token") msg = "❌ Notion token exchange failed";
+      else if (reason === "state")
+        msg = "⚠️ Notion security verification failed";
+      else msg = "❌ Notion authorization failed, please try again later";
+    }
+
+    setNotice(msg);
+    let t;
+    if (msg) t = setTimeout(() => setNotice(null), 6000);
+    return () => {
+      if (t) clearTimeout(t);
+    };
+  }, [params]);
 
   const loadRemoteConfig = async () => {
     try {
@@ -187,99 +224,120 @@ const NotionCard = ({ session }) => {
               <div className={styles.nested_list}>
                 {value.map((item, index) => (
                   <div key={index}>
-                    {Object.entries(item).map(([subKey, subVal], entryIndex) => (
-                      <div key={`${key}-${index}-${entryIndex}`} className={styles.nested_row}>
-                        {editMode && key === "gcal_dic" ? (
-                          <>
-                            <input
-                              type="text"
-                              id={`gcal_dic-${index}-${entryIndex}-k`}
-                              name={`gcal_dic-${index}-${entryIndex}-k`}
-                              value={draftGcalKeys[`${index}-${entryIndex}`] ?? subKey}
-                              onChange={(e) => {
-                                const rid = `${index}-${entryIndex}`;
-                                const newDraft = e.target.value;
-                                setDraftGcalKeys((prev) => ({ ...prev, [rid]: newDraft }));
-                              }}
-                              onBlur={(e) => {
-                                const rid = `${index}-${entryIndex}`;
-                                const newKey = e.target.value;
-                                if (newKey === subKey) {
+                    {Object.entries(item).map(
+                      ([subKey, subVal], entryIndex) => (
+                        <div
+                          key={`${key}-${index}-${entryIndex}`}
+                          className={styles.nested_row}
+                        >
+                          {editMode && key === "gcal_dic" ? (
+                            <>
+                              <input
+                                type="text"
+                                id={`gcal_dic-${index}-${entryIndex}-k`}
+                                name={`gcal_dic-${index}-${entryIndex}-k`}
+                                value={
+                                  draftGcalKeys[`${index}-${entryIndex}`] ??
+                                  subKey
+                                }
+                                onChange={(e) => {
+                                  const rid = `${index}-${entryIndex}`;
+                                  const newDraft = e.target.value;
+                                  setDraftGcalKeys((prev) => ({
+                                    ...prev,
+                                    [rid]: newDraft,
+                                  }));
+                                }}
+                                onBlur={(e) => {
+                                  const rid = `${index}-${entryIndex}`;
+                                  const newKey = e.target.value;
+                                  if (newKey === subKey) {
+                                    setDraftGcalKeys((prev) => {
+                                      const next = { ...prev };
+                                      delete next[rid];
+                                      return next;
+                                    });
+                                    return;
+                                  }
+                                  setEditableConfig((prev) => {
+                                    const updatedList = [...prev[key]];
+                                    const updatedItem = {
+                                      ...updatedList[index],
+                                    };
+                                    const val = updatedItem[subKey];
+                                    delete updatedItem[subKey];
+                                    updatedItem[newKey] = val;
+                                    updatedList[index] = updatedItem;
+                                    return { ...prev, [key]: updatedList };
+                                  });
                                   setDraftGcalKeys((prev) => {
                                     const next = { ...prev };
                                     delete next[rid];
                                     return next;
                                   });
-                                  return;
-                                }
-                                setEditableConfig((prev) => {
-                                  const updatedList = [...prev[key]];
-                                  const updatedItem = { ...updatedList[index] };
-                                  const val = updatedItem[subKey];
-                                  delete updatedItem[subKey];
-                                  updatedItem[newKey] = val;
-                                  updatedList[index] = updatedItem;
-                                  return { ...prev, [key]: updatedList };
-                                });
-                                setDraftGcalKeys((prev) => {
-                                  const next = { ...prev };
-                                  delete next[rid];
-                                  return next;
-                                });
-                              }}
-                              className={styles.input}
-                            />
-                            <input
-                              type="text"
-                              id={`gcal_dic-${index}-${entryIndex}-v`}
-                              name={`gcal_dic-${index}-${entryIndex}-v`}
-                              value={subVal}
-                              onChange={(e) => {
-                                const newValue = e.target.value;
-                                setEditableConfig((prev) => {
-                                  const updatedList = [...prev[key]];
-                                  const updatedItem = { ...updatedList[index] };
-                                  updatedItem[subKey] = newValue;
-                                  updatedList[index] = updatedItem;
-                                  return { ...prev, [key]: updatedList };
-                                });
-                              }}
-                              className={styles.input}
-                            />
-                            <Button
-                              text="🗑️"
-                              onClick={() => handleDelete(index)}
-                            />
-                          </>
-                        ) : editMode && key === "page_property" ? (
-                          <>
-                            <span className={styles.nested_key}>{subKey}</span>
-                            <input
-                              type="text"
-                              value={subVal}
-                              onChange={(e) => {
-                                const newValue = e.target.value;
-                                setEditableConfig((prev) => {
-                                  const updatedList = [...prev[key]];
-                                  const updatedItem = { ...updatedList[index] };
-                                  updatedItem[subKey] = newValue;
-                                  updatedList[index] = updatedItem;
-                                  return { ...prev, [key]: updatedList };
-                                });
-                              }}
-                              className={styles.input}
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <span className={styles.nested_key}>{subKey}</span>
-                            <span className={styles.nested_value}>
-                              {subVal}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    ))}
+                                }}
+                                className={styles.input}
+                              />
+                              <input
+                                type="text"
+                                id={`gcal_dic-${index}-${entryIndex}-v`}
+                                name={`gcal_dic-${index}-${entryIndex}-v`}
+                                value={subVal}
+                                onChange={(e) => {
+                                  const newValue = e.target.value;
+                                  setEditableConfig((prev) => {
+                                    const updatedList = [...prev[key]];
+                                    const updatedItem = {
+                                      ...updatedList[index],
+                                    };
+                                    updatedItem[subKey] = newValue;
+                                    updatedList[index] = updatedItem;
+                                    return { ...prev, [key]: updatedList };
+                                  });
+                                }}
+                                className={styles.input}
+                              />
+                              <Button
+                                text="🗑️"
+                                onClick={() => handleDelete(index)}
+                              />
+                            </>
+                          ) : editMode && key === "page_property" ? (
+                            <>
+                              <span className={styles.nested_key}>
+                                {subKey}
+                              </span>
+                              <input
+                                type="text"
+                                value={subVal}
+                                onChange={(e) => {
+                                  const newValue = e.target.value;
+                                  setEditableConfig((prev) => {
+                                    const updatedList = [...prev[key]];
+                                    const updatedItem = {
+                                      ...updatedList[index],
+                                    };
+                                    updatedItem[subKey] = newValue;
+                                    updatedList[index] = updatedItem;
+                                    return { ...prev, [key]: updatedList };
+                                  });
+                                }}
+                                className={styles.input}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <span className={styles.nested_key}>
+                                {subKey}
+                              </span>
+                              <span className={styles.nested_value}>
+                                {subVal}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      ),
+                    )}
                   </div>
                 ))}
               </div>
@@ -330,7 +388,6 @@ const NotionCard = ({ session }) => {
           </div>
         );
       })}
-
       {lastFetchedAt && (
         <div className={styles.note}>Last fetched from S3: {lastFetchedAt}</div>
       )}
@@ -347,13 +404,18 @@ const NotionCard = ({ session }) => {
           Notion Template
         </a>
       </div>
+      {notice && (
+        <div className={styles.support_section}>
+          <span className={styles.note}>{notice}</span>
+        </div>
+      )}
 
       {!editMode ? (
         <>
           <Button text="Edit" onClick={handleEditClick} />
           {showFetchButton && (
             <Button
-              text={loading ? "Fetching..." : "Fetch Latest from S3"}
+              text={loading ? "Fetching..." : "Fetch Latest Configuration"}
               onClick={fetchFromS3}
             />
           )}
@@ -368,7 +430,8 @@ const NotionCard = ({ session }) => {
           <Button text="Cancel" onClick={handleCancelClick} />
         </>
       )}
-
+      <RefreshNotionButton />
+      <RefreshGCalButton />
       <Button text="Back to Profile" onClick={handleBackClick} />
     </div>
   );

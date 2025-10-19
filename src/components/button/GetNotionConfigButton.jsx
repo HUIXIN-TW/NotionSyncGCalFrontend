@@ -23,7 +23,7 @@ const GetNotionConfigButton = () => {
   return (
     <Button
       type="button"
-      text={loading ? "Loading..." : "View Notion Configuration"}
+      text={loading ? "Loading..." : "View Settings"}
       onClick={handleClick}
       disabled={loading}
     />

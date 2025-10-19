@@ -5,7 +5,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { createUser, getUserByEmail } from "@models/user";
 
-
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
   debug: !isProd,

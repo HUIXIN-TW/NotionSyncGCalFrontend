@@ -7,7 +7,6 @@ import {
 } from "@/utils/server/s3-client";
 import { enforceS3Throttle } from "@/utils/server/throttle";
 
-
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const uuid = token?.uuid;

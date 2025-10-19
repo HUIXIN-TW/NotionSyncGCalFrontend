@@ -1,11 +1,9 @@
 "use client";
-import logger from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@utils/logger";
 import { pollLastSyncLog } from "@/utils/client/polling-user-last-sync-log";
 import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";
-
-const isProd = process.env.APP_ENV === "production";
 
 const SyncButton = ({ text, onSync, disabled }) => {
   const { data: session } = useSession();
