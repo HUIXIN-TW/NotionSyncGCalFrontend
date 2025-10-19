@@ -30,6 +30,8 @@ const NotionCard = ({ session }) => {
   const [lastFetchedAt, setLastFetchedAt] = useState(null);
   const [lastModifiedAt, setLastModifiedAt] = useState(null);
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
+  // Keep draft of gcal_dic keys to avoid reordering on each keystroke
+  const [draftGcalKeys, setDraftGcalKeys] = useState({});
 
   const loadRemoteConfig = async () => {
     try {
@@ -185,15 +187,31 @@ const NotionCard = ({ session }) => {
               <div className={styles.nested_list}>
                 {value.map((item, index) => (
                   <div key={index}>
-                    {Object.entries(item).map(([subKey, subVal]) => (
-                      <div key={subKey} className={styles.nested_row}>
+                    {Object.entries(item).map(([subKey, subVal], entryIndex) => (
+                      <div key={`${key}-${index}-${entryIndex}`} className={styles.nested_row}>
                         {editMode && key === "gcal_dic" ? (
                           <>
                             <input
                               type="text"
-                              value={subKey}
+                              id={`gcal_dic-${index}-${entryIndex}-k`}
+                              name={`gcal_dic-${index}-${entryIndex}-k`}
+                              value={draftGcalKeys[`${index}-${entryIndex}`] ?? subKey}
                               onChange={(e) => {
+                                const rid = `${index}-${entryIndex}`;
+                                const newDraft = e.target.value;
+                                setDraftGcalKeys((prev) => ({ ...prev, [rid]: newDraft }));
+                              }}
+                              onBlur={(e) => {
+                                const rid = `${index}-${entryIndex}`;
                                 const newKey = e.target.value;
+                                if (newKey === subKey) {
+                                  setDraftGcalKeys((prev) => {
+                                    const next = { ...prev };
+                                    delete next[rid];
+                                    return next;
+                                  });
+                                  return;
+                                }
                                 setEditableConfig((prev) => {
                                   const updatedList = [...prev[key]];
                                   const updatedItem = { ...updatedList[index] };
@@ -203,11 +221,18 @@ const NotionCard = ({ session }) => {
                                   updatedList[index] = updatedItem;
                                   return { ...prev, [key]: updatedList };
                                 });
+                                setDraftGcalKeys((prev) => {
+                                  const next = { ...prev };
+                                  delete next[rid];
+                                  return next;
+                                });
                               }}
                               className={styles.input}
                             />
                             <input
                               type="text"
+                              id={`gcal_dic-${index}-${entryIndex}-v`}
+                              name={`gcal_dic-${index}-${entryIndex}-v`}
                               value={subVal}
                               onChange={(e) => {
                                 const newValue = e.target.value;
