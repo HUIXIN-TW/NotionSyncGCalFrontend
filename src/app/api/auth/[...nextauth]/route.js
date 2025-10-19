@@ -1,13 +1,10 @@
-import logger from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@utils/logger";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { createUser, getUserByEmail } from "@models/user";
 
-const isProd = ["master", "production"].includes(
-  (process.env.AWS_BRANCH || "").toLowerCase(),
-);
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {

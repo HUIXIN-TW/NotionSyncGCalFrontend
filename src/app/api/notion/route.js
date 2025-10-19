@@ -1,4 +1,4 @@
-import logger from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@utils/logger";
 import { getToken } from "next-auth/jwt";
 import {
   getConfigLastModified,
@@ -7,9 +7,6 @@ import {
 } from "@/utils/server/s3-client";
 import { enforceS3Throttle } from "@/utils/server/throttle";
 
-const isProd = ["master", "production"].includes(
-  (process.env.AWS_BRANCH || "").toLowerCase(),
-);
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -122,6 +119,7 @@ export async function POST(req) {
     }
 
     const s3Block = await enforceS3Throttle({ uuid });
+    logger.error(`isProd in <enforceS3Throttle>: ${isProd}`);
     if (s3Block && isProd)
       return new Response(JSON.stringify(s3Block.body), {
         status: s3Block.status,
