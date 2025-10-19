@@ -2,14 +2,17 @@ const isServer = typeof window === "undefined";
 
 function resolveIsProd() {
   if (isServer) {
-    const b = (
+    const b = // build time
+    (
       process.env.AWS_BRANCH ||
+      // runtime
       process.env.APP_ENV ||
       ""
     ).toLowerCase();
     return ["master", "production"].includes(b);
   } else {
-    const env = (process.env.NEXT_PUBLIC_APP_ENV || "").toLowerCase();
+    // client side
+    const env = (process.env.APP_ENV || "").toLowerCase();
     return env === "production";
   }
 }

@@ -5,8 +5,6 @@ import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";
 
-const isProd = process.env.APP_ENV === "production";
-
 const SyncButton = ({ text, onSync, disabled }) => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
@@ -45,7 +43,6 @@ const SyncButton = ({ text, onSync, disabled }) => {
         logger.debug("[SyncButton] sync enqueued", triggerResult);
         // poll for completion
         return await pollLastSyncLog({
-          isProd,
           triggerTimeMs: enqueueAtMs,
         });
       } catch (err) {

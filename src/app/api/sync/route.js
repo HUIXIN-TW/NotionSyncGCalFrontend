@@ -1,4 +1,4 @@
-import logger from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@utils/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { validateConfig } from "@/utils/server/validate-config";
@@ -6,9 +6,7 @@ import { sendSyncJobMessage } from "@/utils/server/sqs-client";
 import { enforceDDBThrottle, extractClientIp } from "@/utils/server/throttle";
 import { syncRules } from "@/utils/server/throttle-rule";
 
-const isProd = ["master", "production"].includes(
-  (process.env.AWS_BRANCH || "").toLowerCase(),
-);
+// Use centralized prod detection (AWS_BRANCH or APP_ENV) to avoid env typos
 
 export async function POST(req) {
   // AuthN
@@ -62,8 +60,6 @@ export async function POST(req) {
   }
 
   // Only enforce throttle in production environment
-  logger.info(`isProd: ${isProd}`);
-  logger.info(`Sync request received`, { uuid, ip });
   if (isProd) {
     const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
     if (throttleResult) {

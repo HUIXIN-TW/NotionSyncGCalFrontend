@@ -1,6 +1,6 @@
-import logger from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@utils/logger";
 
-export function getPollingTimings(isProd) {
+export function getPollingTimings() {
   return {
     initialWaitMs: isProd ? 30_000 : 2_000,
     intervalMs: isProd ? 15_000 : 2_000,
@@ -25,9 +25,8 @@ export async function fetchUser() {
   }
 }
 
-export async function pollLastSyncLog({ isProd, triggerTimeMs }) {
-  const { initialWaitMs, intervalMs, maxTotalMs, skewMs } =
-    getPollingTimings(isProd);
+export async function pollLastSyncLog({ triggerTimeMs }) {
+  const { initialWaitMs, intervalMs, maxTotalMs, skewMs } = getPollingTimings();
   const started = Date.now();
   const deadline = started + maxTotalMs;
 
