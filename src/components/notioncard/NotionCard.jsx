@@ -315,7 +315,7 @@ const NotionCard = ({ session }) => {
       <div className={styles.note}>
         Don’t have a Notion page yet? You can use this template:{" "}
         <a
-          href="https://www.notion.so/huixinyang/aa639e48cfee4216976756f33cf57c8e?v=6db9353f3bc54029807c539ffc3dfdb4"
+          href="https://www.notion.so/28b438de0d88819db5f6c28a33ccbfdc?v=28b438de0d8881158789000cba8aab6f"
           target="_blank"
           rel="noopener noreferrer"
         >
