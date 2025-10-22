@@ -3,7 +3,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { createUser, getUserByEmail } from "@models/user";
+import { createUser, getUserByEmail, getUserByProviderSub } from "@models/user";
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
@@ -25,7 +25,7 @@ export const authOptions = {
         }
         const validPassword = await bcrypt.compare(
           credentials.password,
-          user.password,
+          user.passwordHash,
         );
         if (!validPassword) {
           throw new Error("Invalid email or password");
@@ -58,15 +58,17 @@ export const authOptions = {
 
       if (account?.provider === "google") {
         token.provider = "google";
+        const sub = account.providerAccountId;
 
         // Upsert user
-        let dbUser = await getUserByEmail(user.email);
+        let dbUser = await getUserByProviderSub?.("google", sub);
         const isNew = !dbUser;
-        if (!dbUser) {
+        if (isNew) {
           dbUser = await createUser({
             email: user.email,
             username: user.username || user.name || user.email.split("@")[0],
             provider: "google",
+            providerSub: sub,
             image: user.image || "",
             role: "user",
           });

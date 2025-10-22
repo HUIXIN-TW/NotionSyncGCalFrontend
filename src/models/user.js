@@ -9,13 +9,13 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import normalizeEmail from "@/utils/server/normalize-email";
+import { normalizeEmail } from "@/utils/server/normalize-email";
 
 const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 
 // Helper: validate username format
 const isValidUsername = (username) =>
-  /^(?=.{8,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username);
+  /^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username);
 
 // Create a user with validation and duplicate email check
 export const createUser = async (userData) => {
@@ -28,10 +28,10 @@ export const createUser = async (userData) => {
 
   // enforce password & username only for credentials provider
   if (provider === "credentials") {
-    if (!userData.password) throw new Error("Password is required!");
+    if (!userData.passwordHash) throw new Error("Password is required!");
     if (!isValidUsername(username)) {
       throw new Error(
-        "Username invalid, it should contain 8–20 alphanumeric characters and be unique!",
+        "Username invalid, it should contain 4–20 alphanumeric characters and be unique!",
       );
     }
   }
@@ -41,10 +41,11 @@ export const createUser = async (userData) => {
     email: normalizedEmail,
     username,
     // include password only for credentials
-    ...(provider === "credentials" && { password: userData.password }),
+    ...(provider === "credentials" && { passwordHash: userData.passwordHash }),
     role: userData.role || "user",
     image: userData.image || "",
-    provider,
+    provider: provider,
+    ...(provider === "google" && userData.providerSub && { providerSub: userData.providerSub }),
     createdAt: now,
     updatedAt: now,
   };
@@ -54,7 +55,8 @@ export const createUser = async (userData) => {
       new PutCommand({
         TableName: TABLE_NAME,
         Item: item,
-        ConditionExpression: "attribute_not_exists(email)", // Prevent duplicates
+        ConditionExpression: "attribute_not_exists(#uuid)",
+        ExpressionAttributeNames: { "#uuid": "uuid" },
       }),
     );
     return item;
@@ -169,4 +171,16 @@ export const getAllUsers = async () => {
     logger.error("Error getting all users", error);
     throw error;
   }
+};
+
+// Get user by provider and providerSub
+export const getUserByProviderSub = async (provider, sub) => {
+  const r = await ddb.send(new QueryCommand({
+    TableName: TABLE_NAME,
+    IndexName: "ProviderSubIndex",
+    KeyConditionExpression: "provider = :p AND providerSub = :s",
+    ExpressionAttributeValues: { ":p": provider, ":s": sub },
+    Limit: 1,
+  }));
+  return r.Items?.[0] || null;
 };
