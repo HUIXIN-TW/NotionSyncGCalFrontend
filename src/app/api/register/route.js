@@ -7,7 +7,7 @@ import {
   registerIpRules,
   registerEmailRules,
 } from "@/utils/server/throttle-rule";
-import normalizeEmail from "@/utils/server/normalize-email";
+import { normalizeEmail } from "@/utils/server/normalize-email";
 
 // Keep a server action-compatible function for potential form actions
 export const register = async (_prevState, formData) => {
