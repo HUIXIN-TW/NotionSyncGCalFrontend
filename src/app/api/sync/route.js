@@ -76,7 +76,7 @@ export async function POST(req) {
 
   const timestamp = new Date().toISOString();
   try {
-    // todo actionType enum -t, -n, -g 
+    // todo actionType enum -t, -n, -g
     // the sync should follow by timestamp, notion (overwrite gcal events), gcal (overwrite notion tasks)
     const action = "user.sync";
     const source = "NotionSyncGCalFrontend";
@@ -88,7 +88,13 @@ export async function POST(req) {
       throw new Error("SQS enqueue returned no MessageId");
     }
 
-    logger.info(`Sync enqueued`, { uuid, messageId, action, source, type: "timestamp" });
+    logger.info(`Sync enqueued`, {
+      uuid,
+      messageId,
+      action,
+      source,
+      type: "timestamp",
+    });
 
     return NextResponse.json(
       {

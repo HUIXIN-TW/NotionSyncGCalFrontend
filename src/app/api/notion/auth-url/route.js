@@ -11,6 +11,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (!BASEURL)
+    return NextResponse.json(
+      { error: "Server misconfigured" },
+      { status: 500 },
+    );
   const redirectUri = `${BASEURL}/api/notion/callback`;
   const state = `${session.user.uuid}:${crypto.randomUUID()}`;
 

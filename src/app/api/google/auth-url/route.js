@@ -32,8 +32,12 @@ export async function GET(req) {
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 
-  const origin = new URL(req.url).origin;
-  const baseUrl = process.env.NEXTAUTH_URL || origin;
+  const baseUrl = process.env.NEXTAUTH_URL;
+  if (!baseUrl)
+    return NextResponse.json(
+      { error: "Server misconfigured" },
+      { status: 500 },
+    );
   const redirectUri = `${baseUrl}/api/google/callback`;
   logger.debug("Redirect URI for Google OAuth:", redirectUri);
 

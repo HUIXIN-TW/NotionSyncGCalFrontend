@@ -31,14 +31,6 @@ const Home = () => {
           <p className="welcome_links">
             This app is open source and contributions welcome:{" "}
             <a
-              href="https://github.com/HUIXIN-TW/NotionSyncGCalFrontend"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Website Frontend
-            </a>
-            {" · "}
-            <a
               href="https://github.com/HUIXIN-TW/NotionSyncGCal"
               target="_blank"
               rel="noopener noreferrer"
