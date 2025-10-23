@@ -3,12 +3,12 @@ const isServer = typeof window === "undefined";
 function resolveIsProd() {
   if (isServer) {
     const b = // build time
-    (
-      process.env.AWS_BRANCH ||
-      // runtime
-      process.env.APP_ENV ||
-      ""
-    ).toLowerCase();
+      (
+        process.env.AWS_BRANCH ||
+        // runtime
+        process.env.APP_ENV ||
+        ""
+      ).toLowerCase();
     return ["master", "production"].includes(b);
   } else {
     // client side

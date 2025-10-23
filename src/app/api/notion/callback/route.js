@@ -9,7 +9,12 @@ function clearState(res) {
 
 export async function GET(req) {
   const url = new URL(req.url);
-  const BaseUrl = process.env.NEXTAUTH_URL || url.origin;
+  const BaseUrl = process.env.NEXTAUTH_URL;
+  if (!BaseUrl)
+    return NextResponse.json(
+      { error: "Server misconfigured" },
+      { status: 500 },
+    );
   const redirectUri = `${BaseUrl}/api/notion/callback`;
   const code = url.searchParams.get("code");
   const returnedState = url.searchParams.get("state");
@@ -24,7 +29,7 @@ export async function GET(req) {
     return res;
   }
 
-  const jar = await cookies();
+  const jar = cookies();
   const expectedState = jar.get("notion_oauth_state")?.value || "";
 
   if (!returnedState || returnedState !== expectedState) {
@@ -68,10 +73,10 @@ export async function GET(req) {
 
     const tokenJson = await tokenRes.json();
     if (!tokenRes.ok) {
-      logger.error("Notion Client ID: " + process.env.NOTION_CLIENT_ID);
-      logger.error("Notion Client Secret: " + process.env.NOTION_CLIENT_SECRET);
-      logger.error("Notion Redirect URI: " + redirectUri);
-      logger.error("Token exchange failed", { body: tokenJson });
+      logger.error("Token exchange failed", {
+        status: tokenRes.status,
+        body: await tokenRes.text(),
+      });
       const res = NextResponse.redirect(
         new URL("/notion/config?notion=error&reason=token", BaseUrl),
       );

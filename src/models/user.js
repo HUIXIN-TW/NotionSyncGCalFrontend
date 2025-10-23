@@ -45,7 +45,8 @@ export const createUser = async (userData) => {
     role: userData.role || "user",
     image: userData.image || "",
     provider: provider,
-    ...(provider === "google" && userData.providerSub && { providerSub: userData.providerSub }),
+    ...(provider === "google" &&
+      userData.providerSub && { providerSub: userData.providerSub }),
     createdAt: now,
     updatedAt: now,
   };
@@ -175,12 +176,14 @@ export const getAllUsers = async () => {
 
 // Get user by provider and providerSub
 export const getUserByProviderSub = async (provider, sub) => {
-  const r = await ddb.send(new QueryCommand({
-    TableName: TABLE_NAME,
-    IndexName: "ProviderSubIndex",
-    KeyConditionExpression: "provider = :p AND providerSub = :s",
-    ExpressionAttributeValues: { ":p": provider, ":s": sub },
-    Limit: 1,
-  }));
+  const r = await ddb.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      IndexName: "ProviderSubIndex",
+      KeyConditionExpression: "provider = :p AND providerSub = :s",
+      ExpressionAttributeValues: { ":p": provider, ":s": sub },
+      Limit: 1,
+    }),
+  );
   return r.Items?.[0] || null;
 };

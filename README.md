@@ -71,22 +71,17 @@ yarn dev
 
 ![image](./images/dark.png)
 
-## DynamoDB Setup
+## Security
 
-This project uses AWS DynamoDB instead of MongoDB. Follow these steps to set up your DynamoDB environment:
-
-1. Create a DynamoDB table named `Users` with the following configuration:
-   - Partition key: `uuid` (String)
-   - Sort key: None (optional)
-
-2. Create a Global Secondary Index (GSI) named `EmailIndex` on the `Users` table:
-   - Partition key: `email` (String)
-   - Sort key: None
+Never share or commit your personal credentials, OAuth secrets, or JWT keys.
+If you believe you’ve found a security vulnerability, please read our
+[SECURITY.md](./SECURITY.md) policy and report it responsibly.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome pull requests that improve code quality, documentation, or UI/UX.
+Before contributing, review the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

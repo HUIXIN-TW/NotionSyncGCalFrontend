@@ -10,7 +10,12 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 export async function GET(req) {
   const url = new URL(req.url);
-  const BaseUrl = process.env.NEXTAUTH_URL || url.origin;
+  const BaseUrl = process.env.NEXTAUTH_URL;
+  if (!BaseUrl)
+    return NextResponse.json(
+      { error: "Server misconfigured" },
+      { status: 500 },
+    );
   const code = url.searchParams.get("code");
   const returned = url.searchParams.get("state");
   const err = url.searchParams.get("error");
