@@ -29,7 +29,7 @@ export async function GET(req) {
     return res;
   }
 
-  const jar = await cookies();
+  const jar = cookies();
   const expectedState = jar.get("notion_oauth_state")?.value || "";
 
   if (!returnedState || returnedState !== expectedState) {
@@ -75,7 +75,7 @@ export async function GET(req) {
     if (!tokenRes.ok) {
       logger.error("Token exchange failed", {
         status: tokenRes.status,
-        body: safeRedact(tokenJson),
+        body: await tokenRes.text(),
       });
       const res = NextResponse.redirect(
         new URL("/notion/config?notion=error&reason=token", BaseUrl),

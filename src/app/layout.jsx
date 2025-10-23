@@ -24,7 +24,11 @@ const RootLayout = ({ children }) => (
         <footer>
           <p>
             © 2025 Huixin Yang — Licensed under the{" "}
-            <a href="https://github.com/HUIXIN-TW/NotionSyncGCalFrontend/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://github.com/HUIXIN-TW/NotionSyncGCalFrontend/blob/master/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               MIT License
             </a>
           </p>
