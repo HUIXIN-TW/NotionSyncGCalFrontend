@@ -8,7 +8,7 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
 } from "@aws-sdk/client-s3";
-import parseDatetimeFormat from "@/utils/client/parse-datetime";
+import parseDatetimeFormat from "@/utils/server/parse-datetime";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION, // Default to us-east-1 if not specified
@@ -201,4 +201,44 @@ export async function uploadNotionTokens(userId, payload) {
   });
   await s3Client.send(command);
   logger.info("Notion tokens uploaded successfully for user", userId);
+}
+
+/** Check if Notion OAuth token file exists for user */
+export async function notionTokenExists(userId) {
+  if (!S3_NOTION_TOKEN_PATH) throw new Error("Missing S3_NOTION_TOKEN_PATH");
+  const Key = `${userId}/${S3_NOTION_TOKEN_PATH}`;
+  logger.info("Checking Notion token existence", { userId });
+  const exists = await headExists(Key);
+  return exists;
+}
+
+/** Load Google OAuth token JSON and check emptiness. Only check "token" field. */
+export async function googleTokenExists(userId) {
+  if (!S3_GOOGLE_TOKEN_PATH) throw new Error("Missing S3_GOOGLE_TOKEN_PATH");
+  const Key = `${userId}/${S3_GOOGLE_TOKEN_PATH}`;
+  logger.info("Retrieving Google tokens from S3", { userId });
+
+  const exists = await headExists(Key);
+  if (!exists) return false;
+
+  const token = await getJson(Key);
+  const isEmpty = !token || typeof token.token !== "string" || token.token.length === 0;
+
+  return !isEmpty;
+}
+
+async function headExists(Key) {
+  try {
+    await s3Client.send(new HeadObjectCommand({ Bucket: S3_BUCKET_NAME, Key }));
+    return true;
+  } catch (e) {
+    if (e?.$metadata?.httpStatusCode === 404 || e?.name === "NotFound") return false;
+    throw e;
+  }
+}
+
+async function getJson(Key) {
+  const res = await s3Client.send(new GetObjectCommand({ Bucket: S3_BUCKET_NAME, Key }));
+  const text = await streamToString(res.Body);
+  return text ? JSON.parse(text) : null;
 }
