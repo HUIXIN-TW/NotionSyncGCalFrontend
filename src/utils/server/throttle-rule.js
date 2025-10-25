@@ -79,7 +79,7 @@ export function syncRules(ip, uuid, providerSub) {
       },
       messages: {
         tooFrequent:
-          "Please wait a moment before retrying. One hour per sync per user.",
+          "Please wait a moment before retrying.",
         windowExceeded: "Too many syncs in a short period.",
       },
     });
@@ -95,17 +95,36 @@ export function syncRules(ip, uuid, providerSub) {
       },
       messages: {
         tooFrequent:
-          "Please wait a moment before retrying. One hour per sync per user.",
+          "Please wait a moment before retrying.",
         windowExceeded: "Too many syncs in a short period.",
       },
     });
   }
 
-  logger.debug("Throttle keys", {
-    ip,
-    uuid,
-    providerSub: providerSub ? providerSub.slice(-6) : null,
-  });
+  return rules;
+}
+
+/**
+ * Build sync throttling rules: per IP and per user UUID.
+ */
+export function testConnectionRules(uuid) {
+  const rules = [];
+
+  if (uuid) {
+    rules.push({
+      key: `testConnection:user:${uuid}`,
+      minMs: config.TEST_CONNECTION_USER_MIN_MS,
+      window: {
+        limit: config.TEST_CONNECTION_USER_WINDOW_LIMIT,
+        ms: config.TEST_CONNECTION_USER_WINDOW_MS,
+      },
+      messages: {
+        tooFrequent:
+          "Please wait a moment before retrying.",
+        windowExceeded: "Too many connection tests in a short period.",
+      },
+    });
+  }
 
   return rules;
 }

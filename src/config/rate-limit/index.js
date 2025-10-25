@@ -28,6 +28,11 @@ const config = {
 
   // S3 Upload throttling
   UPLOAD_MIN_MS: 3 * 60_000, // per user UUID: 3 minutes
+
+  // S3 Test Connection throttling
+  TEST_CONNECTION_USER_WINDOW_LIMIT: 5, // Limit per user UUID: 5 connection tests per 10 minutes
+  TEST_CONNECTION_USER_WINDOW_MS: 10 * 60_000, // Time window for test connection limit (10 minutes)
+  TEST_CONNECTION_USER_MIN_MS: 60_000, // Minimum spacing between connection tests for the same user (1 minute)
 };
 
 export default Object.freeze(config);
