@@ -63,7 +63,7 @@ export const authOptions = {
         token.providerSub = sub;
 
         // Upsert user by providerSub
-        let dbUser = await getUserByProviderSub?.("google", sub);
+        let dbUser = await getUserByProviderSub("google", sub);
         if (!dbUser) {
           token.isNewUser = true;
           dbUser = await createUser({
@@ -130,7 +130,7 @@ export const authOptions = {
         provider: token.provider,
         providerSub: token.providerSub,
       };
-      session.isNewUser = !!token.isNewUser;
+      session.isNewUser = Boolean(token.isNewUser);
       return session;
     },
   },

@@ -19,7 +19,7 @@ export async function GET(req) {
   const code = url.searchParams.get("code");
   const returned = url.searchParams.get("state");
   const err = url.searchParams.get("error");
-  
+
   // check error
   if (err || !code) {
     return NextResponse.redirect(

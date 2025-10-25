@@ -33,7 +33,7 @@ export async function GET(req) {
     return res;
   }
 
-  const jar = await cookies(); 
+  const jar = await cookies();
   const expectedState = jar.get("notion_oauth_state")?.value ?? "";
   const codeVerifier = jar.get("google_code_verifier")?.value ?? "";
 

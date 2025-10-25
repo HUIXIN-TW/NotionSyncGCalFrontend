@@ -28,7 +28,7 @@ const SignUpForm = () => {
 
     try {
       const res = await signIn("google", {
-        callbackUrl: "/profile",
+        callbackUrl: "/welcome",
       });
 
       if (res?.error) {
