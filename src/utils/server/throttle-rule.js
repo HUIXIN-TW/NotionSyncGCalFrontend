@@ -51,7 +51,7 @@ export function registerEmailRules(email) {
 /**
  * Build sync throttling rules: per IP and per user UUID.
  */
-export function syncRules(ip, uuid) {
+export function syncRules(ip, uuid, providerSub) {
   const rules = [];
 
   if (ip) {
@@ -84,6 +84,28 @@ export function syncRules(ip, uuid) {
       },
     });
   }
+
+  if (providerSub) {
+    rules.push({
+      key: `sync:user:${providerSub}`,
+      minMs: config.SYNC_USER_MIN_MS,
+      window: {
+        limit: config.SYNC_USER_WINDOW_LIMIT,
+        ms: config.SYNC_USER_WINDOW_MS,
+      },
+      messages: {
+        tooFrequent:
+          "Please wait a moment before retrying. One hour per sync per user.",
+        windowExceeded: "Too many syncs in a short period.",
+      },
+    });
+  }
+
+  logger.debug("Throttle keys", {
+    ip,
+    uuid,
+    providerSub: providerSub ? providerSub.slice(-6) : null,
+  });
 
   return rules;
 }

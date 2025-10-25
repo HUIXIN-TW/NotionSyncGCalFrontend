@@ -22,7 +22,11 @@ export async function POST(req) {
 
   // only allow sub google oauth (not allow email login)
   const isGoogleOAuth = token?.provider === "google" && !!token?.providerSub;
-  logger.debug("Sync request by", { uuid: token.uuid, provider: token.provider, isGoogleOAuth: isGoogleOAuth });
+  logger.debug("Sync request by", {
+    uuid: token.uuid,
+    provider: token.provider,
+    isGoogleOAuth: isGoogleOAuth,
+  });
   if (!isGoogleOAuth) {
     return NextResponse.json(
       {
@@ -77,7 +81,9 @@ export async function POST(req) {
 
   // Only enforce throttle in production environment
   if (isProd) {
-    const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
+    const throttleResult = await enforceDDBThrottle(
+      syncRules(ip, uuid, token.providerSub),
+    );
     if (throttleResult) {
       return NextResponse.json(
         {
