@@ -17,9 +17,9 @@ const TestConnectionButton = ({ className, style }) => {
         alert(
           [
             "✅ Connection test completed",
-            `Notion token: ${data.hasNotion ? "✅ Found" : "❌ Missing"}`,
-            `Google token: ${data.hasGoogle ? "✅ Found" : "❌ Missing"}`,
-          ].join("\n")
+            `Notion token: ${data.hasNotion ? "✅ Found" : "❌ Missing. Please connect your Notion account."}`,
+            `Google token: ${data.hasGoogle ? "✅ Found" : "❌ Missing. Please connect your Google account."}`,
+          ].join("\n"),
         );
       }
     } catch (err) {
@@ -30,14 +30,12 @@ const TestConnectionButton = ({ className, style }) => {
     }
   }
 
-return (
-
-      <Button
-        text={loading ? "Testing Connection..." : "Test Connection"}
-        onClick={handleTestConnection}
-        disabled={loading}
-      />
-
+  return (
+    <Button
+      text={loading ? "Testing Connection..." : "Test Connection"}
+      onClick={handleTestConnection}
+      disabled={loading}
+    />
   );
 };
 

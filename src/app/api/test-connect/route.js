@@ -16,7 +16,7 @@ export async function GET(req) {
     if (!token) {
       return NextResponse.json(
         { type: "auth error", message: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function GET(req) {
     if (!userId) {
       return NextResponse.json(
         { type: "auth error", message: "Invalid session" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -36,22 +36,22 @@ export async function GET(req) {
       googleTokenExists(userId),
     ]);
 
-  // Only enforce throttle in production environment
-  if (isProd) {
-    const throttleResult = await enforceDDBThrottle(
-      testConnectionRules(userId),
-    );
-    if (throttleResult) {
-      return NextResponse.json(
-        {
-          type: "throttle error",
-          message: throttleResult.body.error,
-          needRefresh: false,
-        },
-        { status: throttleResult.status },
+    // Only enforce throttle in production environment
+    if (isProd) {
+      const throttleResult = await enforceDDBThrottle(
+        testConnectionRules(userId),
       );
+      if (throttleResult) {
+        return NextResponse.json(
+          {
+            type: "throttle error",
+            message: throttleResult.body.error,
+            needRefresh: false,
+          },
+          { status: throttleResult.status },
+        );
+      }
     }
-  }
 
     return NextResponse.json({
       type: "connection test",
@@ -65,7 +65,7 @@ export async function GET(req) {
     logger.error("test-connect error", err);
     return NextResponse.json(
       { type: "error", message: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

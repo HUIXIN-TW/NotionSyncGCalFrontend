@@ -222,7 +222,8 @@ export async function googleTokenExists(userId) {
   if (!exists) return false;
 
   const token = await getJson(Key);
-  const isEmpty = !token || typeof token.token !== "string" || token.token.length === 0;
+  const isEmpty =
+    !token || typeof token.token !== "string" || token.token.length === 0;
 
   return !isEmpty;
 }
@@ -232,13 +233,16 @@ async function headExists(Key) {
     await s3Client.send(new HeadObjectCommand({ Bucket: S3_BUCKET_NAME, Key }));
     return true;
   } catch (e) {
-    if (e?.$metadata?.httpStatusCode === 404 || e?.name === "NotFound") return false;
+    if (e?.$metadata?.httpStatusCode === 404 || e?.name === "NotFound")
+      return false;
     throw e;
   }
 }
 
 async function getJson(Key) {
-  const res = await s3Client.send(new GetObjectCommand({ Bucket: S3_BUCKET_NAME, Key }));
+  const res = await s3Client.send(
+    new GetObjectCommand({ Bucket: S3_BUCKET_NAME, Key }),
+  );
   const text = await streamToString(res.Body);
   return text ? JSON.parse(text) : null;
 }

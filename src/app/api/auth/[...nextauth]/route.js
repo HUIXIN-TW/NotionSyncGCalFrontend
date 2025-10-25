@@ -65,6 +65,7 @@ export const authOptions = {
         // Upsert user by providerSub
         let dbUser = await getUserByProviderSub?.("google", sub);
         if (!dbUser) {
+          token.isNewUser = true;
           dbUser = await createUser({
             email: user.email,
             username: user.username || user.name || user.email.split("@")[0],
@@ -73,7 +74,6 @@ export const authOptions = {
             image: user.image || "",
             role: "user",
           });
-
           // First-time login → create S3 templates (fire-and-forget)
           // Fire-and-forget template init
           try {
@@ -130,6 +130,7 @@ export const authOptions = {
         provider: token.provider,
         providerSub: token.providerSub,
       };
+      session.isNewUser = !!token.isNewUser;
       return session;
     },
   },

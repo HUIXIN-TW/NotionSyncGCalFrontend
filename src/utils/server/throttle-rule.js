@@ -78,8 +78,7 @@ export function syncRules(ip, uuid, providerSub) {
         ms: config.SYNC_USER_WINDOW_MS,
       },
       messages: {
-        tooFrequent:
-          "Please wait a moment before retrying.",
+        tooFrequent: "Please wait a moment before retrying.",
         windowExceeded: "Too many syncs in a short period.",
       },
     });
@@ -94,8 +93,7 @@ export function syncRules(ip, uuid, providerSub) {
         ms: config.SYNC_USER_WINDOW_MS,
       },
       messages: {
-        tooFrequent:
-          "Please wait a moment before retrying.",
+        tooFrequent: "Please wait a moment before retrying.",
         windowExceeded: "Too many syncs in a short period.",
       },
     });
@@ -119,8 +117,7 @@ export function testConnectionRules(uuid) {
         ms: config.TEST_CONNECTION_USER_WINDOW_MS,
       },
       messages: {
-        tooFrequent:
-          "Please wait a moment before retrying.",
+        tooFrequent: "Please wait a moment before retrying.",
         windowExceeded: "Too many connection tests in a short period.",
       },
     });
