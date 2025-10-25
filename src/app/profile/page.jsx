@@ -16,6 +16,10 @@ const MyProfile = () => {
       logger.info("No session, redirecting to authflow");
       router.push("/authflow");
     }
+    if (session?.isNewUser) {
+      // Redirect new users to welcome page with autoTest=1
+      router.replace("/welcome?autoTest=1");
+    }
   }, [session, status, router]);
 
   return (
