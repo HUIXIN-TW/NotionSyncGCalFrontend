@@ -1,6 +1,8 @@
 "use client";
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
-
+import config from "@/config/rate-limit";
+import { useCountdown } from "@/hooks/useCountdown";
+import { useElapsedTime } from "@/hooks/useElapsedTime";
 import React, { useState, useEffect } from "react";
 import styles from "./profile.module.css";
 import Button from "@components/button/Button";
@@ -8,68 +10,54 @@ import SyncButton from "@components/button/SyncButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
 
 const Profile = ({ session, signOut }) => {
-  const [now, setNow] = useState(Date.now());
+  const user = session?.user;
   const [syncResult, setSyncResult] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState(null);
-  const [syncCooldownUntil, setSyncCooldownUntil] = useState(null);
 
-  // Load saved cooldown from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem("syncCooldownUntil");
-    if (saved) {
-      const savedTime = parseInt(saved, 10);
-      if (!isNaN(savedTime)) {
-        if (Date.now() < savedTime) {
-          setSyncCooldownUntil(savedTime);
-        } else {
-          localStorage.removeItem("syncCooldownUntil");
-        }
-      }
-    }
-  }, []); // empty deps -> only runs once on mount
+  // Rate limit configuration
+  const SYNC_USER_MIN_MS = config.SYNC_USER_MIN_MS ?? 10 * 60_000;
+  const { startCountdown, isCountingDown, formattedRemaining } =
+    useCountdown("cooldown:sync");
 
-  // Update `now` every second for countdown
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
+  const elapsedSec = useElapsedTime(syncStartedAt);
 
-    return () => clearInterval(interval);
-  }, []);
-
+  // --- 1. Load once when component mounts ---
   useEffect(() => {
     const stored = localStorage.getItem("syncResult");
     const storedTime = localStorage.getItem("syncResultSavedAt");
+
     if (
       stored &&
       storedTime &&
-      Date.now() - parseInt(storedTime, 10) < 10 * 60_000
+      Date.now() - Number(storedTime) < 10 * 60_000 // 10 minutes
     ) {
       try {
         setSyncResult(JSON.parse(stored));
       } catch {
-        logger.warn("Corrupted syncResult");
+        logger.warn("Corrupted syncResult in storage");
       }
     }
-  }, []);
+  }, []); // no dependencies → run once only
 
+  // --- 2. Save whenever syncResult changes ---
   useEffect(() => {
-    if (syncResult) {
+    if (!syncResult) return;
+    try {
       localStorage.setItem("syncResult", JSON.stringify(syncResult));
       localStorage.setItem("syncResultSavedAt", Date.now().toString());
+    } catch (err) {
+      logger.warn("Failed to persist syncResult", err);
     }
   }, [syncResult]);
 
-  if (!session?.user) {
+  // User details
+  if (!user) {
     return (
       <div className={styles.profile_loading}>Loading your profile...</div>
     );
   }
-
-  const { email, uuid, username } = session.user;
-
-  const syncDisabled = syncCooldownUntil && now < syncCooldownUntil;
+  const { email, uuid, username, image } = user;
 
   const handleSync = async (syncPromise) => {
     setIsSyncing(true);
@@ -78,12 +66,7 @@ const Profile = ({ session, signOut }) => {
     try {
       const result = await syncPromise;
       setSyncResult(result);
-
-      if (isProd && result?.type === "success") {
-        const cooldownUntil = Date.now() + 180_000;
-        setSyncCooldownUntil(cooldownUntil);
-        localStorage.setItem("syncCooldownUntil", cooldownUntil.toString());
-      }
+      startCountdown(SYNC_USER_MIN_MS);
     } catch (err) {
       logger.error("Unexpected sync failure", err);
       setSyncResult({
@@ -98,14 +81,14 @@ const Profile = ({ session, signOut }) => {
   return (
     <div className={styles.profile_container}>
       <div className={styles.profile_image_container}>
-        {session.user.image && (
+        {image && (
           <img
             className={styles.profile_image}
-            src={session.user.image}
+            src={image}
             alt="Profile Image"
           />
         )}
-        {!session.user.image && (
+        {!image && (
           <img
             className={styles.profile_default_image}
             src="./assets/images/App.png"
@@ -144,14 +127,13 @@ const Profile = ({ session, signOut }) => {
       <SyncButton
         text={
           isSyncing && syncStartedAt
-            ? `Syncing... (${Math.ceil((Date.now() - syncStartedAt) / 1000)}s)`
-            : syncDisabled
-              ? `You can sync again in ${Math.ceil((syncCooldownUntil - Date.now()) / 1000)}s`
-              : "Sync Calendar"
+            ? `Syncing... (${elapsedSec}s)`
+            : isCountingDown
+              ? `You can sync again in ${formattedRemaining}`
+              : `Sync Calendar`
         }
         onSync={handleSync}
-        disabled={syncDisabled || isSyncing}
-        className={syncDisabled && isProd ? "cooldown_disabled" : ""}
+        disabled={isSyncing || (isCountingDown && isProd)}
       />
       <GetNotionConfigButton />
       <Button text="Sign Out" onClick={signOut} />

@@ -1,6 +1,7 @@
 "use client";
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
-
+import config from "@/config/rate-limit";
+import { useCountdown } from "@/hooks/useCountdown";
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import styles from "./notioncard.module.css";
@@ -12,14 +13,13 @@ import validateConfigFormat from "@/utils/client/validate-config-format";
 const LABEL_MAP = {
   goback_days: "Go Back Days",
   goforward_days: "Go Forward Days",
-  notion_token: "Notion Token*",
-  database_id: "Notion Database ID*",
-  timecode: "Time Code*",
-  timezone: "Time Zone*",
-  default_event_length: "Default Event Length (min)*",
-  default_start_time: "Default Start Time (hour)*",
-  gcal_dic: "Google Calendar Mapping*",
-  page_property: "Page Property Mapping*",
+  database_id: "Notion Database ID",
+  timecode: "Time Code",
+  timezone: "Time Zone",
+  default_event_length: "Default Event Length (min)",
+  default_start_time: "Default Start Time (hour)",
+  gcal_dic: "Google Calendar Mapping",
+  page_property: "Page Property Mapping",
 };
 
 const NotionCard = ({ session }) => {
@@ -34,6 +34,11 @@ const NotionCard = ({ session }) => {
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
   // Keep draft of gcal_dic keys to avoid reordering on each keystroke
   const [draftGcalKeys, setDraftGcalKeys] = useState({});
+
+  // Rate limit configuration
+  const UPLOAD_LIMIT_MS = config.UPLOAD_MIN_MS ?? 3 * 60_000;
+  const { startCountdown, isCountingDown, formattedRemaining } =
+    useCountdown("cooldown:save");
 
   // Read query params for connection notices; auto-clear after 4s
   useEffect(() => {
@@ -112,15 +117,8 @@ const NotionCard = ({ session }) => {
 
         const fetchTime = timestamp ? new Date(timestamp).getTime() : null;
         const modifyTime = modified ? new Date(modified).getTime() : null;
-        const now = Date.now();
 
-        if (
-          !isProd ||
-          !fetchTime ||
-          !modifyTime ||
-          fetchTime < modifyTime ||
-          now - fetchTime > FRESHNESS_LIMIT_MS
-        ) {
+        if (!isProd || !fetchTime || !modifyTime || fetchTime < modifyTime) {
           setShowFetchButton(true);
         }
 
@@ -145,7 +143,9 @@ const NotionCard = ({ session }) => {
   const handleCancelClick = () => {
     const local = localStorage.getItem("notionConfig");
     if (local) {
-      setEditableConfig(JSON.parse(local));
+      try {
+        setEditableConfig(JSON.parse(local));
+      } catch {}
     }
     setEditMode(false);
   };
@@ -181,6 +181,7 @@ const NotionCard = ({ session }) => {
       localStorage.setItem("notionConfig", JSON.stringify(editableConfig));
       localStorage.setItem("notionConfigFetchedAt", now);
       setLastFetchedAt(new Date(now).toLocaleString());
+      startCountdown(UPLOAD_LIMIT_MS);
     } else {
       setShowFetchButton(true);
       const { message } = await res.json();
@@ -423,9 +424,15 @@ const NotionCard = ({ session }) => {
       ) : (
         <>
           <Button
-            text={loading ? "Saving..." : "Save"}
+            text={
+              loading
+                ? "Saving..."
+                : isCountingDown
+                  ? `Please wait ${formattedRemaining} to save`
+                  : "Save"
+            }
             onClick={handleSaveClick}
-            disabled={loading}
+            disabled={loading || isCountingDown}
           />
           <Button text="Cancel" onClick={handleCancelClick} />
         </>

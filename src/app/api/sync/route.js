@@ -11,9 +11,25 @@ import { syncRules } from "@/utils/server/throttle-rule";
 export async function POST(req) {
   // AuthN
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  // must be logged in
   if (!token) {
     return NextResponse.json(
       { type: "auth error", message: "Unauthorized", needRefresh: false },
+      { status: 401 },
+    );
+  }
+
+  // only allow sub google oauth (not allow email login)
+  const isGoogleOAuth = token?.provider === "google" && !!token?.providerSub;
+  logger.debug("Sync request by", { uuid: token.uuid, provider: token.provider, isGoogleOAuth: isGoogleOAuth });
+  if (!isGoogleOAuth) {
+    return NextResponse.json(
+      {
+        type: "auth error",
+        message: "Only Google OAuth login is allowed to sync",
+        needRefresh: false,
+      },
       { status: 401 },
     );
   }
