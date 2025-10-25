@@ -17,8 +17,8 @@ const MyProfile = () => {
       router.push("/authflow");
     }
     if (session?.isNewUser) {
-      // Redirect new users to welcome page with autoTest=1
-      router.replace("/welcome?autoTest=1");
+      // Redirect new users to welcome page
+      router.replace("/welcome");
     }
   }, [session, status, router]);
 

@@ -2,7 +2,7 @@
 import Button from "@components/button/Button";
 import React, { useState } from "react";
 
-const TestConnectionButton = ({ className, style }) => {
+const TestConnectionButton = ({ className, style, text }) => {
   const [loading, setLoading] = useState(false);
 
   async function handleTestConnection() {
@@ -32,7 +32,7 @@ const TestConnectionButton = ({ className, style }) => {
 
   return (
     <Button
-      text={loading ? "Testing Connection..." : "Test Connection"}
+      text={loading ? "Testing Connection..." : (text || "Test Connection")}
       onClick={handleTestConnection}
       disabled={loading}
     />
