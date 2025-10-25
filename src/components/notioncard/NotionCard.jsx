@@ -8,6 +8,7 @@ import styles from "./notioncard.module.css";
 import Button from "@components/button/Button";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import RefreshNotionButton from "@components/button/RefreshNotionButton";
+import TestConnectionButton from "@components/button/TestConnectionButton";
 import validateConfigFormat from "@/utils/client/validate-config-format";
 
 const LABEL_MAP = {
@@ -413,7 +414,7 @@ const NotionCard = ({ session }) => {
 
       {!editMode ? (
         <>
-          <Button text="Edit" onClick={handleEditClick} />
+          <Button text="Edit Sync Configuration" onClick={handleEditClick} />
           {showFetchButton && (
             <Button
               text={loading ? "Fetching..." : "Fetch Latest Configuration"}
@@ -439,6 +440,7 @@ const NotionCard = ({ session }) => {
       )}
       <RefreshNotionButton />
       <RefreshGCalButton />
+      <TestConnectionButton />
       <Button text="Back to Profile" onClick={handleBackClick} />
     </div>
   );
