@@ -22,7 +22,7 @@ export async function POST(req) {
 
   // only allow sub google oauth (not allow email login)
   const isGoogleOAuth = token?.provider === "google" && !!token?.providerSub;
-  logger.debug("Sync request by", {
+  logger.info("Sync request by", {
     uuid: token.uuid,
     provider: token.provider,
     isGoogleOAuth: isGoogleOAuth,
