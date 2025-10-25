@@ -2,7 +2,7 @@ import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { notionTokenExists, googleTokenExists } from "@/utils/server/s3-client";
-import { enforceS3Throttle } from "@/utils/server/throttle";
+import { enforceDDBThrottle } from "@/utils/server/throttle";
 import { testConnectionRules } from "@/utils/server/throttle-rule";
 
 /**
@@ -38,7 +38,7 @@ export async function GET(req) {
 
   // Only enforce throttle in production environment
   if (isProd) {
-    const throttleResult = await enforceS3Throttle(
+    const throttleResult = await enforceDDBThrottle(
       testConnectionRules(userId),
     );
     if (throttleResult) {

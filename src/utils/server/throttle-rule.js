@@ -87,7 +87,7 @@ export function syncRules(ip, uuid, providerSub) {
 
   if (providerSub) {
     rules.push({
-      key: `sync:user:${providerSub}`,
+      key: `sync:providerSub:${providerSub}`,
       minMs: config.SYNC_USER_MIN_MS,
       window: {
         limit: config.SYNC_USER_WINDOW_LIMIT,
