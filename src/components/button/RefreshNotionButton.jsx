@@ -40,7 +40,7 @@ const RefreshNotionButton = ({ className, style, text }) => {
   return (
     <Button
       type="button"
-      text={loading ? "Refreshing..." : (text || "Connect Notion Account")}
+      text={loading ? "Refreshing..." : text || "Connect Notion Account"}
       onClick={handleClick}
       disabled={loading}
     />
