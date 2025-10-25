@@ -6,10 +6,10 @@ import Button from "@/components/button/Button";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import RefreshNotionButton from "@/components/button/RefreshNotionButton";
 import TestConnectionButton from "@components/button/TestConnectionButton";
+import { signOut } from "next-auth/react";
 
 const Welcome = () => {
   const router = useRouter();
-
   return (
     <div className="home">
       <div className="welcome">
@@ -21,9 +21,14 @@ const Welcome = () => {
             <TestConnectionButton text="Step 3: Test Notion & GCal Connection" />
             <Button
               type="button"
-              text="Step 4: Go to Set Up Sync Configuration"
-              onClick={() => router.push("/notion/config")}
-              className="black_btn"
+              text="✅ Finish Setup & Re-login"
+              onClick={() =>
+                signOut({
+                  redirect: true,
+                  callbackUrl: "/authflow", // destination after logout
+                })
+              }
+              className="outline_btn"
             />
           </div>
         </div>
