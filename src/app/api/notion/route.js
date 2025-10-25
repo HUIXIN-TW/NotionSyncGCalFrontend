@@ -1,4 +1,4 @@
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { getToken } from "next-auth/jwt";
 import {
   getConfigLastModified,
