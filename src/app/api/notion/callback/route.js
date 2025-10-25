@@ -1,4 +1,4 @@
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { uploadNotionTokens } from "@/utils/server/s3-client";

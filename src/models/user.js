@@ -1,4 +1,5 @@
-import logger from "@utils/logger";
+import "server-only";
+import logger from "@/utils/shared/logger";
 import { ddb } from "@/utils/server/db-client";
 import {
   PutCommand,

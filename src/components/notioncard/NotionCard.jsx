@@ -1,5 +1,5 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -12,14 +12,14 @@ import validateConfigFormat from "@/utils/client/validate-config-format";
 const LABEL_MAP = {
   goback_days: "Go Back Days",
   goforward_days: "Go Forward Days",
-  notion_token: "Notion Token",
-  database_id: "Notion Database ID",
-  timecode: "Time Code",
-  timezone: "Time Zone",
-  default_event_length: "Default Event Length (min)",
-  default_start_time: "Default Start Time (hour)",
-  gcal_dic: "Google Calendar Mapping",
-  page_property: "Page Property Mapping",
+  notion_token: "Notion Token*",
+  database_id: "Notion Database ID*",
+  timecode: "Time Code*",
+  timezone: "Time Zone*",
+  default_event_length: "Default Event Length (min)*",
+  default_start_time: "Default Start Time (hour)*",
+  gcal_dic: "Google Calendar Mapping*",
+  page_property: "Page Property Mapping*",
 };
 
 const NotionCard = ({ session }) => {

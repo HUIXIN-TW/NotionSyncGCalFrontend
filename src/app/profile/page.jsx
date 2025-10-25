@@ -1,5 +1,5 @@
 "use client";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";

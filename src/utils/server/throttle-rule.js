@@ -1,5 +1,5 @@
 import "server-only";
-import config from "@/config";
+import config from "@/config/rate-limit";
 import { normalizeEmail } from "@/utils/server/normalize-email";
 
 /**

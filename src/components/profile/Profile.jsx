@@ -1,5 +1,5 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 
 import React, { useState, useEffect } from "react";
 import styles from "./profile.module.css";

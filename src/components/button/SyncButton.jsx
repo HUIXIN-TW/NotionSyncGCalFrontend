@@ -1,5 +1,5 @@
 "use client";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { pollLastSyncLog } from "@/utils/client/polling-user-last-sync-log";
 import { useState } from "react";
 import Button from "@components/button/Button";

@@ -1,5 +1,5 @@
 import "server-only";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getNotionConfig } from "@/utils/server/s3-client";
 

@@ -1,5 +1,5 @@
 "use client";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";

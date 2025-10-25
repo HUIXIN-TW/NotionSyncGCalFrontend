@@ -8,7 +8,7 @@ import styles from "./form.module.css";
 import Button from "@components/button/Button";
 import { signIn } from "next-auth/react";
 import { registerAction } from "@app/api/register/actions";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 
 const SignUpForm = () => {
   const router = useRouter();

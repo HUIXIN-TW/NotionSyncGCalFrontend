@@ -1,5 +1,5 @@
 import "server-only";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import notionTemplate from "@/templates/notion_config.json";
 import googleTemplate from "@/templates/google_token.json";
 import {

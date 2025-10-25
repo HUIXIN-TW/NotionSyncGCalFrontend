@@ -1,4 +1,4 @@
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { validateConfig } from "@/utils/server/validate-config";
