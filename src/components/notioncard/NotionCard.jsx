@@ -9,6 +9,7 @@ import Button from "@components/button/Button";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import RefreshNotionButton from "@components/button/RefreshNotionButton";
 import TestConnectionButton from "@components/button/TestConnectionButton";
+import SignOutButton from "@components/button/SignOutButton";
 import validateConfigFormat from "@/utils/client/validate-config-format";
 
 const LABEL_MAP = {
@@ -35,6 +36,12 @@ const NotionCard = ({ session }) => {
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
   // Keep draft of gcal_dic keys to avoid reordering on each keystroke
   const [draftGcalKeys, setDraftGcalKeys] = useState({});
+
+  // Check local storage: New user flag
+  const isNewUser =
+    typeof window !== "undefined"
+      ? localStorage.getItem("newUser:v1") === "true"
+      : false;
 
   // Rate limit configuration
   const UPLOAD_LIMIT_MS = config.UPLOAD_MIN_MS ?? 3 * 60_000;
@@ -438,10 +445,22 @@ const NotionCard = ({ session }) => {
           <Button text="Cancel" onClick={handleCancelClick} />
         </>
       )}
-      <RefreshNotionButton />
-      <RefreshGCalButton />
-      <TestConnectionButton />
-      <Button text="Back to Profile" onClick={handleBackClick} />
+
+      {isNewUser && (
+        // This button will likely call NextAuth's signOut() to clear the session
+        // and force a fresh login/re-authentication cycle after setup.
+        <SignOutButton text="Finish Setup & Re-Authenticate" />
+      )}
+
+      {!isNewUser && (
+        // Wrap the multiple elements in a React Fragment or a div/span
+        <>
+          <RefreshNotionButton />
+          <RefreshGCalButton />
+          <TestConnectionButton />
+          <Button text="Back to Profile" onClick={handleBackClick} />
+        </>
+      )}
     </div>
   );
 };

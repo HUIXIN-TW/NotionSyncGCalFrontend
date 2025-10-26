@@ -2,7 +2,7 @@
 import logger from "@/utils/shared/logger";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import Profile from "@components/profile/Profile";
 
@@ -20,7 +20,7 @@ const MyProfile = () => {
 
   return (
     <div>
-      <Profile session={session} signOut={signOut} />
+      <Profile session={session} />
     </div>
   );
 };

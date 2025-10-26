@@ -65,7 +65,7 @@ export const authOptions = {
         // Upsert user by providerSub
         let dbUser = await getUserByProviderSub("google", sub);
         if (!dbUser) {
-          token.isNewUser = true;
+          token.isNewUser = true; // Mark as new user
           dbUser = await createUser({
             email: user.email,
             username: user.username || user.name || user.email.split("@")[0],
@@ -120,6 +120,11 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
+      // mark new user in session
+      session.isNewUser = !!token.isNewUser;
+
+      // Remove isNewUser from token to avoid persistence
+      // if (token.isNewUser) delete token.isNewUser;
       session.user = {
         ...session.user,
         uuid: token.uuid,
@@ -130,7 +135,6 @@ export const authOptions = {
         provider: token.provider,
         providerSub: token.providerSub,
       };
-      session.isNewUser = Boolean(token.isNewUser);
       return session;
     },
   },

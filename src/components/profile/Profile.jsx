@@ -4,13 +4,15 @@ import config from "@/config/rate-limit";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useElapsedTime } from "@/hooks/useElapsedTime";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
-import Button from "@components/button/Button";
 import SyncButton from "@components/button/SyncButton";
 import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
+import SignOutButton from "@components/button/SignOutButton";
 
-const Profile = ({ session, signOut }) => {
+const Profile = ({ session }) => {
   const user = session?.user;
+  const router = useRouter();
   const [syncResult, setSyncResult] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState(null);
@@ -50,6 +52,15 @@ const Profile = ({ session, signOut }) => {
       logger.warn("Failed to persist syncResult", err);
     }
   }, [syncResult]);
+
+  // --- 3. Load from session: If new user, redirect to welcome ---
+  useEffect(() => {
+    if (session?.isNewUser) {
+      // set local storage flag
+      localStorage.setItem("newUser:v1", "true");
+      router.push("/welcome");
+    }
+  }, [session, router]);
 
   // User details
   if (!user) {
@@ -136,7 +147,7 @@ const Profile = ({ session, signOut }) => {
         disabled={isSyncing || (isCountingDown && isProd)}
       />
       <GetNotionConfigButton />
-      <Button text="Sign Out" onClick={signOut} />
+      <SignOutButton />
 
       <div className={styles.support_section}>
         <span className={styles.note}>

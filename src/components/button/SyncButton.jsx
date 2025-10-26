@@ -35,9 +35,21 @@ const SyncButton = ({ text, onSync, disabled }) => {
 
         const triggerResult = await res.json().catch(() => ({}));
         if (!res.ok) {
-          alert("Sync failed: " + (triggerResult.message || "Unknown error"));
+          const msg = triggerResult.message || JSON.stringify(triggerResult);
+          let userMsg = msg;
+
+          if (
+            msg.includes("Insufficient Permission") ||
+            msg.includes("insufficientPermissions") ||
+            msg.includes("insufficient authentication scopes")
+          ) {
+            userMsg =
+              "Insufficient permission.\nGo to Settings → reconnect Google Calendar.\nRemember to click **Select all** when authorizing.";
+          }
+
+          alert(userMsg);
           logger.error("Sync failed", triggerResult);
-          return { type: "error", ...triggerResult };
+          return { type: "error", message: userMsg, raw: triggerResult };
         }
 
         logger.debug("[SyncButton] sync enqueued", triggerResult);

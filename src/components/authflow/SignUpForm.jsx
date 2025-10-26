@@ -42,6 +42,9 @@ const SignUpForm = () => {
       logger.error("Google sign-in error", err);
       setGoogleLoading(false);
     }
+
+    // after sign in, set local storage flag
+    localStorage.setItem("newUser:v1", "true");
   };
 
   useEffect(() => {
