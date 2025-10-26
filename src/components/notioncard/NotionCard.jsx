@@ -119,6 +119,10 @@ const NotionCard = ({ session }) => {
     const timestamp = localStorage.getItem("notionConfigFetchedAt");
     const modified = localStorage.getItem("notionConfigLastModified");
 
+    if (isNewUser) {
+      setEditMode(true);
+    }
+
     if (local) {
       try {
         setEditableConfig(JSON.parse(local));
@@ -207,6 +211,18 @@ const NotionCard = ({ session }) => {
 
   return (
     <div className={styles.notioncard_container}>
+      {isNewUser && (
+        <div className={styles.callout}>
+          <div className={styles.calloutIcon}>👋</div>
+          <div>
+            <strong>Set up your Notion Sync Configuration</strong>
+            <br />
+            To start syncing, add your <strong>Notion Database ID</strong> and
+            <strong> Google Calendar Mapping</strong> in settings.
+          </div>
+        </div>
+      )}
+
       {Object.entries(editableConfig).map(([key, value]) => {
         const label = LABEL_MAP[key] || key;
 
@@ -449,7 +465,17 @@ const NotionCard = ({ session }) => {
       {isNewUser && (
         // This button will likely call NextAuth's signOut() to clear the session
         // and force a fresh login/re-authentication cycle after setup.
-        <SignOutButton text="Finish Setup & Re-Authenticate" />
+        <>
+          <SignOutButton text="Finish Setup & Re-Authenticate" />
+          <div className={styles.callout}>
+            <div className={styles.calloutIcon}>✅</div>
+            <div>
+              After saving, use the{" "}
+              <strong>Finish Setup & Re-Authenticate</strong> to complete the
+              authorization process.
+            </div>
+          </div>
+        </>
       )}
 
       {!isNewUser && (
