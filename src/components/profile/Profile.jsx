@@ -22,36 +22,36 @@ const Profile = ({ session }) => {
   const { startCountdown, isCountingDown, formattedRemaining } =
     useCountdown("cooldown:sync");
 
+  // Elapsed time since sync started
   const elapsedSec = useElapsedTime(syncStartedAt);
 
-  // --- 1. Load once when component mounts ---
+  // --- 1. Load once when user is known ---
   useEffect(() => {
-    const stored = localStorage.getItem("syncResult");
-    const storedTime = localStorage.getItem("syncResultSavedAt");
+    if (typeof window === "undefined") return;
+    if (!user?.uuid) return;
 
-    if (
-      stored &&
-      storedTime &&
-      Date.now() - Number(storedTime) < 10 * 60_000 // 10 minutes
-    ) {
-      try {
-        setSyncResult(JSON.parse(stored));
-      } catch {
-        logger.warn("Corrupted syncResult in storage");
-      }
+    // keys
+    const key = `syncResult:${user.uuid}`;
+    try {
+      const latestSyncResult = localStorage.getItem(key);
+      setSyncResult(JSON.parse(latestSyncResult));
+    } catch (e) {
+      logger.warn("Failed to restore syncResult", e);
     }
-  }, []); // no dependencies → run once only
+  }, [user?.uuid]);
 
   // --- 2. Save whenever syncResult changes ---
   useEffect(() => {
-    if (!syncResult) return;
+    if (!syncResult || typeof window === "undefined" || !user?.uuid) return;
     try {
-      localStorage.setItem("syncResult", JSON.stringify(syncResult));
-      localStorage.setItem("syncResultSavedAt", Date.now().toString());
+      localStorage.setItem(
+        `syncResult:${user.uuid}`,
+        JSON.stringify(syncResult),
+      );
     } catch (err) {
       logger.warn("Failed to persist syncResult", err);
     }
-  }, [syncResult]);
+  }, [syncResult, user?.uuid]);
 
   // --- 3. Load from session: If new user, redirect to welcome ---
   useEffect(() => {
@@ -107,9 +107,6 @@ const Profile = ({ session }) => {
           />
         )}
       </div>
-      <div className={styles.profile_detail}>
-        <span className={styles.profile_label}>GCal Account:</span> {email}
-      </div>
       {!isProd && (
         <>
           <div className={styles.profile_detail}>
@@ -118,20 +115,55 @@ const Profile = ({ session }) => {
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Name:</span> {username}
           </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Status:</span>{" "}
+            {syncResult?.type ?? "-"}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Notion Database ID:</span>{" "}
+            {syncResult?.message?.summary?.notion_config?.database_id ?? "-"}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>
+              Google Calendar Account:
+            </span>{" "}
+            {email}
+          </div>
         </>
       )}
       {syncResult && (
         <>
-          {!isProd && (
+          {syncResult?.type === "sync_success" ? (
+            <>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>
+                  Date Range (Synced):
+                </span>{" "}
+                {syncResult?.message?.summary?.notion_config?.range ?? "-"}
+              </div>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>
+                  Google Events Synced:
+                </span>{" "}
+                {syncResult?.message?.summary?.google_event_count ?? "-"}
+              </div>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>
+                  Notion Tasks Synced:
+                </span>{" "}
+                {syncResult?.message?.summary?.notion_task_count ?? "-"}
+              </div>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>Last Sync Time:</span>{" "}
+                {syncResult?.message?.trigger_time ?? "-"}
+              </div>
+            </>
+          ) : (
             <div className={styles.profile_detail}>
-              <span className={styles.profile_label}>Type:</span>{" "}
-              {syncResult.type}
+              <span className={styles.profile_label}>Message:</span>{" "}
+              {syncResult?.message ?? "-"}
             </div>
           )}
-          <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Message:</span>{" "}
-            {syncResult.message}
-          </div>
         </>
       )}
 
