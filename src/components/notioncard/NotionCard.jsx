@@ -2,8 +2,9 @@
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import config from "@/config/rate-limit";
 import { useCountdown } from "@/hooks/useCountdown";
+import { useConnectionNotice } from "@/hooks/useConnectionNotice";
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import styles from "./notioncard.module.css";
 import Button from "@components/button/Button";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
@@ -15,25 +16,24 @@ import validateConfigFormat from "@/utils/client/validate-config-format";
 const LABEL_MAP = {
   goback_days: "Go Back Days",
   goforward_days: "Go Forward Days",
-  database_id: "Notion Database ID",
   timecode: "Time Code",
   timezone: "Time Zone",
   default_event_length: "Default Event Length (min)",
   default_start_time: "Default Start Time (hour)",
   gcal_dic: "Google Calendar Mapping",
+  database_id: "Notion Database ID",
   page_property: "Page Property Mapping",
 };
 
 const NotionCard = ({ session }) => {
   const router = useRouter();
-  const params = useSearchParams();
-  const [notice, setNotice] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editableConfig, setEditableConfig] = useState(null);
   const [lastFetchedAt, setLastFetchedAt] = useState(null);
   const [lastModifiedAt, setLastModifiedAt] = useState(null);
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
+
   // Keep draft of gcal_dic keys to avoid reordering on each keystroke
   const [draftGcalKeys, setDraftGcalKeys] = useState({});
 
@@ -49,39 +49,8 @@ const NotionCard = ({ session }) => {
     useCountdown("cooldown:save");
 
   // Read query params for connection notices; auto-clear after 4s
-  useEffect(() => {
-    const google = params.get("google");
-    const notion = params.get("notion");
-    const reason = params.get("reason");
-
-    let msg;
-
-    if (google === "connected") msg = "✅ Google connected successfully";
-    else if (google === "error") {
-      if (reason === "email_mismatch")
-        msg = "⚠️ Google account does not match your login account";
-      else if (reason === "token")
-        msg = "❌ Token exchange failed, please reauthorize";
-      else if (reason === "state")
-        msg = "⚠️ OAuth security verification failed";
-      else msg = "❌ Google authorization failed, please try again later";
-    }
-
-    if (notion === "connected") msg = "✅ Notion connected successfully";
-    else if (notion === "error") {
-      if (reason === "token") msg = "❌ Notion token exchange failed";
-      else if (reason === "state")
-        msg = "⚠️ Notion security verification failed";
-      else msg = "❌ Notion authorization failed, please try again later";
-    }
-
-    setNotice(msg);
-    let t;
-    if (msg) t = setTimeout(() => setNotice(null), 6000);
-    return () => {
-      if (t) clearTimeout(t);
-    };
-  }, [params]);
+  const [notice, setNotice] = useState(null);
+  useConnectionNotice(setNotice);
 
   const loadRemoteConfig = async () => {
     try {
@@ -152,6 +121,13 @@ const NotionCard = ({ session }) => {
   if (!session?.user)
     return <div>Please log in to view your configuration.</div>;
 
+  const handleEditClick = () => setEditMode(true);
+  const handleBackClick = () => router.push("/profile");
+  const fetchFromS3 = async () => {
+    setLoading(true);
+    await loadRemoteConfig();
+    setLoading(false);
+  };
   const handleCancelClick = () => {
     const local = localStorage.getItem("notionConfig");
     if (local) {
@@ -161,8 +137,6 @@ const NotionCard = ({ session }) => {
     }
     setEditMode(false);
   };
-
-  const handleEditClick = () => setEditMode(true);
 
   const handleInputChange = (key, value) => {
     setEditableConfig((prev) => ({ ...prev, [key]: value }));
@@ -200,14 +174,6 @@ const NotionCard = ({ session }) => {
       alert("Save failed: " + message);
     }
   };
-
-  const fetchFromS3 = async () => {
-    setLoading(true);
-    await loadRemoteConfig();
-    setLoading(false);
-  };
-
-  const handleBackClick = () => router.push("/profile");
 
   return (
     <div className={styles.notioncard_container}>
@@ -407,7 +373,7 @@ const NotionCard = ({ session }) => {
               />
             ) : (
               <span className={styles.notioncard_value}>
-                {key === "notion_token" ? "*".repeat(16) : value}
+                {value}
               </span>
             )}
           </div>

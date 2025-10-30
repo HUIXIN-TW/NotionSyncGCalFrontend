@@ -3,7 +3,6 @@ export default function validateConfigFormat(config) {
 
   // Helper to check time offset like "+08:00"
   const timecodeRegex = /^[-+]\d{2}:\d{2}$/;
-  const notionUrlRootPrefix = "https://www.notion.so/";
   // const notionUrlRootSuffix = "&p=";
 
   // Validate number ranges (and coerce)
