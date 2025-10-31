@@ -27,7 +27,7 @@ const Welcome = () => {
             <TestConnectionButton text="Step 3: Test Notion & GCal Connection" />
             <Button
               type="button"
-              text="✅ Finish Connection Setup. Proceed to Notion Config"
+              text="✅ Finish Connection Setup. Proceed to Setting"
               onClick={handleFinishSetup}
               className="outline_btn"
             />

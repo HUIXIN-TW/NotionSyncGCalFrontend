@@ -1,0 +1,22 @@
+.callout {
+  background-color: #eef6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  color: #1e3a8a;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+.calloutIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+.callout strong {
+  color: #1e40af;
+}

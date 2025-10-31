@@ -121,6 +121,14 @@
   color: #1e40af;
 }
 
+.tabs_list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
 /* ---------- Responsive: Stack columns on small screens ---------- */
 @media (max-width: 480px) {
   .notioncard_row,
@@ -131,5 +139,10 @@
   .notioncard_container {
     width: 95vw; /* Full width on small screens */
     padding: 20px;
+  }
+
+  .tabs_list {
+    flex-direction: column;
+    align-items: center;
   }
 }

@@ -1,97 +1,77 @@
-export default function validateConfigFormat(config) {
+export default function validateConfigFormat(cfg) {
   const errors = [];
 
-  // Helper to check time offset like "+08:00"
-  const timecodeRegex = /^[-+]\d{2}:\d{2}$/;
-  // const notionUrlRootSuffix = "&p=";
-
-  // Validate number ranges (and coerce)
+  // ---- numbers ----
   const numFields = [
     { key: "goback_days", min: -100, max: 100 },
     { key: "goforward_days", min: -100, max: 100 },
     { key: "default_event_length", min: 15, max: 1000 },
     { key: "default_start_time", min: 0, max: 23 },
   ];
-
-  numFields.forEach(({ key, min, max }) => {
-    const val = Number(config[key]);
-    if (isNaN(val)) {
+  for (const { key, min, max } of numFields) {
+    const v = Number(cfg[key]);
+    if (Number.isNaN(v)) {
       errors.push(`${key} must be a number`);
-    } else {
-      config[key] = val;
-      if (val < min || val > max) {
-        errors.push(`${key} must be between ${min} and ${max}`);
-      }
+    } else if (v < min || v > max) {
+      errors.push(`${key} must be between ${min} and ${max}`);
     }
-  });
+  }
 
-  // Validate notion_token: new secret has no "secret_" prefix
-  // if (!config.notion_token?.startsWith("secret_")) {
-  //   errors.push("notion_token must start with 'secret_'");
-  // }
-
-  // Validate urlroot format
-  // if (!config.urlroot?.startsWith(notionUrlRootPrefix)) {
-  //   errors.push("urlroot must start with 'https://www.notion.so/'");
-  // }
-
-  // Validate timecode format
-  if (!timecodeRegex.test(config.timecode || "")) {
+  // ---- timecode ----
+  const timecodeRegex = /^[-+]\d{2}:\d{2}$/;
+  if (!timecodeRegex.test(cfg.timecode || "")) {
     errors.push("timecode must be in format ±HH:MM (e.g., +08:00)");
   }
 
-  // Validate timezone
-  if (!config.timezone) {
+  // ---- timezone ----
+  if (!cfg.timezone) {
     errors.push("timezone is required");
   }
 
-  // gcal_dic and page_property must be arrays of objects
+  // ---- gcal_dic ----
   if (
-    !Array.isArray(config.gcal_dic) ||
-    config.gcal_dic.some((item) => typeof item !== "object")
+    !Array.isArray(cfg.gcal_dic) ||
+    cfg.gcal_dic.some((it) => typeof it !== "object" || it === null)
   ) {
     errors.push(
       "Google Calendar Mapping must be an array of key-value objects",
     );
-  } else {
-    config.gcal_dic.forEach((item, index) => {
-      const entries = Object.entries(item);
-      if (entries.length < 1) {
-        errors.push(
-          `Google Calendar Mapping: row ${index + 1} must have at least one key-value pair`,
-        );
-      } else {
-        const [k, v] = entries[0];
-        if (!k || !v) {
-          errors.push(
-            `Google Calendar Mapping: row ${index + 1} must have non-empty key and value`,
-          );
-        }
-      }
-    });
+  } else if (
+    cfg.gcal_dic.length === 0 ||
+    Object.keys(cfg.gcal_dic[0] || {}).length === 0
+  ) {
+    errors.push(
+      "Google Calendar Mapping must have at least one key-value pair",
+    );
   }
 
+  // ---- page_property ----
   if (
-    !Array.isArray(config.page_property) ||
-    config.page_property.some((item) => typeof item !== "object")
+    !Array.isArray(cfg.page_property) ||
+    cfg.page_property.some((it) => typeof it !== "object" || it === null)
   ) {
     errors.push("Page Property Mapping must be an array of key-value objects");
   } else {
-    config.page_property.forEach((item, index) => {
-      const entries = Object.entries(item);
-      if (entries.length !== 12) {
-        errors.push(
-          `Page Property Mapping: row ${index + 1} must have exactly one key-value pair`,
-        );
-      } else {
-        const [k, v] = entries[0];
-        if (!k || !v) {
-          errors.push(
-            `Page Property Mapping: row ${index + 1} must have non-empty key and value`,
-          );
-        }
+    const obj = cfg.page_property[0] || {};
+    const expectedKeys = [
+      "Task_Notion_Name",
+      "Date_Notion_Name",
+      "Initiative_Notion_Name",
+      "Status_Notion_Name",
+      "Location_Notion_Name",
+      "ExtraInfo_Notion_Name",
+      "GCal_Name_Notion_Name",
+      "GCal_EventId_Notion_Name",
+      "GCal_Sync_Time_Notion_Name",
+      "GCal_End_Date_Notion_Name",
+      "Delete_Notion_Name",
+      "CompleteIcon_Notion_Name",
+    ];
+    for (const k of expectedKeys) {
+      if (!(k in obj) || !obj[k]) {
+        errors.push(`Page Property Mapping missing value for "${k}"`);
       }
-    });
+    }
   }
 
   return errors;

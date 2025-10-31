@@ -7,7 +7,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import SyncButton from "@components/button/SyncButton";
-import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
+import BackButton from "@/components/button/BackButton";
 import SignOutButton from "@components/button/SignOutButton";
 
 const Profile = ({ session }) => {
@@ -178,7 +178,8 @@ const Profile = ({ session }) => {
         onSync={handleSync}
         disabled={isSyncing || (isCountingDown && isProd)}
       />
-      <GetNotionConfigButton />
+      <BackButton path="/notion/config" text="Go to Settings" />
+      <BackButton path="/welcome" text="Go to Connection" />
       <SignOutButton />
 
       <div className={styles.support_section}>
