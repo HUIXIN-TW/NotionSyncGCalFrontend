@@ -72,7 +72,7 @@ export default function SaveButton({
         const nowIso = new Date().toISOString();
         const safeToStore = stripSensitiveForLocal(payload);
         localStorage.setItem("notionConfig", JSON.stringify(safeToStore));
-        localStorage.setItem("notionConfigFetchedAt", nowIso);
+        localStorage.setItem("notionConfigLastModified", nowIso);
         setLastFetchedAt(new Date(nowIso).toLocaleString());
 
         startCountdown(UPLOAD_LIMIT_MS);

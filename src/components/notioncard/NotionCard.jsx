@@ -6,7 +6,7 @@ import CancelButton from "@components/button/CancelButton";
 import EditButton from "@components/button/EditButton";
 import SaveButton from "@components/button/SaveButton";
 import FetchButton from "@/components/button/FetchButton";
-import BackButton from "@/components/button/BackButton";
+import NavigateButton from "@/components/button/NavigateButton";
 import NewUserWelcomeSection from "@components/callout/NewUserWelcomeSection";
 import NewUserSignOutSection from "@components/callout/NewUserSignOutSection";
 import NotionCardNoteSection from "@components/notioncard/NotionCardNoteSection";
@@ -166,7 +166,7 @@ const NotionCard = ({ session }) => {
           )}
 
           <EditButton setEditMode={setEditMode} />
-          <BackButton path="/profile" text="Back to Profile" />
+          <NavigateButton path="/profile" text="Back to Profile" />
         </>
       )}
 
