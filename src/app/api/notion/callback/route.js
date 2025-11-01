@@ -1,5 +1,7 @@
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]/route";
 import { cookies } from "next/headers";
 import { uploadNotionTokens } from "@/utils/server/s3-client";
 
@@ -19,23 +21,28 @@ export async function GET(req) {
   const code = url.searchParams.get("code");
   const returnedState = url.searchParams.get("state");
   const oauthErr = url.searchParams.get("error");
+  const session = await getServerSession(authOptions);
+  const redirectTarget = session.isNewUser
+    ? "/getting-started"
+    : "/notion/config";
 
   if (oauthErr || !code) {
     logger.error("OAuth error", { error: oauthErr });
     const res = NextResponse.redirect(
-      new URL("/notion/config?notion=error", BaseUrl),
+      new URL(`${redirectTarget}?notion=error`, BaseUrl),
     );
     clearState(res);
     return res;
   }
 
-  const jar = cookies();
-  const expectedState = jar.get("notion_oauth_state")?.value || "";
+  const jar = await cookies();
+  const expectedState = jar.get("notion_oauth_state")?.value ?? "";
+  const codeVerifier = jar.get("google_code_verifier")?.value ?? "";
 
   if (!returnedState || returnedState !== expectedState) {
     logger.error("State mismatch");
     const res = NextResponse.redirect(
-      new URL("/notion/config?notion=error&reason=state", BaseUrl),
+      new URL(`${redirectTarget}?notion=error&reason=state`, BaseUrl),
     );
     clearState(res);
     return res;
@@ -46,7 +53,7 @@ export async function GET(req) {
   if (!userUuid) {
     logger.error("Missing user uuid in state");
     const res = NextResponse.redirect(
-      new URL("/notion/config?notion=error&reason=uuid", BaseUrl),
+      new URL(`${redirectTarget}?notion=error&reason=uuid`, BaseUrl),
     );
     clearState(res);
     return res;
@@ -78,7 +85,7 @@ export async function GET(req) {
         body: await tokenRes.text(),
       });
       const res = NextResponse.redirect(
-        new URL("/notion/config?notion=error&reason=token", BaseUrl),
+        new URL(`${redirectTarget}?notion=error&reason=token`, BaseUrl),
       );
       clearState(res);
       return res;
@@ -102,7 +109,7 @@ export async function GET(req) {
     // clear state cookie and redirect
     const res = NextResponse.redirect(
       new URL(
-        `/notion/config?notion=connected&workspace=${encodeURIComponent(workspace_name || workspace_id || "ok")}`,
+        `${redirectTarget}?notion=connected&workspace=${encodeURIComponent(workspace_name || workspace_id || "ok")}`,
         BaseUrl,
       ),
     );
@@ -111,7 +118,7 @@ export async function GET(req) {
   } catch (e) {
     logger.error("Callback error", { message: e?.message });
     const res = NextResponse.redirect(
-      new URL("/notion/config?notion=error&reason=server", BaseUrl),
+      new URL(`${redirectTarget}?notion=error&reason=server`, BaseUrl),
     );
     clearState(res);
     return res;

@@ -1,12 +1,12 @@
 import "server-only";
-import logger from "@/utils/logger";
+import logger from "@/utils/shared/logger";
 import { getConfigLastModified } from "@/utils/server/s3-client";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
   rateLimitWindowDdb,
 } from "@/models/rate-limit";
-import config from "@/config";
+import config from "@/config/rate-limit";
 
 let hasWarnedMissingRateLimit = false;
 
@@ -88,7 +88,7 @@ export async function enforceDDBThrottle(rules = []) {
 export async function enforceS3Throttle(user) {
   const id = user.uuid;
   if (!id) return null;
-  const THROTTLE_UPLOAD_MIN_MS = config.UPLOAD_MIN_MS; // 30 minutes default
+  const THROTTLE_UPLOAD_MIN_MS = config.UPLOAD_MIN_MS;
   const lastModified = await getConfigLastModified(id);
   if (!lastModified) {
     logger.info("No previous config timestamp — skipping throttle check.");

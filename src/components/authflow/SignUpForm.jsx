@@ -8,7 +8,7 @@ import styles from "./form.module.css";
 import Button from "@components/button/Button";
 import { signIn } from "next-auth/react";
 import { registerAction } from "@app/api/register/actions";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -28,7 +28,7 @@ const SignUpForm = () => {
 
     try {
       const res = await signIn("google", {
-        callbackUrl: "/profile",
+        callbackUrl: "/getting-started",
       });
 
       if (res?.error) {
@@ -42,6 +42,9 @@ const SignUpForm = () => {
       logger.error("Google sign-in error", err);
       setGoogleLoading(false);
     }
+
+    // after sign in, set local storage flag
+    localStorage.setItem("newUser:v1", "true");
   };
 
   useEffect(() => {

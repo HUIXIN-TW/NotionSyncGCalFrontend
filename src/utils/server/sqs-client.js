@@ -1,5 +1,5 @@
 import "server-only";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
 
 const sqsQueueUrl = process.env.SQS_QUEUE_URL;

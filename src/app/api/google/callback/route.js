@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { uploadGoogleTokens } from "@/utils/server/s3-client";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -23,15 +23,18 @@ export async function GET(req) {
   // check error
   if (err || !code) {
     return NextResponse.redirect(
-      new URL("/notion/config?google=error", BaseUrl),
+      new URL(`${redirectTarget}?google=error`, BaseUrl),
     );
   }
 
   // verify uuid, state, code_verifier
   const session = await getServerSession(authOptions);
+  const redirectTarget = session.isNewUser
+    ? "/getting-started"
+    : "/notion/config";
   if (!session?.user?.uuid || !session?.user?.email) {
     return NextResponse.redirect(
-      new URL("/notion/config?google=error&reason=unauthorized", BaseUrl),
+      new URL(`${redirectTarget}?google=error&reason=unauthorized`, BaseUrl),
     );
   }
   const allowedEmail = session.user.email.toLowerCase();
@@ -42,13 +45,13 @@ export async function GET(req) {
   const codeVerifier = jar.get("google_code_verifier")?.value || "";
   if (!returned || returned !== expected || !codeVerifier) {
     return NextResponse.redirect(
-      new URL("/notion/config?google=error&reason=state", BaseUrl),
+      new URL(`${redirectTarget}?google=error&reason=state`, BaseUrl),
     );
   }
   const [userUuid] = returned.split(":");
   if (!userUuid) {
     return NextResponse.redirect(
-      new URL("/notion/config?google=error&reason=uuid", BaseUrl),
+      new URL(`${redirectTarget}?google=error&reason=uuid`, BaseUrl),
     );
   }
 
@@ -72,7 +75,7 @@ export async function GET(req) {
     if (!tokenResp.ok) {
       logger.error("Google token exchange failed", t);
       return NextResponse.redirect(
-        new URL("/notion/config?google=error&reason=token", BaseUrl),
+        new URL(`${redirectTarget}?google=error&reason=token`, BaseUrl),
       );
     }
 
@@ -87,14 +90,17 @@ export async function GET(req) {
     if (!uiResp.ok) {
       logger.error("Failed to fetch userinfo", profile);
       return NextResponse.redirect(
-        new URL("/notion/config?google=error&reason=userinfo", BaseUrl),
+        new URL(`${redirectTarget}?google=error&reason=userinfo`, BaseUrl),
       );
     }
     const googleEmail = (profile.email || "").toLowerCase();
     if (googleEmail !== allowedEmail) {
       logger.warn("Email mismatch", { googleEmail, allowedEmail });
       return NextResponse.redirect(
-        new URL("/notion/config?google=error&reason=email_mismatch", BaseUrl),
+        new URL(
+          `${redirectTarget}?google=error&reason=email_mismatch`,
+          BaseUrl,
+        ),
       );
     }
 
@@ -114,7 +120,7 @@ export async function GET(req) {
 
     // clean up cookies & redirect
     const res = NextResponse.redirect(
-      new URL("/notion/config?google=connected", BaseUrl),
+      new URL(`${redirectTarget}?google=connected`, BaseUrl),
     );
     res.cookies.set("google_oauth_state", "", { maxAge: 0, path: "/" });
     res.cookies.set("google_code_verifier", "", { maxAge: 0, path: "/" });
@@ -122,7 +128,7 @@ export async function GET(req) {
   } catch (e) {
     logger.error("OAuth callback error", e);
     return NextResponse.redirect(
-      new URL("/notion/config?google=error&reason=server", BaseUrl),
+      new URL(`${redirectTarget}?google=error&reason=server`, BaseUrl),
     );
   }
 }
