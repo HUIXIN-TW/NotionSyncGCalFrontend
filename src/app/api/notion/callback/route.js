@@ -22,7 +22,9 @@ export async function GET(req) {
   const returnedState = url.searchParams.get("state");
   const oauthErr = url.searchParams.get("error");
   const session = await getServerSession(authOptions);
-  const redirectTarget = session.isNewUser ? "/welcome" : "/notion/config";
+  const redirectTarget = session.isNewUser
+    ? "/getting-started"
+    : "/notion/config";
 
   if (oauthErr || !code) {
     logger.error("OAuth error", { error: oauthErr });

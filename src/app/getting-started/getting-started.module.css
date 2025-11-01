@@ -1,5 +1,5 @@
 /* ---------- Notion Card Container ---------- */
-.welcomecard_container {
+.gettingstartedcard_container {
   background: #f8f9fa;
   border-radius: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -18,7 +18,7 @@
 }
 
 /* ---------- Top-Level Key-Value Rows ---------- */
-.welcomecard_row {
+.gettingstartedcard_row {
   display: grid;
   grid-template-columns: 30% 70%; /* 30% for label, 70% for value */
   align-items: start; /* Align to top of each cell */
@@ -29,11 +29,11 @@
 
 /* ---------- Responsive: Stack columns on small screens ---------- */
 @media (max-width: 480px) {
-  .welcomecard_container {
+  .gettingstartedcard_container {
     width: 95vw; /* Full width on small screens */
     padding: 20px;
   }
-  .notioncard_row {
+  .gettingstartedcard_row {
     grid-template-columns: 1fr; /* Stack label and value vertically */
   }
 }

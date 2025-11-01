@@ -29,7 +29,9 @@ export async function GET(req) {
 
   // verify uuid, state, code_verifier
   const session = await getServerSession(authOptions);
-  const redirectTarget = session.isNewUser ? "/welcome" : "/notion/config";
+  const redirectTarget = session.isNewUser
+    ? "/getting-started"
+    : "/notion/config";
   if (!session?.user?.uuid || !session?.user?.email) {
     return NextResponse.redirect(
       new URL(`${redirectTarget}?google=error&reason=unauthorized`, BaseUrl),

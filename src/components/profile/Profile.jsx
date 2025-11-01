@@ -53,12 +53,12 @@ const Profile = ({ session }) => {
     }
   }, [syncResult, user?.uuid]);
 
-  // --- 3. Load from session: If new user, redirect to welcome ---
+  // --- 3. Load from session: If new user, redirect to getting started ---
   useEffect(() => {
     if (session?.isNewUser) {
       // set local storage flag
       localStorage.setItem("newUser:v1", "true");
-      router.push("/welcome");
+      router.push("/getting-started");
     }
   }, [session, router]);
 
@@ -179,7 +179,7 @@ const Profile = ({ session }) => {
         disabled={isSyncing || (isCountingDown && isProd)}
       />
       <NavigateButton path="/notion/config" text="Go to Configuration" />
-      <NavigateButton path="/welcome" text="Back to Connection" />
+      <NavigateButton path="/getting-started" text="Back to Connection" />
       <SignOutButton />
 
       <div className={styles.support_section}>
