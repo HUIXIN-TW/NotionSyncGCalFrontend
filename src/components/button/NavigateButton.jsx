@@ -14,11 +14,7 @@ export default function NavigateButton({ path, text, className }) {
 
   return (
     <Button
-      text={
-        <>
-          <ArrowLeft size={18} strokeWidth={2} />
-        </>
-      }
+      text={text ? text : <ArrowLeft size={18} strokeWidth={2} />}
       onClick={handleBackClick}
       className={className}
     />
