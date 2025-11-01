@@ -20,6 +20,7 @@
     "dotenv": "^17.2.1",
     "get-client-ip": "^3.0.4",
     "googleapis": "^159.0.0",
+    "lucide-react": "^0.552.0",
     "next": "^15.5.2",
     "next-auth": "^4.24.11",
     "react": "^19.1.1",
