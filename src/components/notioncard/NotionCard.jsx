@@ -124,8 +124,8 @@ const NotionCard = ({ session }) => {
             setEditableConfig={setEditableConfig}
             variant="map"
             allowKeyEdit={false}
-            allowAdd={true}
-            allowDelete={true}
+            allowAdd={false}
+            allowDelete={false}
           />
         )}
       </div>
