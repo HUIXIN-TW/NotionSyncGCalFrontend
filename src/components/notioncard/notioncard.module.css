@@ -124,9 +124,16 @@
 .tabs_list {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
+}
+
+.tab_section {
+  position: relative;
+}
+
+.tab_section_header {
+  position: absolute;
+  top: -1rem;
+  right: 3rem;
 }
 
 /* ---------- Responsive: Stack columns on small screens ---------- */

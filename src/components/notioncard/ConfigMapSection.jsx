@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  FIELD_META,
+  prettify,
+  calcDateFromToday,
+  offsetFromTimeZone,
+} from "@/utils/client/field-meta";
 import React, { useMemo, useCallback, useState } from "react";
 import Button from "@components/button/Button";
 import styles from "./notioncard.module.css";
@@ -19,12 +25,6 @@ export default function ConfigMapSection({
   allowAdd = false,
   allowDelete = false,
 }) {
-  // Normalize to object for rendering
-  const obj = useMemo(
-    () => (Array.isArray(mapValue) ? mapValue[0] || {} : mapValue || {}),
-    [mapValue],
-  );
-
   // Draft key text only used when keys are editable
   const [draftKeys, setDraftKeys] = useState({}); // rid -> draftKeyText
 
@@ -62,6 +62,22 @@ export default function ConfigMapSection({
     [writeBack],
   );
 
+  // Update with dependencies (e.g., timecode depends on timezone)
+  const updateWithDeps = useCallback(
+    (k, v) => {
+      writeBack((m) => {
+        m[k] = v;
+
+        // Handle dependencies: Update timecode accordingly
+        if (k === "timezone") {
+          m.timecode = offsetFromTimeZone(v, new Date());
+        }
+        return m;
+      });
+    },
+    [writeBack],
+  );
+
   // Delete key (disabled for basic)
   const deleteKey = useCallback(
     (k) => {
@@ -74,7 +90,7 @@ export default function ConfigMapSection({
     [writeBack, allowDelete],
   );
 
-  // Add pair (disabled for basic)
+  // Allow adding new pair when allowAdd
   const addPair = useCallback(() => {
     if (!allowAdd) return;
     writeBack((m) => {
@@ -85,7 +101,7 @@ export default function ConfigMapSection({
     });
   }, [writeBack, allowAdd]);
 
-  // Rename key (disabled for basic or when allowKeyEdit=false)
+  // Rename key when allowKeyEdit
   const commitRename = useCallback(
     (oldK, newK) => {
       if (!allowKeyEdit) return;
@@ -101,25 +117,38 @@ export default function ConfigMapSection({
     },
     [writeBack, allowKeyEdit],
   );
+  // Normalize to object for rendering
+  const obj = useMemo(
+    () => (Array.isArray(mapValue) ? mapValue[0] || {} : mapValue || {}),
+    [mapValue],
+  );
+
+  // Sort entries based on FIELD_META order
+  const metaMap = FIELD_META[mapKey] || {};
+  let entries = Object.entries(obj);
+
+  // Only sort "basic" section
+  if (mapKey === "basic") {
+    entries = entries.sort((a, b) => {
+      const oa = metaMap[a[0]]?.order ?? 9e9;
+      const ob = metaMap[b[0]]?.order ?? 9e9;
+      return oa - ob || a[0].localeCompare(b[0]);
+    });
+  }
 
   return (
-    <div className={styles.section_block}>
-      <h4 className={styles.section_title}>{title}</h4>
-
+    <>
       <div className={styles.nested_list}>
-        {Object.entries(obj).map(([k, v], idx) => {
+        {entries.map(([k, v], idx) => {
+          // Unique row id for draft key tracking
+          // key and value cells
           const rid = `${mapKey}-${idx}`;
           const draft = draftKeys[rid] ?? k;
-
-          // detect numeric-ish fields to render number input (optional UX)
-          const isNumericField =
-            typeof v === "number" ||
-            [
-              "goback_days",
-              "goforward_days",
-              "default_event_length",
-              "default_start_time",
-            ].includes(k);
+          const meta = metaMap[k] || {};
+          const label = meta.label || prettify(k);
+          const isNumericField = meta.type === "number";
+          const showDate = meta.showDate === true;
+          const zones = Intl.supportedValuesOf("timeZone");
 
           return (
             <div key={`${mapKey}-${k}`} className={styles.nested_row}>
@@ -143,23 +172,46 @@ export default function ConfigMapSection({
                       }}
                     />
                   ) : (
-                    <span className={styles.nested_key}>{k}</span>
+                    <span className={styles.nested_key}>{label}</span>
                   )}
 
                   {/* Value cell */}
-                  <input
-                    className={styles.input}
-                    type={isNumericField ? "number" : "text"}
-                    value={v}
-                    onChange={(e) =>
-                      updateValue(
-                        k,
-                        isNumericField && e.target.value !== ""
-                          ? Number(e.target.value)
-                          : e.target.value,
-                      )
-                    }
-                  />
+
+                  {meta.type === "select" ? (
+                    <select
+                      className={styles.input}
+                      value={v ?? ""}
+                      onChange={(e) => updateWithDeps(k, e.target.value)}
+                    >
+                      {/* {(meta.options || []).map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))} */}
+                      {zones.map((tz) => (
+                        <option key={tz} value={tz}>
+                          {tz}
+                        </option>
+                      ))}
+                    </select>
+                  ) : meta.type === "readonly" ? (
+                    <span className={styles.static_value}>{v ?? "-"}</span>
+                  ) : (
+                    // other fields
+                    <input
+                      className={styles.input}
+                      type={isNumericField ? "number" : "text"}
+                      value={v ?? ""}
+                      onChange={(e) =>
+                        updateValue(
+                          k,
+                          isNumericField && e.target.value !== ""
+                            ? Number(e.target.value)
+                            : e.target.value,
+                        )
+                      }
+                    />
+                  )}
 
                   {/* Delete button */}
                   {allowDelete && (
@@ -168,7 +220,15 @@ export default function ConfigMapSection({
                 </>
               ) : (
                 <>
-                  <span className={styles.nested_key}>{k}</span>
+                  <span className={styles.nested_key}>
+                    {label}
+                    {showDate && (
+                      <span className={styles.note}>
+                        {" "}
+                        {calcDateFromToday(Number(v), k)}
+                      </span>
+                    )}
+                  </span>
                   <span className={styles.nested_value}>{String(v)}</span>
                 </>
               )}
@@ -181,6 +241,6 @@ export default function ConfigMapSection({
       {editMode && allowAdd && (
         <Button onClick={addPair} text={`➕ Add ${title}`} />
       )}
-    </div>
+    </>
   );
 }

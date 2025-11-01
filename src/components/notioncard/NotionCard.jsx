@@ -2,11 +2,8 @@
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import React, { useState, useEffect } from "react";
 import styles from "./notioncard.module.css";
-import CancelButton from "@components/button/CancelButton";
-import EditButton from "@components/button/EditButton";
 import SaveButton from "@components/button/SaveButton";
 import FetchButton from "@/components/button/FetchButton";
-import NavigateButton from "@/components/button/NavigateButton";
 import NewUserWelcomeSection from "@components/callout/NewUserWelcomeSection";
 import NewUserSignOutSection from "@components/callout/NewUserSignOutSection";
 import NotionCardNoteSection from "@components/notioncard/NotionCardNoteSection";
@@ -65,12 +62,6 @@ const NotionCard = ({ session }) => {
   if (!session?.user)
     return <div>Please log in to view your configuration.</div>;
 
-  const tabs = [
-    { value: "basic", label: "Basic Settings" },
-    { value: "gcal", label: "GCal Mapping" },
-    { value: "page", label: "Notion Mapping" },
-  ];
-
   const basicObject = Object.keys(editableConfig)
     .filter((k) => k !== "gcal_dic" && k !== "page_property")
     .reduce((acc, k) => ({ ...acc, [k]: editableConfig[k] }), {});
@@ -88,11 +79,17 @@ const NotionCard = ({ session }) => {
       {isNewUser && <NewUserWelcomeSection />}
 
       {/* Tabs */}
-      <NotionTabs tabs={tabs} onChange={setActiveTab} />
+      <NotionTabs
+        onChange={setActiveTab}
+        value={activeTab}
+        editMode={editMode}
+        setEditMode={setEditMode}
+        setEditableConfig={setEditableConfig}
+      />
 
-      {/* Panels (render one at a time) */}
-      {activeTab === "basic" && (
-        <div role="tabpanel" id="panel-basic" aria-labelledby="tab-basic">
+      <div className={styles.tab_section}>
+        {/* Panels (render one at a time) */}
+        {activeTab === "basic" && (
           <ConfigMapSection
             title="Basic Settings"
             mapKey="basic"
@@ -102,11 +99,9 @@ const NotionCard = ({ session }) => {
             variant="basic"
             /* no allow* props -> read-only keys, value-edit only via your writeBack('basic') */
           />
-        </div>
-      )}
+        )}
 
-      {activeTab === "gcal" && (
-        <div role="tabpanel" id="panel-gcal" aria-labelledby="tab-gcal">
+        {activeTab === "gcal" && (
           <ConfigMapSection
             title="Google Calendar Mapping"
             mapKey="gcal_dic"
@@ -118,11 +113,9 @@ const NotionCard = ({ session }) => {
             allowAdd={true}
             allowDelete={true}
           />
-        </div>
-      )}
+        )}
 
-      {activeTab === "page" && (
-        <div role="tabpanel" id="panel-page" aria-labelledby="tab-page">
+        {activeTab === "page" && (
           <ConfigMapSection
             title="Page Property Mapping"
             mapKey="page_property"
@@ -134,27 +127,20 @@ const NotionCard = ({ session }) => {
             allowAdd={true}
             allowDelete={true}
           />
-        </div>
-      )}
-
+        )}
+      </div>
       <NotionCardNoteSection
         lastFetchedAt={lastFetchedAt}
         lastModifiedAt={lastModifiedAt}
       />
 
       {editMode ? (
-        <>
-          <SaveButton
-            editableConfig={editableConfig}
-            setEditMode={setEditMode}
-            setLastFetchedAt={setLastFetchedAt}
-            setShowFetchButton={setShowFetchButton}
-          />
-          <CancelButton
-            setEditableConfig={setEditableConfig}
-            setEditMode={setEditMode}
-          />
-        </>
+        <SaveButton
+          editableConfig={editableConfig}
+          setEditMode={setEditMode}
+          setLastFetchedAt={setLastFetchedAt}
+          setShowFetchButton={setShowFetchButton}
+        />
       ) : (
         <>
           {showFetchButton && (
@@ -164,9 +150,6 @@ const NotionCard = ({ session }) => {
               setLastModifiedAt={setLastModifiedAt}
             />
           )}
-
-          <EditButton setEditMode={setEditMode} />
-          <NavigateButton path="/profile" text="Back to Profile" />
         </>
       )}
 
