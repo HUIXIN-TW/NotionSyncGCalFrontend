@@ -27,7 +27,6 @@ const GettingStarted = () => {
           type="button"
           text="✅ Finish Connection Setup. Proceed to Setting"
           onClick={handleFinishSetup}
-          className="outline_btn"
         />
         <SignOutButton
           className="outline_btn"
