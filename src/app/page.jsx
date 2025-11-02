@@ -1,11 +1,21 @@
 "use client";
 
-import Button from "@components/button/Button";
 import Link from "next/link";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import SignInButton from "@/components/button/SignInButton";
 
-const Home = () => {
+export default function Home() {
   const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/profile");
+    }
+  }, [status, router]);
+
   return (
     <div className="home">
       <div className="welcome">
@@ -25,19 +35,11 @@ const Home = () => {
             <li>Link and manage your Notion workspace.</li>
             <li>Control how pages and events map/sync.</li>
             <li>Responsive on desktop and mobile.</li>
-            <li>Stores tokens securely on AWS (encrypted at rest).</li>
+            <li>Tokens stored on AWS, encrypted at rest.</li>
           </ul>
 
           <p className="welcome_links">
-            This app is open source and contributions welcome:{" "}
-            <a
-              href="https://github.com/HUIXIN-TW/NotionSyncGCalFrontend"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Website Frontend
-            </a>
-            {" · "}
+            Open source:{" "}
             <a
               href="https://github.com/HUIXIN-TW/NotionSyncGCal"
               target="_blank"
@@ -47,18 +49,8 @@ const Home = () => {
             </a>
           </p>
         </div>
-
-        <Button
-          text="Let's Get Started"
-          type="button"
-          className="black_btn"
-          onClick={() => {
-            router.push("/authflow");
-          }}
-        ></Button>
+        {status === "unauthenticated" && <SignInButton />}
       </div>
     </div>
   );
-};
-
-export default Home;
+}

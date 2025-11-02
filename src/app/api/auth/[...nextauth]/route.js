@@ -140,7 +140,7 @@ export const authOptions = {
   },
 
   pages: {
-    signIn: "/authflow",
+    signIn: "/",
     signOut: "/",
     error: "/api/auth/error",
   },

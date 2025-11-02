@@ -14,7 +14,7 @@ const MyProfile = () => {
     // If the status is not "loading" and there's no session, redirect
     if (status !== "loading" && !session) {
       logger.info("No session, redirecting to authflow");
-      router.push("/authflow");
+      router.push("/");
     }
   }, [session, status, router]);
 
