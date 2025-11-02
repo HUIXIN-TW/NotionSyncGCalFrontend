@@ -6,18 +6,28 @@ import { signIn } from "next-auth/react";
 import logger from "@/utils/shared/logger";
 import Button from "@components/button/Button";
 
+function inIframe() {
+  if (typeof window === "undefined") return false;
+  return window.self !== window.top;
+}
+
 export default function SignInButton() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+    const callbackUrl = "/profile";
 
     try {
-      const result = await signIn("google", {
-        redirect: false,
-        callbackUrl: "/profile",
-      });
+      if (inIframe()) {
+        const url = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+        setLoading(false);
+        return;
+      }
+
+      const result = await signIn("google", { redirect: false, callbackUrl });
 
       if (result?.error) {
         logger.error("Google sign-in error", result.error);
