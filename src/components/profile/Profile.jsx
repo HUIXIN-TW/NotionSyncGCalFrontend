@@ -123,7 +123,7 @@ const Profile = ({ session }) => {
         {!image && (
           <img
             className={styles.profile_default_image}
-            src="./assets/images/App.png"
+            src="./assets/images/notica.png"
             alt="Default Profile Image"
           />
         )}

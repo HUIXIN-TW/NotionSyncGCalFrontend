@@ -1,0 +1,81 @@
+/* ---------- Notion Tab Module CSS ---------- */
+.tabs_list {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Section for Nested Config Lists ---------- */
+.nested_list {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Nested Rows for Calendar or Property Mapping ---------- */
+.nested_row {
+  display: grid;
+  grid-template-columns: 45% 45% 10%; /* Maintain the same 45/45/10 layout */
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0;
+}
+
+/* ---------- Nested Key Styling ---------- */
+.nested_key {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #343a40;
+  word-break: break-word;
+}
+
+/* ---------- Nested Value Styling (inherits shared input styles) ---------- */
+.nested_value {
+  font-size: 0.9rem;
+  color: #495057;
+  word-break: break-word;
+}
+
+/* ---------- Shared Input Field Styles ---------- */
+.input {
+  font-size: 0.95rem;
+  word-break: break-word;
+  width: 100%; /* Take up full grid column */
+  padding: 0.5rem;
+  border: 1px solid #ccc; /* Light border for inputs */
+  border-radius: 6px;
+  box-sizing: border-box; /* Include padding in width */
+  display: block;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.static_value {
+  font-size: 0.95rem;
+  color: #495057;
+  word-break: break-word;
+}
+
+.note {
+  font-size: 0.8rem;
+  color: #6c757d; /* Muted gray for notes */
+}
+
+/* ---------- Responsive: Stack columns on small screens ---------- */
+@media (max-width: 480px) {
+  .nested_row {
+    grid-template-columns: 1fr; /* Stack label and value vertically */
+  }
+
+  .tabs_list {
+    flex-direction: column;
+    align-items: center;
+  }
+}

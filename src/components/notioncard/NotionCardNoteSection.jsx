@@ -30,9 +30,7 @@ export default function NotionCardNoteSection({
       </div>
 
       {notice && (
-        <div className={styles.support_section}>
           <span className={styles.note}>{notice}</span>
-        </div>
       )}
     </>
   );

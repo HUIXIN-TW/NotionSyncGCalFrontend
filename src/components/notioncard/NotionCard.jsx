@@ -7,8 +7,8 @@ import FetchButton from "@/components/button/FetchButton";
 import NewUserWelcomeSection from "@components/callout/NewUserWelcomeSection";
 import NewUserSignOutSection from "@components/callout/NewUserSignOutSection";
 import NotionCardNoteSection from "@components/notioncard/NotionCardNoteSection";
-import ConfigMapSection from "@components/notioncard/ConfigMapSection";
-import NotionTabs from "@components/notioncard/NotionTabs";
+import ConfigMapSection from "@/components/notioncard/notiontab/NotionTabsSection";
+import NotionTabs from "@/components/notioncard/notiontab/NotionTabs";
 import { loadRemoteConfig } from "@/utils/client/load-remote-config";
 
 const NotionCard = ({ session }) => {

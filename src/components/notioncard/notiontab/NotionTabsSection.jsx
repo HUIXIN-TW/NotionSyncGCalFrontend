@@ -8,7 +8,7 @@ import {
 } from "@/utils/client/field-meta";
 import React, { useMemo, useCallback, useState } from "react";
 import Button from "@components/button/Button";
-import styles from "./notioncard.module.css";
+import styles from "./notiontab.module.css";
 
 /**
  * ConfigMapSection
