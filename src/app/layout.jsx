@@ -22,9 +22,7 @@ const RootLayout = ({ children }) => (
       <Provider>
         <main>{children}</main>
         <footer>
-          <p>
-            © 2025 Huixin Yang. All rights reserved.
-          </p>
+          <p>© 2025 Huixin Yang. All rights reserved.</p>
         </footer>
       </Provider>
     </body>

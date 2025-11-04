@@ -202,9 +202,7 @@ const Profile = ({ session }) => {
       <SignOutButton />
 
       <div className={styles.support_section}>
-        <span className={styles.note}>
-          Enjoying NOTICA? Support me:
-        </span>
+        <span className={styles.note}>Enjoying NOTICA? Support me:</span>
         <a
           href="https://buymeacoffee.com/huixinyang"
           target="_blank"
