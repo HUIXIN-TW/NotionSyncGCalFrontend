@@ -203,7 +203,7 @@ const Profile = ({ session }) => {
 
       <div className={styles.support_section}>
         <span className={styles.note}>
-          Enjoying NotionSyncGCal? Support me:
+          Enjoying NOTICA? Support me:
         </span>
         <a
           href="https://buymeacoffee.com/huixinyang"

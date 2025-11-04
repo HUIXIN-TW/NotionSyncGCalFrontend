@@ -101,7 +101,7 @@ export async function POST(req) {
     // todo actionType enum -t, -n, -g
     // the sync should follow by timestamp, notion (overwrite gcal events), gcal (overwrite notion tasks)
     const action = "user.sync";
-    const source = "NotionSyncGCalFrontend";
+    const source = "NOTICA";
 
     const res = await sendSyncJobMessage({ action, uuid, timestamp, source });
     const messageId = res?.MessageId || res?.MessageID || res?.messageId;

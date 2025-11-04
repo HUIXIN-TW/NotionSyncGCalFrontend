@@ -4,8 +4,8 @@ import ReactMarkdown from "react-markdown";
 import styles from "./terms.module.css";
 
 export const metadata = {
-  title: "Terms of Service — NotionSyncGCal",
-  description: "Terms of Service for NotionSyncGCal",
+  title: "Terms of Service — NOTICA",
+  description: "Terms of Service for NOTICA",
 };
 
 export default async function TermsPage() {

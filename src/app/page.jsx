@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <div className="home">
       <div className="welcome">
-        <h1>Welcome to NotionSyncGCal!</h1>
+        <h1>Welcome to NOTICA!</h1>
         <div className="welcome_detail">
           <p>
             We use the Google Calendar API to sync selected calendars with

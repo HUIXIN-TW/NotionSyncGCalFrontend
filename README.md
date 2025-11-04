@@ -1,8 +1,11 @@
-# NotionSyncGCal Frontend
+# NOTICA
 
 [![Deploy on Amplify](https://img.shields.io/badge/Deploy-AWS%20Amplify-orange?logo=awsamplify&style=for-the-badge)](https://console.aws.amazon.com/amplify/home)
 
-[![Live Demo](https://img.shields.io/badge/View-Live%20Demo-green?style=for-the-badge)](https://notionsyncgcal.huixinyang.com/)
+[![Live Demo](https://img.shields.io/badge/View-Live%20Demo-green?style=for-the-badge)](https://notica.studio/)
+
+
+![alt text](images/notica.png)
 
 A modern web application that provides a user interface for synchronizing Notion pages with Google Calendar events. This frontend interfaces with the NotionSyncGCal backend service to help users manage their calendar synchronization seamlessly.
 
@@ -31,13 +34,13 @@ Before you begin, ensure you have the following installed:
 1. Clone the repository to your local machine:
 
 ```bash
-git clone git@github.com:HUIXIN-TW/NotionSyncGCalFrontend.git
+git clone git@github.com:HUIXIN-TW/NOTICA.git
 ```
 
 2. Navigate into the project directory:
 
 ```bash
-cd NotionSyncGCalFrontend
+cd NOTICA
 ```
 
 3. Install the required dependencies:
