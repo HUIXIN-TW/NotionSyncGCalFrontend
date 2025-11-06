@@ -30,6 +30,7 @@ export default function Admin() {
   const { data: session, status } = useSession();
 
   const [usersRaw, setUsersRaw] = useState(null);
+  const [syncCount, setSyncCount] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -47,11 +48,16 @@ export default function Admin() {
     setLoading(true);
     setError(null);
     try {
-      const uRes = await fetch("/api/admin/user-metrics", {
-        cache: "no-store",
-      });
+      const [uRes, sRes] = await Promise.all([
+        fetch("/api/admin/user-metrics", { cache: "no-store" }),
+        fetch("/api/admin/sync-metrics", { cache: "no-store" }),
+      ]);
       if (!uRes.ok) throw new Error(`user-metrics ${uRes.status}`);
-      setUsersRaw(await uRes.json()); // [{ createdAt: "YYYY-MM-DD", count: N }, ...]
+      if (!sRes.ok) throw new Error(`sync-metrics ${sRes.status}`);
+
+      setUsersRaw(await uRes.json());
+      const { totalLast48h } = await sRes.json();
+      setSyncCount(Number(totalLast48h) || 0);
     } catch (e) {
       setError(e?.message || "load failed");
     } finally {
@@ -59,9 +65,9 @@ export default function Admin() {
     }
   }
 
-  useEffect(() => {
-    if (status === "authenticated" && session?.user?.role === "admin") load();
-  }, [status, session]);
+  // useEffect(() => {
+  //   if (status === "authenticated" && session?.user?.role === "admin") load();
+  // }, [status, session]);
 
   const usersChart = useMemo(() => {
     const labels = (usersRaw ?? []).map((d) => d.createdAt);
@@ -151,6 +157,17 @@ export default function Admin() {
           </div>
         </section>
         {/* <section className={`${styles.section} ${styles.card}`}>...</section> */}
+        <section
+          className={`${styles.section} ${styles.card}`}
+        >
+          <h2>Sync Logs (last 48h)</h2>
+          <div className={styles.syncNumber}>
+            {syncCount !== null ? syncCount : "—"}
+          </div>
+          <div className={styles.syncLabel}>
+            Total sync operations in past 48 hours
+          </div>
+        </section>
       </div>
     </div>
   );
