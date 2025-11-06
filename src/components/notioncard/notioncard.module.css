@@ -25,7 +25,6 @@
   position: relative;
 }
 
-
 /* ---------- Responsive: Stack columns on small screens ---------- */
 @media (max-width: 480px) {
   .notioncard_container {
