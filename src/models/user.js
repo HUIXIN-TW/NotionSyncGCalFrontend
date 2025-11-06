@@ -1,4 +1,5 @@
-import logger from "@utils/logger";
+import "server-only";
+import logger from "@/utils/shared/logger";
 import { ddb } from "@/utils/server/db-client";
 import {
   PutCommand,
@@ -16,56 +17,6 @@ const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 // Helper: validate username format
 const isValidUsername = (username) =>
   /^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username);
-
-// Create a user with validation and duplicate email check
-export const createUser = async (userData) => {
-  const provider = userData.provider || "credentials";
-  const now = new Date().toISOString();
-  const normalizedEmail = normalizeEmail(userData.email);
-
-  if (!normalizedEmail) throw new Error("Email is required!");
-  const username = userData.username || normalizedEmail.split("@")[0];
-
-  // enforce password & username only for credentials provider
-  if (provider === "credentials") {
-    if (!userData.passwordHash) throw new Error("Password is required!");
-    if (!isValidUsername(username)) {
-      throw new Error(
-        "Username invalid, it should contain 4–20 alphanumeric characters and be unique!",
-      );
-    }
-  }
-
-  const item = {
-    uuid: uuidv4(),
-    email: normalizedEmail,
-    username,
-    // include password only for credentials
-    ...(provider === "credentials" && { passwordHash: userData.passwordHash }),
-    role: userData.role || "user",
-    image: userData.image || "",
-    provider: provider,
-    ...(provider === "google" &&
-      userData.providerSub && { providerSub: userData.providerSub }),
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  try {
-    await ddb.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: item,
-        ConditionExpression: "attribute_not_exists(#uuid)",
-        ExpressionAttributeNames: { "#uuid": "uuid" },
-      }),
-    );
-    return item;
-  } catch (error) {
-    logger.error("Error creating user", error);
-    throw error;
-  }
-};
 
 // Get user by UUID
 export const getUserById = async (id) => {
@@ -106,12 +57,125 @@ export const getUserByEmail = async (email) => {
   }
 };
 
+// Get all users (scan all)
+export const getAllUsers = async () => {
+  try {
+    const result = await ddb.send(
+      new ScanCommand({
+        TableName: TABLE_NAME,
+      }),
+    );
+    return result.Items || [];
+  } catch (error) {
+    logger.error("Error getting all users", error);
+    throw error;
+  }
+};
+
+// Get user by provider and providerSub
+export const getUserByProviderSub = async (provider, sub) => {
+  const r = await ddb.send(
+    new QueryCommand({
+      TableName: TABLE_NAME,
+      IndexName: "ProviderSubIndex",
+      KeyConditionExpression: "provider = :p AND providerSub = :s",
+      ExpressionAttributeValues: { ":p": provider, ":s": sub },
+      Limit: 1,
+    }),
+  );
+  return r.Items?.[0] || null;
+};
+
+// Get daily user counts for the last 14 days
+export const getDailyUserCountsLast14 = async () => {
+  const today = new Date();
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(today.getTime() - (13 - i) * 24 * 3600 * 1000);
+    return d.toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+  });
+
+  const jobs = days.map(async (day) => {
+    const out = await ddb.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        IndexName: "createdAtIndex",
+        KeyConditionExpression: "createdAt = :d",
+        ExpressionAttributeValues: { ":d": day },
+        Select: "COUNT",
+      }),
+    );
+    return { createdAt: day, count: out.Count || 0 };
+  });
+
+  return Promise.all(jobs);
+};
+
+// Create a user with validation and duplicate email check
+export const createUser = async (userData) => {
+  const provider = userData.provider || "credentials";
+  const now = new Date();
+  const createdAtISO = now.toISOString();
+  const createdAtDate = createdAtISO.slice(0, 10); // "YYYY-MM-DD"
+  const createdAtMs = now.getTime(); // epoch (UTC)
+  const normalizedEmail = normalizeEmail(userData.email);
+
+  if (!normalizedEmail) throw new Error("Email is required!");
+  const username = userData.username || normalizedEmail.split("@")[0];
+
+  // enforce password & username only for credentials provider
+  if (provider === "credentials") {
+    if (!userData.passwordHash) throw new Error("Password is required!");
+    if (!isValidUsername(username)) {
+      throw new Error(
+        "Username invalid, it should contain 4–20 alphanumeric characters and be unique!",
+      );
+    }
+  }
+
+  const item = {
+    uuid: uuidv4(),
+    email: normalizedEmail,
+    username,
+    // include password only for credentials
+    ...(provider === "credentials" && { passwordHash: userData.passwordHash }),
+    role: userData.role || "user",
+    image: userData.image || "",
+    provider: provider,
+    ...(provider === "google" &&
+      userData.providerSub && { providerSub: userData.providerSub }),
+    createdAt: createdAtDate,
+    createdAtMs: createdAtMs,
+    updatedAt: createdAtDate,
+    updatedAtMs: createdAtMs,
+  };
+
+  try {
+    await ddb.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: item,
+        ConditionExpression: "attribute_not_exists(#uuid)",
+        ExpressionAttributeNames: { "#uuid": "uuid" },
+      }),
+    );
+    return item;
+  } catch (error) {
+    logger.error("Error creating user", error);
+    throw error;
+  }
+};
+
 // Update user by ID
 export const updateUser = async (id, updateData) => {
+  const now = new Date();
+  const updatedAtDate = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const updatedAtMs = now.getTime(); // epoch ms (UTC)
+
   const updateExpressions = [];
   const expressionAttributeNames = {};
   const expressionAttributeValues = {
-    ":updatedAt": new Date().toISOString(),
+    ":updatedAt": updatedAtDate,
+    ":updatedAtMs": updatedAtMs,
   };
 
   for (const key in updateData) {
@@ -123,7 +187,9 @@ export const updateUser = async (id, updateData) => {
   }
 
   updateExpressions.push("#updatedAt = :updatedAt");
+  updateExpressions.push("#updatedAtMs = :updatedAtMs");
   expressionAttributeNames["#updatedAt"] = "updatedAt";
+  expressionAttributeNames["#updatedAtMs"] = "updatedAtMs";
 
   try {
     const result = await ddb.send(
@@ -157,33 +223,4 @@ export const deleteUser = async (id) => {
     logger.error("Error deleting user", error);
     throw error;
   }
-};
-
-// Get all users (scan all)
-export const getAllUsers = async () => {
-  try {
-    const result = await ddb.send(
-      new ScanCommand({
-        TableName: TABLE_NAME,
-      }),
-    );
-    return result.Items || [];
-  } catch (error) {
-    logger.error("Error getting all users", error);
-    throw error;
-  }
-};
-
-// Get user by provider and providerSub
-export const getUserByProviderSub = async (provider, sub) => {
-  const r = await ddb.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      IndexName: "ProviderSubIndex",
-      KeyConditionExpression: "provider = :p AND providerSub = :s",
-      ExpressionAttributeValues: { ":p": provider, ":s": sub },
-      Limit: 1,
-    }),
-  );
-  return r.Items?.[0] || null;
 };

@@ -1,7 +1,7 @@
 import "server-only";
 import { NextResponse } from "next/server";
 import { registerCore } from "@/utils/server/register-core";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { enforceDDBThrottle, extractClientIp } from "@/utils/server/throttle";
 import {
   registerIpRules,

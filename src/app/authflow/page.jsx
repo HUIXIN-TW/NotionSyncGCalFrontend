@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import styles from "./authflow.module.css";
-import SignUpForm from "@components/authflow/SignUpForm";
-import SignInForm from "@components/authflow/SignInForm";
+import SignUpForm from "@/components/authflow/SignUpForm";
+import SignInForm from "@/components/authflow/SignInForm";
 import Button from "@components/button/Button";
 
 const useIsMobile = () => {

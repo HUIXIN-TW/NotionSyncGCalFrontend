@@ -29,7 +29,7 @@ export default function AuthErrorPage() {
       <h1>⚠️ Login Error</h1>
       <p>{message}</p>
 
-      <Link href="/authflow">
+      <Link href="/">
         <button
           style={{
             marginTop: "1.5rem",

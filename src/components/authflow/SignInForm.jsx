@@ -1,10 +1,8 @@
 "use client";
-import logger from "@utils/logger";
-
+import logger from "@/utils/shared/logger";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-
 import styles from "./form.module.css";
 import Button from "@components/button/Button";
 
@@ -63,7 +61,6 @@ const SignInForm = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/profile");

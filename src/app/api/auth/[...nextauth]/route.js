@@ -1,4 +1,4 @@
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -36,6 +36,7 @@ export const authOptions = {
           username: user.username,
           role: user.role,
           image: user.image,
+          provider: "credentials",
         };
       },
     }),
@@ -54,16 +55,17 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user, account }) {
-      if (!user) return token;
-
-      if (account?.provider === "google") {
+      // —— Google OAuth sign-in path
+      if (account?.provider === "google" && user) {
+        // google oauth login
         token.provider = "google";
         const sub = account.providerAccountId;
+        token.providerSub = sub;
 
-        // Upsert user
-        let dbUser = await getUserByProviderSub?.("google", sub);
-        const isNew = !dbUser;
-        if (isNew) {
+        // Upsert user by providerSub
+        let dbUser = await getUserByProviderSub("google", sub);
+        if (!dbUser) {
+          token.isNewUser = true; // Mark as new user
           dbUser = await createUser({
             email: user.email,
             username: user.username || user.name || user.email.split("@")[0],
@@ -72,55 +74,73 @@ export const authOptions = {
             image: user.image || "",
             role: "user",
           });
-
           // First-time login → create S3 templates (fire-and-forget)
-          import("@/utils/server/s3-client").then(
-            ({ createTemplates, uploadTemplates }) => {
-              const fn = createTemplates || uploadTemplates;
-              fn &&
-                fn(dbUser.uuid).catch((err) =>
-                  logger.error("template init error", err),
-                );
-            },
-          );
+          // Fire-and-forget template init
+          try {
+            const { createTemplates, uploadTemplates } = await import(
+              "@/utils/server/s3-client"
+            );
+            const fn = createTemplates || uploadTemplates;
+            if (fn)
+              fn(dbUser.uuid).catch((err) =>
+                logger.error("template init error", err),
+              );
+          } catch (e) {
+            logger.warn("template init module load failed", e);
+          }
         }
-
         token.uuid = dbUser.uuid;
         token.role = dbUser.role;
       }
 
-      if (account?.provider === "credentials") {
+      // —— Credentials sign-in path
+      if (account?.provider === "credentials" && user) {
         token.provider = "credentials";
+        // No providerSub for credentials
+      }
+
+      // —— Common population when `user` exists (first sign-in)
+      if (user) {
+        token.email = user.email || token.email;
+        token.username =
+          user.username ||
+          user.name ||
+          user.email?.split("@")[0] ||
+          token.username;
+        token.image = user.image || token.image;
         token.uuid = user.uuid || token.uuid;
         token.role = user.role || token.role;
       }
 
-      // common fields
-      token.email = user.email || token.email;
-      token.username =
-        user.username ||
-        user.name ||
-        user.email?.split("@")[0] ||
-        token.username;
-      token.image = user.image || token.image;
+      if (!token.username && token.email) {
+        token.username = token.email.split("@")[0];
+      }
 
       return token;
     },
 
     async session({ session, token }) {
+      // mark new user in session
+      session.isNewUser = !!token.isNewUser;
+
+      // Remove isNewUser from token to avoid persistence
+      // if (token.isNewUser) delete token.isNewUser;
       session.user = {
         ...session.user,
         uuid: token.uuid,
         email: token.email,
         username: token.username,
         role: token.role,
+        image: token.image,
+        provider: token.provider,
+        providerSub: token.providerSub,
       };
       return session;
     },
   },
 
   pages: {
-    signIn: "/authflow",
+    signIn: "/",
     signOut: "/",
     error: "/api/auth/error",
   },

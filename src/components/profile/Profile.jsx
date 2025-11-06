@@ -1,75 +1,75 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@utils/logger";
-
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import config from "@/config/rate-limit";
+import { useCountdown } from "@/hooks/useCountdown";
+import { useElapsedTime } from "@/hooks/useElapsedTime";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
-import Button from "@components/button/Button";
 import SyncButton from "@components/button/SyncButton";
-import GetNotionConfigButton from "@components/button/GetNotionConfigButton";
+import NavigateButton from "@/components/button/NavigateButton";
+import SignOutButton from "@components/button/SignOutButton";
+import { Plug, Settings } from "lucide-react";
 
-const Profile = ({ session, signOut }) => {
-  const [now, setNow] = useState(Date.now());
+const Profile = ({ session }) => {
+  const user = session?.user;
+  const router = useRouter();
   const [syncResult, setSyncResult] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStartedAt, setSyncStartedAt] = useState(null);
-  const [syncCooldownUntil, setSyncCooldownUntil] = useState(null);
 
-  // Load saved cooldown from localStorage on mount
+  // Rate limit configuration
+  const SYNC_USER_MIN_MS = config.SYNC_USER_MIN_MS ?? 10 * 60_000;
+  const { startCountdown, isCountingDown, formattedRemaining } =
+    useCountdown("cooldown:sync");
+
+  // Elapsed time since sync started
+  const elapsedSec = useElapsedTime(syncStartedAt);
+
+  // --- 1. Load once when user is known ---
   useEffect(() => {
-    const saved = localStorage.getItem("syncCooldownUntil");
-    if (saved) {
-      const savedTime = parseInt(saved, 10);
-      if (!isNaN(savedTime)) {
-        if (Date.now() < savedTime) {
-          setSyncCooldownUntil(savedTime);
-        } else {
-          localStorage.removeItem("syncCooldownUntil");
-        }
-      }
+    if (typeof window === "undefined") return;
+    if (!user?.uuid) return;
+
+    // keys
+    const key = `syncResult:${user.uuid}`;
+    try {
+      const latestSyncResult = localStorage.getItem(key);
+      setSyncResult(JSON.parse(latestSyncResult));
+    } catch (e) {
+      logger.warn("Failed to restore syncResult", e);
     }
-  }, []); // empty deps -> only runs once on mount
+  }, [user?.uuid]);
 
-  // Update `now` every second for countdown
+  // --- 2. Save whenever syncResult changes ---
   useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("syncResult");
-    const storedTime = localStorage.getItem("syncResultSavedAt");
-    if (
-      stored &&
-      storedTime &&
-      Date.now() - parseInt(storedTime, 10) < 10 * 60_000
-    ) {
-      try {
-        setSyncResult(JSON.parse(stored));
-      } catch {
-        logger.warn("Corrupted syncResult");
-      }
+    if (!syncResult || typeof window === "undefined" || !user?.uuid) return;
+    try {
+      localStorage.setItem(
+        `syncResult:${user.uuid}`,
+        JSON.stringify(syncResult),
+      );
+    } catch (err) {
+      logger.warn("Failed to persist syncResult", err);
     }
-  }, []);
+  }, [syncResult, user?.uuid]);
 
+  // --- 3. Load from session: If new user, redirect to getting started ---
   useEffect(() => {
-    if (syncResult) {
-      localStorage.setItem("syncResult", JSON.stringify(syncResult));
-      localStorage.setItem("syncResultSavedAt", Date.now().toString());
+    if (session?.isNewUser) {
+      // set local storage flag
+      localStorage.setItem("newUser:v1", "true");
+      router.push("/getting-started");
     }
-  }, [syncResult]);
+  }, [session, router]);
 
-  if (!session?.user) {
+  // User details
+  if (!user) {
     return (
       <div className={styles.profile_loading}>Loading your profile...</div>
     );
   }
-
-  const { email, uuid, username } = session.user;
-
-  const syncDisabled = syncCooldownUntil && now < syncCooldownUntil;
+  const { email, uuid, username, image } = user;
 
   const handleSync = async (syncPromise) => {
     setIsSyncing(true);
@@ -78,12 +78,7 @@ const Profile = ({ session, signOut }) => {
     try {
       const result = await syncPromise;
       setSyncResult(result);
-
-      if (isProd && result?.type === "success") {
-        const cooldownUntil = Date.now() + 180_000;
-        setSyncCooldownUntil(cooldownUntil);
-        localStorage.setItem("syncCooldownUntil", cooldownUntil.toString());
-      }
+      startCountdown(SYNC_USER_MIN_MS);
     } catch (err) {
       logger.error("Unexpected sync failure", err);
       setSyncResult({
@@ -97,24 +92,41 @@ const Profile = ({ session, signOut }) => {
 
   return (
     <div className={styles.profile_container}>
+      <div className={styles.profile_nav_button_row}>
+        <NavigateButton
+          path="/getting-started"
+          text={
+            <>
+              <Plug size={20} strokeWidth={2} style={{ marginRight: 10 }} />
+            </>
+          }
+          className="clear_btn"
+        />
+        <NavigateButton
+          path="/notion/config"
+          text={
+            <>
+              <Settings size={20} strokeWidth={2} style={{ marginRight: 10 }} />
+            </>
+          }
+          className="clear_btn"
+        />
+      </div>
       <div className={styles.profile_image_container}>
-        {session.user.image && (
+        {image && (
           <img
             className={styles.profile_image}
-            src={session.user.image}
+            src={image}
             alt="Profile Image"
           />
         )}
-        {!session.user.image && (
+        {!image && (
           <img
             className={styles.profile_default_image}
-            src="./assets/images/App.png"
+            src="./assets/images/notica.png"
             alt="Default Profile Image"
           />
         )}
-      </div>
-      <div className={styles.profile_detail}>
-        <span className={styles.profile_label}>GCal Account:</span> {email}
       </div>
       {!isProd && (
         <>
@@ -124,42 +136,73 @@ const Profile = ({ session, signOut }) => {
           <div className={styles.profile_detail}>
             <span className={styles.profile_label}>Name:</span> {username}
           </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Status:</span>{" "}
+            {syncResult?.type ?? "-"}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>Notion Database ID:</span>{" "}
+            {syncResult?.message?.summary?.notion_config?.database_id ?? "-"}
+          </div>
+          <div className={styles.profile_detail}>
+            <span className={styles.profile_label}>
+              Google Calendar Account:
+            </span>{" "}
+            {email}
+          </div>
         </>
       )}
       {syncResult && (
         <>
-          {!isProd && (
+          {syncResult?.type === "sync_success" ? (
+            <>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>
+                  Date Range (Synced):
+                </span>{" "}
+                {syncResult?.message?.summary?.notion_config?.range ?? "-"}
+              </div>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>
+                  Google Events Synced:
+                </span>{" "}
+                {syncResult?.message?.summary?.google_event_count ?? "-"}
+              </div>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>
+                  Notion Tasks Synced:
+                </span>{" "}
+                {syncResult?.message?.summary?.notion_task_count ?? "-"}
+              </div>
+              <div className={styles.profile_detail}>
+                <span className={styles.profile_label}>Last Sync Time:</span>{" "}
+                {syncResult?.message?.trigger_time ?? "-"}
+              </div>
+            </>
+          ) : (
             <div className={styles.profile_detail}>
-              <span className={styles.profile_label}>Type:</span>{" "}
-              {syncResult.type}
+              <span className={styles.profile_label}>Message:</span>{" "}
+              {syncResult?.message ?? "-"}
             </div>
           )}
-          <div className={styles.profile_detail}>
-            <span className={styles.profile_label}>Message:</span>{" "}
-            {syncResult.message}
-          </div>
         </>
       )}
 
       <SyncButton
         text={
           isSyncing && syncStartedAt
-            ? `Syncing... (${Math.ceil((Date.now() - syncStartedAt) / 1000)}s)`
-            : syncDisabled
-              ? `You can sync again in ${Math.ceil((syncCooldownUntil - Date.now()) / 1000)}s`
-              : "Sync Calendar"
+            ? `Syncing... (${elapsedSec}s)`
+            : isCountingDown
+              ? `You can sync again in ${formattedRemaining}`
+              : `Sync Calendar`
         }
         onSync={handleSync}
-        disabled={syncDisabled || isSyncing}
-        className={syncDisabled && isProd ? "cooldown_disabled" : ""}
+        disabled={isSyncing || (isCountingDown && isProd)}
       />
-      <GetNotionConfigButton />
-      <Button text="Sign Out" onClick={signOut} />
+      <SignOutButton />
 
       <div className={styles.support_section}>
-        <span className={styles.note}>
-          Enjoying NotionSyncGCal? Support me:
-        </span>
+        <span className={styles.note}>Enjoying NOTICA? Support me:</span>
         <a
           href="https://buymeacoffee.com/huixinyang"
           target="_blank"

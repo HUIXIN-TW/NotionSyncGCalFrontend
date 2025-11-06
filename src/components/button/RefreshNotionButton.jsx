@@ -1,10 +1,10 @@
 "use client";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { useState } from "react";
 import Button from "@components/button/Button";
 import { useSession } from "next-auth/react";
 
-const RefreshNotionButton = ({ className, style }) => {
+const RefreshNotionButton = ({ className, style, text }) => {
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
 
@@ -40,7 +40,7 @@ const RefreshNotionButton = ({ className, style }) => {
   return (
     <Button
       type="button"
-      text={loading ? "Refreshing..." : "Connect Notion Account"}
+      text={loading ? "Refreshing..." : text || "Connect Notion Account"}
       onClick={handleClick}
       disabled={loading}
     />

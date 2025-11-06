@@ -1,3 +1,5 @@
+import "server-only";
+
 function parseDatetimeFormat(msTimestamp) {
   const date = new Date(msTimestamp);
   const iso = date.toISOString(); // e.g., "2025-05-02T20:06:57.562Z"

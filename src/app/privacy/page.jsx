@@ -4,8 +4,8 @@ import ReactMarkdown from "react-markdown";
 import styles from "./privacy.module.css";
 
 export const metadata = {
-  title: "Privacy Policy — NotionSyncGCal",
-  description: "Privacy Policy for NotionSyncGCal",
+  title: "Privacy Policy — NOTICA",
+  description: "Privacy Policy for NOTICA",
 };
 
 export default async function PrivacyPage() {

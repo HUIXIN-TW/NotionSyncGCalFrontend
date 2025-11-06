@@ -1,4 +1,4 @@
-import logger, { isProdRuntime as isProd } from "@utils/logger";
+import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { validateConfig } from "@/utils/server/validate-config";
@@ -11,9 +11,29 @@ import { syncRules } from "@/utils/server/throttle-rule";
 export async function POST(req) {
   // AuthN
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  // must be logged in
   if (!token) {
     return NextResponse.json(
       { type: "auth error", message: "Unauthorized", needRefresh: false },
+      { status: 401 },
+    );
+  }
+
+  // only allow sub google oauth (not allow email login)
+  const isGoogleOAuth = token?.provider === "google" && !!token?.providerSub;
+  logger.info("Sync request by", {
+    uuid: token.uuid,
+    provider: token.provider,
+    isGoogleOAuth: isGoogleOAuth,
+  });
+  if (!isGoogleOAuth) {
+    return NextResponse.json(
+      {
+        type: "auth error",
+        message: "Only Google OAuth login is allowed to sync",
+        needRefresh: false,
+      },
       { status: 401 },
     );
   }
@@ -61,7 +81,9 @@ export async function POST(req) {
 
   // Only enforce throttle in production environment
   if (isProd) {
-    const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
+    const throttleResult = await enforceDDBThrottle(
+      syncRules(ip, uuid, token.providerSub),
+    );
     if (throttleResult) {
       return NextResponse.json(
         {
@@ -79,7 +101,7 @@ export async function POST(req) {
     // todo actionType enum -t, -n, -g
     // the sync should follow by timestamp, notion (overwrite gcal events), gcal (overwrite notion tasks)
     const action = "user.sync";
-    const source = "NotionSyncGCalFrontend";
+    const source = "NOTICA";
 
     const res = await sendSyncJobMessage({ action, uuid, timestamp, source });
     const messageId = res?.MessageId || res?.MessageID || res?.messageId;

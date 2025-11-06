@@ -1,6 +1,6 @@
 # Contributing Guide
 
-Thank you for your interest in improving NotionSyncGCal!
+Thank you for your interest in improving NOTICA!
 
 ## Development Setup
 

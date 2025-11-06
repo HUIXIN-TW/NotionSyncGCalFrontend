@@ -4,7 +4,7 @@ Last updated: 2025-10-13
 
 ## 1. Acceptance
 
-By using NotionSyncGCal (“the Service”), you agree to these Terms of Use and our Privacy Policy.
+By using NOTICA (“the Service”), you agree to these Terms of Use and our Privacy Policy.
 If you do not agree, please discontinue use.
 
 ## 2. Description

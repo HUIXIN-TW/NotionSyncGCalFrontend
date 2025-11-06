@@ -1,6 +1,6 @@
 import "server-only";
 import bcrypt from "bcrypt";
-import logger from "@utils/logger";
+import logger from "@/utils/shared/logger";
 import { createUser, getUserByEmail } from "@models/user";
 import { uploadTemplates } from "@/utils/server/s3-client";
 import { normalizeEmail } from "@/utils/server/normalize-email";
