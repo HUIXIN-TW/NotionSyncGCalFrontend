@@ -157,9 +157,7 @@ export default function Admin() {
           </div>
         </section>
         {/* <section className={`${styles.section} ${styles.card}`}>...</section> */}
-        <section
-          className={`${styles.section} ${styles.card}`}
-        >
+        <section className={`${styles.section} ${styles.card}`}>
           <h2>Sync Logs (last 48h)</h2>
           <div className={styles.syncNumber}>
             {syncCount !== null ? syncCount : "—"}
