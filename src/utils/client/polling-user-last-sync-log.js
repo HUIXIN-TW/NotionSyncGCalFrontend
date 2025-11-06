@@ -12,13 +12,11 @@ export function getPollingTimings() {
 export async function fetchUser() {
   try {
     const res = await fetch(`/api/user/me`, { cache: "no-store" });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || `Failed to fetch user (${res.status})`);
-    }
+    const data = await res.json().catch(() => null);
+    if (!res.ok)
+      throw new Error(data?.message || `Failed to fetch user (${res.status})`);
     logger.debug("fetch-user-success");
-    logger.debug("fetch user raw", res);
-    return await res.json();
+    return data;
   } catch (e) {
     logger.error("fetch-user-error", e);
     return null;
@@ -48,29 +46,28 @@ export async function pollLastSyncLog({ triggerTimeMs }) {
 
   while (Date.now() < deadline) {
     currentUser = await fetchUser();
-    const currentLastSyncLog = currentUser?.lastSyncLog ?? null;
-    const updatedAtStr = currentUser?.updatedAt ?? null;
-    const updatedAtMs = updatedAtStr ? Date.parse(updatedAtStr) : NaN;
+    if (!currentUser) {
+      await sleep(intervalMs);
+      continue;
+    }
+    const currentLastSyncLog = currentUser.lastSyncLog ?? null;
+    const updatedAtMs = Number(currentUser.updatedAtMs);
+    const hasValidTime = Number.isFinite(updatedAtMs);
 
     logger.debug("poll-iter", {
       hasUser: !!currentUser,
-      updatedAt: updatedAtStr,
-      updatedAtMs: isNaN(updatedAtMs) ? null : updatedAtMs,
-      triggerTimeMs: triggerTimeMs ?? null,
+      updatedAtMs: hasValidTime ? updatedAtMs : null,
+      triggerTimeMs: typeof triggerTimeMs === "number" ? triggerTimeMs : null,
     });
 
-    // trigger-based condition only
     if (
       typeof triggerTimeMs === "number" &&
-      !isNaN(updatedAtMs) &&
+      hasValidTime &&
       updatedAtMs >= triggerTimeMs - skewMs
     ) {
       const result = parseAndVerifyLastSyncLog(currentLastSyncLog);
       logger.info("poll-done-trigger", { result });
-      return {
-        type: result.status,
-        message: result.message,
-      };
+      return { type: result.status, message: result.message };
     }
 
     await sleep(intervalMs);
@@ -81,7 +78,8 @@ export async function pollLastSyncLog({ triggerTimeMs }) {
     message:
       "Polling window exceeded. No post-trigger update detected within time limit.",
     lastSyncLog: currentUser?.lastSyncLog ?? null,
-    updatedAt: currentUser?.updatedAt ?? null,
+    updatedAt: currentUser?.updatedAt ?? null, // YYYY-MM-DD
+    updatedAtMs: currentUser?.updatedAtMs ?? null, // epoch ms
   };
 }
 
