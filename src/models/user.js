@@ -98,7 +98,7 @@ export const getDailyUserCountsLast14 = async () => {
     const out = await ddb.send(
       new QueryCommand({
         TableName: TABLE_NAME,
-        IndexName: createdAtIndex,
+        IndexName: "createdAtIndex",
         KeyConditionExpression: "createdAt = :d",
         ExpressionAttributeValues: { ":d": day },
         Select: "COUNT",
@@ -108,7 +108,7 @@ export const getDailyUserCountsLast14 = async () => {
   });
 
   return Promise.all(jobs);
-}
+};
 
 // Create a user with validation and duplicate email check
 export const createUser = async (userData) => {
@@ -169,13 +169,13 @@ export const createUser = async (userData) => {
 export const updateUser = async (id, updateData) => {
   const now = new Date();
   const updatedAtDate = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
-  const updatedAtTime = now.getTime(); // epoch ms (UTC)
+  const updatedAtMs = now.getTime(); // epoch ms (UTC)
 
   const updateExpressions = [];
   const expressionAttributeNames = {};
   const expressionAttributeValues = {
     ":updatedAt": updatedAtDate,
-    ":updatedAtTime": updatedAtTime,
+    ":updatedAtMs": updatedAtMs,
   };
 
   for (const key in updateData) {
@@ -187,9 +187,9 @@ export const updateUser = async (id, updateData) => {
   }
 
   updateExpressions.push("#updatedAt = :updatedAt");
-  updateExpressions.push("#updatedAtTime = :updatedAtTime");
+  updateExpressions.push("#updatedAtMs = :updatedAtMs");
   expressionAttributeNames["#updatedAt"] = "updatedAt";
-  expressionAttributeNames["#updatedAtTime"] = "updatedAtTime";
+  expressionAttributeNames["#updatedAtMs"] = "updatedAtMs";
 
   try {
     const result = await ddb.send(

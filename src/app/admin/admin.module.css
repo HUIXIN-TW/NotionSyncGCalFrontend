@@ -1,0 +1,53 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 50px;
+}
+
+.actions {
+  width: min(90vw, 1200px);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.section {
+  width: min(90vw, 1200px);
+}
+
+.card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(230, 230, 230, 0.8);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.card h2 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.chartWrap {
+  position: relative;
+  width: 100%;
+  height: clamp(260px, 45vh, 460px);
+}
+
+@media (max-width: 480px) {
+  .card h2 {
+    font-size: 16px;
+  }
+}
