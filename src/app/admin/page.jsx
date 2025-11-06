@@ -158,12 +158,12 @@ export default function Admin() {
         </section>
         {/* <section className={`${styles.section} ${styles.card}`}>...</section> */}
         <section className={`${styles.section} ${styles.card}`}>
-          <h2>Sync Logs (last 48h)</h2>
+          <h2>Sync Logs (last 7 days)</h2>
           <div className={styles.syncNumber}>
             {syncCount !== null ? syncCount : "—"}
           </div>
           <div className={styles.syncLabel}>
-            Total sync operations in past 48 hours
+            Total sync operations in the last 7 days (168 hours)
           </div>
         </section>
       </div>
