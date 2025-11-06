@@ -28,7 +28,7 @@ export default function Home() {
             <Link href="/terms">Terms of Service</Link>.
           </p>
 
-          <h3 className="welcome_heading">What this app does</h3>
+          <h3 className="welcome_header">What this app does</h3>
           <ul className="welcome_list">
             <li>Secure sign-in via Google OAuth.</li>
             <li>Sync selected Google Calendar events.</li>
