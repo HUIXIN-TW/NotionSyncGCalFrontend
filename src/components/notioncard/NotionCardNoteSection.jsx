@@ -2,11 +2,12 @@
 
 import React from "react";
 import styles from "./notioncard.module.css";
+import config from "@/config/notion";
 
 export default function NotionCardNoteSection({
   lastFetchedAt,
   lastModifiedAt,
-  templateUrl = "https://panoramic-law-7f5.notion.site/2a4438de0d8881729bd2e5143d116387?v=2a4438de0d888100a2ae000c0cae990e",
+  templateUrl = config.NOTION_PAGE_TEMPLATE_URL,
 }) {
   return (
     <>

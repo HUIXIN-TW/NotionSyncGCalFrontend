@@ -1,13 +1,15 @@
 # Frequently Asked Questions
 
-## How to Connect with the Notion Template
+## How to Connect with the [Notion Template](https://www.notion.so/Notica-Page-Template-2a4438de0d8880b3a8a3de97b5e2c122)?
 
 1.  Visit **[https://www.notica.studio/getting-started](https://www.notica.studio/getting-started)**
 2.  **Connect Google** → choose your calendar.
 3.  **Connect Notion** → authorize your workspace.
 4.  When prompted, click **Use the template provided by the developer** to duplicate the database into your workspace.
-5.  Copy your **Notion Database ID** and paste it in the setup form.
-6.  Enter your **Google Calendar name** and **Calendar ID**, then finish the setup.
+5.  Open the duplicated page / database in Notion.
+6.  Check connection permissions to ensure Notica has access to the new database. (click the three dots in the top-right corner → **Connections** → make sure Notica is listed with full access) If not, add Notica and grant full access.
+7.  Copy your **Notion Database ID** and paste it in the setup form.
+8.  Enter your **Google Calendar name** and **Calendar ID**, then finish the setup.
 
 ## How to Find the Notion Database ID
 
@@ -43,6 +45,14 @@ Make sure your database includes these properties (you can rename them as long a
 
 💡 Tip:
 If a property is missing, Notica will skip the tasks during synchronization — no data loss will occur. You can use any property names you want — just make sure to map them correctly in your [Notion configuration](https://notica.studio/notion/config).
+
+## Limitations
+
+- Each sync supports up to 100 tasks in your Notion database.
+  If there are more than 100, syncing may fail. Try narrowing the sync date range to reduce the total number of items.
+
+- The Google Calendar API limits event descriptions to 4000 characters.
+  Descriptions longer than this cannot be synced in full.
 
 ## Troubleshooting
 
