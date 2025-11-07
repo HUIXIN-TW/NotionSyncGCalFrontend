@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default async function FaqPage() {
-  const mdPath = path.join(process.cwd(), "faq.md");
+  const mdPath = path.join(process.cwd(), "FAQ.md");
   const content = await fs.readFile(mdPath, "utf8");
 
   return (
