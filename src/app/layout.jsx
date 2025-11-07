@@ -1,5 +1,6 @@
 import "../styles/global.css";
 import Provider from "@components/provider/Provider";
+import TopNavBar from "@/components/topnavbar/TopNavBar";
 
 export const metadata = {
   metadataBase: new URL(
@@ -9,7 +10,6 @@ export const metadata = {
     default: "WhatNow Studio",
     template: "%s | WhatNow Studio",
   },
-  description: "Two-way sync between Notion and Google Calendar",
   authors: [{ name: "Huixin Yang" }],
 };
 
@@ -20,6 +20,7 @@ const RootLayout = ({ children }) => (
         <div className="gradient" />
       </div>
       <Provider>
+        <TopNavBar />
         <main>{children}</main>
         <footer>
           <p>© 2025 Huixin Yang. All rights reserved.</p>
