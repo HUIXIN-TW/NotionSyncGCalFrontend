@@ -28,7 +28,7 @@ export default function Home() {
             <Link href="/terms">Terms of Service</Link>.
           </p>
 
-          <h3 className="welcome_header">What this app does</h3>
+          {/* <h3 className="welcome_header">What this app does</h3>
           <ul className="welcome_list">
             <li>Secure sign-in via Google OAuth.</li>
             <li>Sync selected Google Calendar events.</li>
@@ -36,7 +36,7 @@ export default function Home() {
             <li>Control how pages and events map/sync.</li>
             <li>Responsive on desktop and mobile.</li>
             <li>Tokens stored on AWS, encrypted at rest.</li>
-          </ul>
+          </ul> */}
 
           <p className="welcome_links">
             Open source:{" "}
@@ -48,6 +48,10 @@ export default function Home() {
               Lambda Backend
             </a>
           </p>
+          <br />
+          <br />
+          <br />
+          <br />
         </div>
         {status === "unauthenticated" && <SignInButton />}
       </div>

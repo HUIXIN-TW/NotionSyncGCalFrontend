@@ -7,17 +7,20 @@ import config from "@/config/notion";
 export default function NotionCardNoteSection({
   lastFetchedAt,
   lastModifiedAt,
+  messages,
   templateUrl = config.NOTION_PAGE_TEMPLATE_URL,
 }) {
   return (
     <>
-      <div className={styles.note}>
-        Last fetched from S3: {lastFetchedAt || "-"}
-      </div>
+      <div className={styles.note}>Last fetched: {lastFetchedAt || "-"}</div>
 
-      <div className={styles.note}>
-        Last modified in S3: {lastModifiedAt || "-"}
-      </div>
+      <div className={styles.note}>Last modified: {lastModifiedAt || "-"}</div>
+
+      {messages && lastModifiedAt && (
+        <div className={styles.note}>
+          {messages} at {lastModifiedAt}
+        </div>
+      )}
 
       <div className={styles.note}>
         Don’t have a Notion page yet? You can use this template:{" "}

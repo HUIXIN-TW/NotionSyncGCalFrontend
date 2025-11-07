@@ -19,6 +19,7 @@ const NotionCard = ({ session }) => {
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
   const [activeTab, setActiveTab] = useState("basic");
   const isNewUser = localStorage.getItem("newUser:v1") === "true";
+  const [messages, setMessages] = useState(null);
 
   useEffect(() => {
     const local = localStorage.getItem("notionConfig");
@@ -132,6 +133,7 @@ const NotionCard = ({ session }) => {
       <NotionCardNoteSection
         lastFetchedAt={lastFetchedAt}
         lastModifiedAt={lastModifiedAt}
+        messages={messages}
       />
 
       {editMode ? (
@@ -140,6 +142,7 @@ const NotionCard = ({ session }) => {
           setEditMode={setEditMode}
           setLastFetchedAt={setLastFetchedAt}
           setShowFetchButton={setShowFetchButton}
+          setMessages={setMessages}
         />
       ) : (
         <>
