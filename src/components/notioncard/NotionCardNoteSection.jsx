@@ -24,8 +24,6 @@ export default function NotionCardNoteSection({
           Notion Template
         </a>
       </div>
-
-      {notice && <span className={styles.note}>{notice}</span>}
     </>
   );
 }
