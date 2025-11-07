@@ -3,7 +3,7 @@
   padding: 40px;
   line-height: 2;
   overflow-wrap: break-word; /* Break long words/links */
-  width: 50vw; /* Take up 50% of viewport width */
+  width: 80vw; /* Take up 50% of viewport width */
   height: 80vh; /* Max height to avoid overflow */
   background: #f8f9fa; /* Lighter background for a fresher look */
   border-radius: 20px; /* Slightly reduced for a modern aesthetic */

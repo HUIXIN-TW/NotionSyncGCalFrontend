@@ -11,11 +11,6 @@
   overflow-y: auto; /* allow scrolling inside */
 }
 
-/* Adjust bullet point indentation */
-.markdown li {
-  margin-left: 40px; /* Indent bullet points */
-}
-
 @media (max-width: 480px) {
   .markdown {
     padding: 20px; /* Slightly smaller padding for small screens */
