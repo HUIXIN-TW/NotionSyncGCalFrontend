@@ -21,10 +21,7 @@ export async function GET(req) {
   const code = url.searchParams.get("code");
   const returnedState = url.searchParams.get("state");
   const oauthErr = url.searchParams.get("error");
-  const session = await getServerSession(authOptions);
-  const redirectTarget = session.isNewUser
-    ? "/getting-started"
-    : "/notion/config";
+  const redirectTarget = "/getting-started";
 
   if (oauthErr || !code) {
     logger.error("OAuth error", { error: oauthErr });
@@ -91,8 +88,20 @@ export async function GET(req) {
       return res;
     }
 
-    const { access_token, bot_id, workspace_id, workspace_name, owner } =
-      tokenJson;
+    const {
+      access_token,
+      bot_id,
+      workspace_id,
+      workspace_name,
+      owner,
+      duplicated_template_id,
+    } = tokenJson;
+
+    logger.info("Notion token exchange result", {
+      workspace_name,
+      workspace_id,
+      duplicated_template_id,
+    });
 
     // upload to S3
     await uploadNotionTokens(userUuid, {
@@ -104,6 +113,7 @@ export async function GET(req) {
       workspace_id,
       workspace_name,
       owner,
+      duplicated_template_id,
     });
 
     // clear state cookie and redirect

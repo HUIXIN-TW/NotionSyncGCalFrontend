@@ -40,6 +40,7 @@ const RefreshGCalButton = ({ className, style, text }) => {
   return (
     <Button
       type="button"
+      className={className}
       text={loading ? "Refreshing..." : text || "Connect GCal Account"}
       onClick={handleClick}
       disabled={loading}

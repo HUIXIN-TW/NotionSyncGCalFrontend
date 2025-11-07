@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-export function useConnectionNotice(setMsg) {
+export function useConnectionNotice() {
   const params = useSearchParams();
 
   useEffect(() => {
@@ -10,33 +10,39 @@ export function useConnectionNotice(setMsg) {
     const notion = params.get("notion");
     const reason = params.get("reason");
 
-    let msg = "";
+    let googleMsg = null;
+    let notionMsg = null;
 
-    if (google === "connected") msg = "✅ Google connected successfully";
-    else if (google === "error") {
-      if (reason === "email_mismatch")
-        msg = "⚠️ Google account does not match your login account";
-      else if (reason === "token")
-        msg = "❌ Token exchange failed, please reauthorize";
-      else if (reason === "state")
-        msg = "⚠️ OAuth security verification failed";
-      else msg = "❌ Google authorization failed, please try again later";
+    // ----- Google -----
+    if (google === "connected") {
+      googleMsg = "✅ Google connected successfully";
+    } else if (google === "error") {
+      if (reason === "email_mismatch") {
+        googleMsg = "⚠️ Google account does not match your login account";
+      } else if (reason === "token") {
+        googleMsg = "❌ Token exchange failed, please reauthorize";
+      } else if (reason === "state") {
+        googleMsg = "⚠️ OAuth security verification failed";
+      } else {
+        googleMsg = "❌ Google authorization failed, please try again later";
+      }
     }
 
-    if (notion === "connected") msg = "✅ Notion connected successfully";
-    else if (notion === "error") {
-      if (reason === "token") msg = "❌ Notion token exchange failed";
-      else if (reason === "state")
-        msg = "⚠️ Notion security verification failed";
-      else msg = "❌ Notion authorization failed, please try again later";
+    // ----- Notion -----
+    if (notion === "connected") {
+      notionMsg = "✅ Notion connected successfully";
+    } else if (notion === "error") {
+      if (reason === "token") {
+        notionMsg = "❌ Notion token exchange failed";
+      } else if (reason === "state") {
+        notionMsg = "⚠️ Notion security verification failed";
+      } else {
+        notionMsg = "❌ Notion authorization failed, please try again later";
+      }
     }
 
-    setMsg(msg);
-
-    if (!msg) return;
-
-    const timer = setTimeout(() => setMsg(""), 4000);
-
-    return () => clearTimeout(timer);
+    // Save to localStorage
+    if (googleMsg) localStorage.setItem("googleStatus", googleMsg);
+    if (notionMsg) localStorage.setItem("notionStatus", notionMsg);
   }, [params]);
 }

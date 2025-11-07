@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
-import { useConnectionNotice } from "@/hooks/useConnectionNotice";
+import React from "react";
 import styles from "./notioncard.module.css";
 
 export default function NotionCardNoteSection({
   lastFetchedAt,
   lastModifiedAt,
-  templateUrl = "https://www.notion.so/28b438de0d88819db5f6c28a33ccbfdc?v=28b438de0d8881158789000cba8aab6f",
+  templateUrl = "https://panoramic-law-7f5.notion.site/2a4438de0d8881729bd2e5143d116387?v=2a4438de0d888100a2ae000c0cae990e",
 }) {
-  const [notice, setNotice] = useState(null);
-  useConnectionNotice(setNotice);
-
   return (
     <>
       <div className={styles.note}>
