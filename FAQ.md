@@ -1,4 +1,4 @@
-# Notica — Frequently Asked Questions
+# Frequently Asked Questions
 
 ## How to Connect with the Notion Template
 
@@ -9,7 +9,7 @@
 5.  Copy your **Notion Database ID** and paste it in the setup form.
 6.  Enter your **Google Calendar name** and **Calendar ID**, then finish the setup.
 
-## How toFind the Notion Database ID
+## How to Find the Notion Database ID
 
 Open the duplicated database and copy the ID from the URL: `https://www.notion.so//<DATABASE_ID>?v=<VIEW_ID>`
 
