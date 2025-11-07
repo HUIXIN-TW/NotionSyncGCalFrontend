@@ -11,6 +11,34 @@
   overflow-y: auto; /* allow scrolling inside */
 }
 
+/* Adjust bullet point indentation */
+.markdown li {
+  margin-left: 40px; /* Indent bullet points */
+}
+
+/* Inline code */
+.markdown code {
+  background: #f6f8fa;
+  color: #d6336c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.9rem;
+}
+
+/* Code block (fenced with ``` ... ```) */
+.markdown pre code {
+  display: block;
+  background: #f4f6f8;
+  color: #1a1a1a;
+  padding: 14px 18px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 480px) {
   .markdown {
     padding: 20px; /* Slightly smaller padding for small screens */
