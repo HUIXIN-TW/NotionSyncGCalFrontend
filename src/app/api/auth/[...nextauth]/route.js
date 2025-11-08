@@ -144,7 +144,7 @@ export const authOptions = {
   pages: {
     signIn: "/",
     signOut: "/",
-    error: "/api/auth/error",
+    error: "/error",
   },
 };
 
