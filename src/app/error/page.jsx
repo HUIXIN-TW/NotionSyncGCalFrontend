@@ -26,6 +26,7 @@ export default function AuthErrorPage() {
 
   return (
     <div>
+      {/* todo: padding issue */}
       <h2>⚠️ Login Error</h2>
       <p>{message}</p>
       <Link href="/">Return Home</Link>

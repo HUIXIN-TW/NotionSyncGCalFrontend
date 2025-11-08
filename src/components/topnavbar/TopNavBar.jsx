@@ -63,7 +63,9 @@ export default function TopNavBar() {
       icon: <HelpCircle size={20} strokeWidth={2} />,
     },
     // only add signout if not root
-    ...(!isRoot ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }] : []),
+    ...(!isRoot
+      ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }]
+      : []),
   ];
 
   // hide active page
