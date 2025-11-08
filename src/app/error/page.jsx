@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import NavigateButton from "@/components/button/NavigateButton";
+import Link from "next/link";
 
 export default function AuthErrorPage() {
   const searchParams = useSearchParams();
@@ -26,9 +26,9 @@ export default function AuthErrorPage() {
 
   return (
     <div>
-      <h1>⚠️ Login Error</h1>
+      <h2>⚠️ Login Error</h2>
       <p>{message}</p>
-      <NavigateButton path="/" text="Back to Login" />
+      <Link href="/">Return Home</Link>
     </div>
   );
 }

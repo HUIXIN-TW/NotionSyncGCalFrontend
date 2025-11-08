@@ -3,6 +3,7 @@
 import styles from "./getting-started.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Button from "@/components/button/Button";
 import { useConnectionNotice } from "@/hooks/useConnectionNotice";
 import RefreshGCalButton from "@components/button/RefreshGCalButton";
@@ -11,7 +12,8 @@ import TestConnectionButton from "@components/button/TestConnectionButton";
 import SignOutButton from "@/components/button/SignOutButton";
 import LinkToNotionTemplateButton from "@/components/button/LinkToNotionTemplateButton";
 
-const GettingStarted = ({ session }) => {
+const GettingStarted = () => {
+  const { data: session } = useSession();
   const router = useRouter();
   useConnectionNotice();
 
@@ -63,7 +65,6 @@ const GettingStarted = ({ session }) => {
         />
 
         <br />
-        <SignOutButton text="❌ Cancel Setup Process. Logout" />
       </div>
     </>
   );

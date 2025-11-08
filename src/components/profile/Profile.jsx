@@ -7,7 +7,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import SyncButton from "@components/button/SyncButton";
-import SignOutButton from "@components/button/SignOutButton";
 
 const Profile = ({ session }) => {
   const user = session?.user;
@@ -178,7 +177,6 @@ const Profile = ({ session }) => {
         onSync={handleSync}
         disabled={isSyncing || (isCountingDown && isProd)}
       />
-      <SignOutButton />
 
       <div className={styles.support_section}>
         <span className={styles.note}>Enjoying NOTICA? Support me:</span>

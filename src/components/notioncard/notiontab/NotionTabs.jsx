@@ -3,7 +3,6 @@
 import React from "react";
 import Button from "@components/button/Button";
 import styles from "./notiontab.module.css";
-import NavigateButton from "@/components/button/NavigateButton";
 import EditButton from "@components/button/EditButton";
 import CancelButton from "@components/button/CancelButton";
 
@@ -21,7 +20,6 @@ export default function NotionTabs({
   ];
   return (
     <div role="tablist" className={styles.tabs_list}>
-      <NavigateButton path="/profile" className="clear_btn" />
       {tabs.map((t) => (
         <Button
           key={t.value}
