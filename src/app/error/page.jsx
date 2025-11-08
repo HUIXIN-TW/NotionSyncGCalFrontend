@@ -22,14 +22,13 @@ export default function AuthErrorPage() {
     default: "Something went wrong during login. Please try again.",
   };
 
-
   const message = errorMessage[error] || errorMessage["default"];
 
   return (
     <div>
       <h1>⚠️ Login Error</h1>
       <p>{message}</p>
-      <NavigateButton path="/" text="Back to Login"/>
+      <NavigateButton path="/" text="Back to Login" />
     </div>
   );
 }
