@@ -1,3 +1,5 @@
+import "server-only";
+
 import { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";

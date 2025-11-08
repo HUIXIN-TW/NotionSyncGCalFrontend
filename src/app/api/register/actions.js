@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { registerCore } from "@/utils/server/register-core";
 

@@ -1,3 +1,5 @@
+"use client";
+
 export default function validateConfigFormat(cfg) {
   const errors = [];
 

@@ -1,3 +1,5 @@
+import "server-only";
+
 import logger from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";

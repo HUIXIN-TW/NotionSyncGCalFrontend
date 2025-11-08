@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 // startMs = timestamp when action started (e.g. Date.now())
