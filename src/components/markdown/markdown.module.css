@@ -1,10 +1,10 @@
 .markdown {
-  padding: 40px;
+  padding: 80px;
   line-height: 2;
-  overflow-wrap: break-word; /* Break long words/links */
-  width: 90vw; /* Take up 50% of viewport width */
-  height: 90vh; /* Max height to avoid overflow */
-  overflow-y: auto; /* allow scrolling inside */
+  max-width: 900px;
+  margin: 0 auto;
+  height: auto;
+  overflow: visible;
 }
 
 .markdown h1 {

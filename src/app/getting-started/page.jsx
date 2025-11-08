@@ -31,7 +31,7 @@ const GettingStarted = () => {
 
   return (
     <>
-      <h1 className="title">Let’s Get Your Sync Ready</h1>
+      <h2>Let’s Get Your Sync Ready</h2>
 
       <div className={styles.gettingstartedcard_container}>
         <RefreshGCalButton

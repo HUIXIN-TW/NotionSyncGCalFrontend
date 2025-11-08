@@ -1,0 +1,15 @@
+.home {
+  padding: 20px;
+  font-size: 2.5rem;
+  font-weight: 600;
+  border-radius: 30px;
+  text-align: center;
+}
+
+.detail {
+  font-size: 14px;
+  color: #343a40;
+  line-height: 1.6;
+  text-align: left;
+  padding: 20px;
+}
