@@ -1,14 +1,18 @@
 .markdown {
-  /* margin: 40px auto; */
   padding: 40px;
   line-height: 2;
   overflow-wrap: break-word; /* Break long words/links */
-  width: 80vw; /* Take up 50% of viewport width */
-  height: 80vh; /* Max height to avoid overflow */
-  background: #f8f9fa; /* Lighter background for a fresher look */
-  border-radius: 20px; /* Slightly reduced for a modern aesthetic */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* More subtle shadow for depth */
+  width: 90vw; /* Take up 50% of viewport width */
+  height: 90vh; /* Max height to avoid overflow */
   overflow-y: auto; /* allow scrolling inside */
+}
+
+.markdown h1 {
+  text-align: center;
+}
+
+.markdown h2 {
+  margin-top: 32px;
 }
 
 /* Adjust bullet point indentation */
@@ -37,6 +41,49 @@
   overflow-x: auto;
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+/* Wrapper to allow horizontal scroll on narrow screens */
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 16px 0;
+}
+
+/* Base table styling */
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.markdown thead th {
+  background: #f3f4f6;
+  font-weight: 600;
+  text-align: left;
+}
+
+.markdown th,
+.markdown td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.markdown tr:last-child td {
+  border-bottom: none;
+}
+
+/* Optional: zebra rows for readability */
+.markdown tbody tr:nth-child(odd) {
+  background: #fafafa;
+}
+
+.markdown :global([id]) {
+  scroll-margin-top: 80px;
 }
 
 @media (max-width: 480px) {
