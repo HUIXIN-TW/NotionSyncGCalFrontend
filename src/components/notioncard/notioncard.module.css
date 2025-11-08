@@ -1,11 +1,11 @@
 /* ---------- Notion Card Container ---------- */
 .notioncard_container {
-  background: #f8f9fa;
+  /* background: #f8f9fa; */
   border-radius: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 40px;
   margin: 40px;
-  width: 75vw;
+  width: 60vw;
   display: flex;
   flex-direction: column;
   gap: 20px;

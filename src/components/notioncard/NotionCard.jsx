@@ -59,9 +59,9 @@ const NotionCard = ({ session }) => {
     });
   }, []);
 
-  if (!editableConfig) return <div>Loading configuration...</div>;
   if (!session?.user)
     return <div>Please log in to view your configuration.</div>;
+  if (!editableConfig) return <div>Loading configuration...</div>;
 
   const basicObject = Object.keys(editableConfig)
     .filter((k) => k !== "gcal_dic" && k !== "page_property")

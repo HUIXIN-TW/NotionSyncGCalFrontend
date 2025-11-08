@@ -11,7 +11,7 @@ import TestConnectionButton from "@components/button/TestConnectionButton";
 import SignOutButton from "@/components/button/SignOutButton";
 import LinkToNotionTemplateButton from "@/components/button/LinkToNotionTemplateButton";
 
-const GettingStarted = () => {
+const GettingStarted = ({ session }) => {
   const router = useRouter();
   useConnectionNotice();
 
@@ -28,6 +28,8 @@ const GettingStarted = () => {
   const handleFinishSetup = () => {
     router.replace("/notion/config");
   };
+
+  if (!session?.user) return <div>Please log in to get started.</div>;
 
   return (
     <>

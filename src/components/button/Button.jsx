@@ -8,6 +8,7 @@ const Button = ({
   type = "button",
   className = "",
   disabled,
+  title,
 }) => {
   return (
     <button
@@ -16,6 +17,7 @@ const Button = ({
       onClick={onClick}
       disabled={disabled}
       style={{ cursor: disabled ? "not-allowed" : "pointer" }}
+      title={title}
     >
       {text}
     </button>

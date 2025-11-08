@@ -4,7 +4,7 @@ import { signOut } from "next-auth/react";
 import logger from "@/utils/shared/logger";
 import Button from "@components/button/Button";
 
-const SignOutButton = ({ className, style, text = "Sign Out" }) => {
+const SignOutButton = ({ className, style, text = "Sign Out", title }) => {
   const handleSignOut = async () => {
     try {
       // localStorage.removeItem("newUser:v1");
@@ -23,6 +23,7 @@ const SignOutButton = ({ className, style, text = "Sign Out" }) => {
       onClick={handleSignOut}
       className={className}
       style={style}
+      title={title}
     />
   );
 };

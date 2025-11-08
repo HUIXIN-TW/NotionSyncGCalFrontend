@@ -2,73 +2,90 @@
 
 import { usePathname } from "next/navigation";
 import NavigateButton from "@/components/button/NavigateButton";
-import { Plug, Settings, HelpCircle } from "lucide-react";
+import SignOutButton from "@/components/button/SignOutButton";
+import {
+  Plug,
+  Settings,
+  HelpCircle,
+  CircleUserRound,
+  LogOut,
+} from "lucide-react";
 
-// button icon
-function Btn({ path, text, icon }) {
+// Single button renderer
+function Btn({ type = "navigate", path, text, icon }) {
+  if (type === "signout") {
+    return (
+      <SignOutButton
+        className="clear_btn"
+        text={icon ?? text ?? <LogOut size={20} strokeWidth={2} />}
+        title="Sign Out"
+        aria-label="Sign Out"
+      />
+    );
+  }
+
   return (
     <NavigateButton
       path={path}
       className="clear_btn"
-      text={icon ? { icon } : text}
+      title={`Go to ${path}`}
+      text={icon ?? text}
+      aria-label={text || path}
     />
   );
 }
 
 export default function TopNavBar() {
   const pathname = usePathname();
+  const isActive = (p) => p && (pathname === p || pathname.startsWith(p + "/"));
+  const isRoot = pathname === "/";
 
-  const COMMON_LEFT = [
+  const BUTTONS = [
     {
+      type: "navigate",
       path: "/profile",
-      icon: <Plug size={20} strokeWidth={2} />,
+      icon: <CircleUserRound size={20} strokeWidth={2} />,
+      side: "left",
     },
-  ];
-
-  const COMMON_RIGHT = [
     {
+      type: "navigate",
       path: "/getting-started",
       icon: <Plug size={20} strokeWidth={2} />,
     },
     {
+      type: "navigate",
       path: "/notion/config",
       icon: <Settings size={20} strokeWidth={2} />,
     },
     {
+      type: "navigate",
       path: "/faq",
       icon: <HelpCircle size={20} strokeWidth={2} />,
     },
+    // only add signout if not root
+    ...(!isRoot ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }] : []),
   ];
 
-  const CONFIG = {
-    "/faq": {
-      left: COMMON_LEFT,
-      right: COMMON_RIGHT
-    },
-    "/profile": { right: COMMON_RIGHT },
-    "/getting-started": { right: COMMON_RIGHT },
-    "/notion/config": { right: COMMON_RIGHT },
-  };
-
-  // according to pathname to get left and right buttons
-  const match = Object.keys(CONFIG).find(
-    (k) => pathname === k || pathname.startsWith(k + "/"),
+  // hide active page
+  const filtered = BUTTONS.filter(
+    (b) => b.type !== "navigate" || !isActive(b.path),
   );
-  const { left = [], right = [] } = match
-    ? CONFIG[match]
-    : { left: [], right: [] };
+
+  const left = filtered.filter((b) => b.side === "left");
+  const right = filtered.filter((b) => b.side !== "left");
+
   if (!left.length && !right.length) return null;
 
   return (
     <nav className="top-section">
       <div className="top-section-left-items">
-        {left.map((b, i) => (
-          <Btn key={`L-${i}`} {...b} />
+        {left.map((b) => (
+          <Btn key={`L-${b.type}-${b.path ?? "auth"}`} {...b} />
         ))}
       </div>
       <div className="top-section-right-items">
-        {right.map((b, i) => (
-          <Btn key={`R-${i}`} {...b} />
+        {right.map((b) => (
+          <Btn key={`R-${b.type}-${b.path ?? "auth"}`} {...b} />
         ))}
       </div>
     </nav>
