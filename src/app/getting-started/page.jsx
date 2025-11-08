@@ -9,6 +9,7 @@ import RefreshGCalButton from "@components/button/RefreshGCalButton";
 import RefreshNotionButton from "@/components/button/RefreshNotionButton";
 import TestConnectionButton from "@components/button/TestConnectionButton";
 import SignOutButton from "@/components/button/SignOutButton";
+import LinkToNotionTemplateButton from "@/components/button/LinkToNotionTemplateButton";
 
 const GettingStarted = () => {
   const router = useRouter();
@@ -46,6 +47,11 @@ const GettingStarted = () => {
         <TestConnectionButton
           className="outline_btn"
           text="Step 3: Test Notion & GCal Connection"
+        />
+
+        <LinkToNotionTemplateButton
+          className="outline_btn"
+          text="Step 4: Open Notion Template to duplicate"
         />
 
         <Button
