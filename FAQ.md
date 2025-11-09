@@ -35,7 +35,7 @@ If the Notion authorization succeeds but the database isn’t duplicated automat
 
 ### Step 2 Connect Notica Integration
 
-1. In your duplicated Notion page, click the **⋯ (three dots)** → **Connections** → **Connect**.
+1. In your duplicated Notion page, click the **⋯** → **Connections** → **Connect**.
 2. Choose or type **`Notica`** as the integration.
 
 Back to [How to Connect with the Notion Template](#how-to-connect-with-the-notion-template).
@@ -43,7 +43,7 @@ Back to [How to Connect with the Notion Template](#how-to-connect-with-the-notio
 ## How to Find the Notion Database ID
 
 Open the duplicated database and copy the ID from the URL:  
-`https://www.notion.so/<DATABASE_ID>?v=<VIEW_ID>`
+`https://www.notion.so/yourworkspace/<DATABASE_ID>?v=<VIEW_ID>`
 
 The **DATABASE_ID** is the 32-character string (with or without hyphens) between `/` and `?v=`.
 
@@ -51,8 +51,11 @@ The **DATABASE_ID** is the 32-character string (with or without hyphens) between
 
 Go to **Google Calendar → Settings → Settings for my calendars → [Your calendar] → Integrate calendar**
 
-- **Personal calendar:** `you@gmail.com`
-- **Shared calendar:** something like `xxxxxxxx@group.calendar.google.com`
+- Name
+  - On the top of **[Your calendar]** settings page.
+- ID
+  - Scroll to **Integrate calendar** section to find the **Calendar ID**.
+  - **Main calendar:** `you@gmail.com`, and **other calendars** are something like `xxxxxxxx@group.calendar.google.com`
 
 ## Can I Use My Own Database?
 
@@ -84,6 +87,7 @@ You can rename columns freely as long as you map them correctly in your [Notion 
   If you have more, limit the date range or filter your view to reduce items.
 - Google Calendar limits event descriptions to **4000 characters**.  
   Longer text may be truncated.
+- You must be the **owner** of the Google Calendar. Shared calendars you can only view or edit but do not own are not supported.
 
 ## Troubleshooting
 
