@@ -232,7 +232,8 @@ export const updateLastLogin = async (uuid, ip = null, when = new Date()) => {
           ":ms": ms,
           ...(ip && { ":ip": ip }),
         },
-        ConditionExpression: "attribute_exists(uuid)",
+        ConditionExpression: "attribute_exists(#uuid)",
+        ExpressionAttributeNames: { "#uuid": "uuid" },
       }),
     );
   } catch (err) {

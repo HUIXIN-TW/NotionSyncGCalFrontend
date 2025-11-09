@@ -163,8 +163,9 @@ export const authOptions = {
 
         if (dbUser) {
           // Update lastLoginAt and lastLoginLocation
-          const ip = cookies().get("client_ip")?.value ?? "unknown";
-          logger.info("updateLastLogin", { uuid, ip });
+          const cookieStore = await cookies();
+          const ip = cookieStore.get("client_ip")?.value ?? "unknown";
+          logger.info("updateLastLogin", { uuid: dbUser.uuid, ip });
           await updateLastLogin(dbUser.uuid, ip);
         }
       } catch (err) {
