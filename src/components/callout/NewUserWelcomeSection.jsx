@@ -9,8 +9,8 @@ export default function NewUserWelcomeSection() {
       <div className={styles.calloutIcon}>👋</div>
       <div>
         <h2>Set up your Notion Sync Configuration</h2>
-        To start syncing, add your <strong>Notion Database ID</strong> and
-        <strong> Google Calendar Mapping</strong> in settings.
+        To start syncing, add your <strong>Basic - Notion Database ID</strong> and
+        <strong> GCal - Google Calendar Mapping</strong>.
       </div>
     </div>
   );
