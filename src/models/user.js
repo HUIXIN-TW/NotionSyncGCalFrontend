@@ -220,19 +220,21 @@ export const updateLastLogin = async (uuid, ip = null, when = new Date()) => {
     const dateStr = when.toISOString().slice(0, 10);
     const ms = when.getTime();
 
-    await ddb.send(new UpdateCommand({
-      TableName: TABLE_NAME,
-      Key: { uuid },
-      UpdateExpression:
-        "SET lastLoginAt = :dt, lastLoginAtMs = :ms, updatedAt = :dt, updatedAtMs = :ms"
-        + (ip ? ", lastLoginLocation = :ip" : ""),
-      ExpressionAttributeValues: {
-        ":dt": dateStr,
-        ":ms": ms,
-        ...(ip && { ":ip": ip }),
-      },
-      ConditionExpression: "attribute_exists(uuid)",
-    }));
+    await ddb.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: { uuid },
+        UpdateExpression:
+          "SET lastLoginAt = :dt, lastLoginAtMs = :ms, updatedAt = :dt, updatedAtMs = :ms" +
+          (ip ? ", lastLoginLocation = :ip" : ""),
+        ExpressionAttributeValues: {
+          ":dt": dateStr,
+          ":ms": ms,
+          ...(ip && { ":ip": ip }),
+        },
+        ConditionExpression: "attribute_exists(uuid)",
+      }),
+    );
   } catch (err) {
     logger.error("Error updating lastLogin", err);
     throw err;

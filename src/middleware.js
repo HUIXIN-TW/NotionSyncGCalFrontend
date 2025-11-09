@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 export function middleware(req) {
   // Only write on authentication-related paths; or keep matcher but do not reset if already exists
   const url = req.nextUrl.pathname;
-  const shouldStamp =
-    url.startsWith("/api/auth");
+  const shouldStamp = url.startsWith("/api/auth");
 
   const existing = req.cookies.get("client_ip")?.value;
   if (!shouldStamp && existing) return NextResponse.next();
