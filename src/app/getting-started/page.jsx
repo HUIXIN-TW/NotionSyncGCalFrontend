@@ -48,14 +48,9 @@ const GettingStarted = () => {
           text={notionStatus || "Step 2: Connect Notion Database Account"}
         />
 
-        <TestConnectionButton
-          className="outline_btn"
-          text="Step 3: Test Notion & GCal Connection"
-        />
-
         <LinkToNotionTemplateButton
           className="outline_btn"
-          text="Step 4: Open Notion Template to duplicate"
+          text="Step 3: Open Notion Template to duplicate"
         />
 
         <Button
