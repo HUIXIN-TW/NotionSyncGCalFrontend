@@ -1,0 +1,97 @@
+.markdown {
+  padding: 80px;
+  line-height: 2;
+  max-width: 900px;
+  margin: 0 auto;
+  height: auto;
+  overflow: visible;
+}
+
+.markdown h1 {
+  text-align: center;
+}
+
+.markdown h2 {
+  margin-top: 32px;
+}
+
+/* Adjust bullet point indentation */
+.markdown li {
+  margin-left: 40px; /* Indent bullet points */
+}
+
+/* Inline code */
+.markdown code {
+  background: #f6f8fa;
+  color: #d6336c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Menlo", "Monaco", monospace;
+  font-size: 0.9rem;
+}
+
+/* Code block (fenced with ``` ... ```) */
+.markdown pre code {
+  display: block;
+  background: #f4f6f8;
+  color: #1a1a1a;
+  padding: 14px 18px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Wrapper to allow horizontal scroll on narrow screens */
+.tableWrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 16px 0;
+}
+
+/* Base table styling */
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.markdown thead th {
+  background: #f3f4f6;
+  font-weight: 600;
+  text-align: left;
+}
+
+.markdown th,
+.markdown td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.markdown tr:last-child td {
+  border-bottom: none;
+}
+
+/* Optional: zebra rows for readability */
+.markdown tbody tr:nth-child(odd) {
+  background: #fafafa;
+}
+
+.markdown :global([id]) {
+  scroll-margin-top: 80px;
+}
+
+@media (max-width: 480px) {
+  .markdown {
+    padding: 20px; /* Slightly smaller padding for small screens */
+    width: 95vw;
+    font-size: 16px; /* Mobile-friendly font size */
+    line-height: 1.5; /* Better readability */
+    margin: 0 auto; /* Center content */
+  }
+}

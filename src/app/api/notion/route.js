@@ -1,3 +1,5 @@
+import "server-only";
+
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { getToken } from "next-auth/jwt";
 import {

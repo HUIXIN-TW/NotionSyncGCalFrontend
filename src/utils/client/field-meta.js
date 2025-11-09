@@ -1,3 +1,5 @@
+"use client";
+
 export const FIELD_META = {
   basic: {
     database_id: { label: "Notion Database ID", type: "text", order: 10 },

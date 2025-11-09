@@ -12,6 +12,7 @@ export default function SaveButton({
   setEditMode,
   setLastFetchedAt,
   setShowFetchButton,
+  setMessages,
 }) {
   const [loading, setLoading] = useState(false);
   const UPLOAD_LIMIT_MS = config.UPLOAD_MIN_MS ?? 3 * 60_000;
@@ -65,7 +66,7 @@ export default function SaveButton({
       });
 
       if (res.ok) {
-        alert("Saved successfully!");
+        setMessages("Configuration saved successfully");
         setEditMode(false);
 
         // 3) Persist exactly what you POSTED (for consistent reloads)

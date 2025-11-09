@@ -1,20 +1,14 @@
 /* ---------- Notion Card Container ---------- */
 .gettingstartedcard_container {
-  background: #f8f9fa;
+  /* background: #f8f9fa;
   border-radius: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
   padding: 40px;
-  width: 50vw;
-  max-width: 800px;
-  height: fit-content;
-  margin: 5vh auto;
+  margin: 40px;
+  width: 60vw;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow-y: auto;
-  word-wrap: break-word;
-  word-break: break-word;
-  white-space: normal;
 }
 
 /* ---------- Top-Level Key-Value Rows ---------- */

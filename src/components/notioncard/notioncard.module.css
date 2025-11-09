@@ -1,19 +1,14 @@
 /* ---------- Notion Card Container ---------- */
 .notioncard_container {
-  background: #f8f9fa; /* Soft light gray background */
-  border-radius: 20px; /* Rounded corners for a modern look */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle depth shadow */
-  padding: 40px; /* Spacious inner padding */
-  width: 50vw; /* Take up 50% of viewport width */
-  height: 80vh; /* Max height to avoid overflow */
-  margin: auto; /* Center the card horizontally */
-  display: flex; /* Use flexbox for vertical stacking */
+  /* background: #f8f9fa; */
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  margin: 40px;
+  width: 60vw;
+  display: flex;
   flex-direction: column;
-  gap: 20px; /* Spacing between content blocks */
-  overflow-y: auto; /* Scroll vertically if content overflows */
-  word-wrap: break-word; /* Wrap long words */
-  word-break: break-word;
-  white-space: normal;
+  gap: 20px;
 }
 
 .note {

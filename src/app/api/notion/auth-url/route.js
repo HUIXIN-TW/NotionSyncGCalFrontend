@@ -1,3 +1,6 @@
+import "server-only";
+
+import { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
@@ -32,9 +35,9 @@ export async function GET() {
   res.cookies.set("notion_oauth_state", state, {
     httpOnly: true,
     sameSite: "lax",
-    secure: true,
+    secure: isProd,
     path: "/",
-    maxAge: 10 * 60, // 10 minutes
+    maxAge: 600, // 10 minutes
   });
   return res;
 }

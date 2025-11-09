@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import logger from "@/utils/shared/logger";
 import Button from "@components/button/Button";
+import { Loader2 } from "lucide-react";
 
-export default function SignInButton() {
+export default function SignInButton({
+  className,
+  style,
+  text = "Continue with Google",
+  title = "Sign in with Google",
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -33,9 +39,18 @@ export default function SignInButton() {
 
   return (
     <Button
-      text={loading ? "Signing in..." : "Continue with Google"}
+      text={
+        loading ? (
+          <Loader2 className="animate-spin" size={20} strokeWidth={2} />
+        ) : (
+          text
+        )
+      }
       onClick={handleGoogleLogin}
       disabled={loading}
+      className={className}
+      style={style}
+      title={title}
     />
   );
 }

@@ -11,7 +11,10 @@ export default function NewUserSignOutSection() {
       <div className={styles.callout}>
         <div className={styles.calloutIcon}>✅</div>
         <div>
-          After saving, use the <strong>Finish Setup & Re-Authenticate</strong>{" "}
+          <h2>Setup Complete</h2>
+          After saving, use the <strong>
+            Finish Setup & Re-Authenticate
+          </strong>{" "}
           to complete the authorization process.
         </div>
       </div>

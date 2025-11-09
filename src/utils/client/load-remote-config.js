@@ -1,3 +1,5 @@
+"use client";
+
 export async function loadRemoteConfig({
   setEditableConfig,
   setLastFetchedAt,

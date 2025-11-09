@@ -19,6 +19,7 @@ const NotionCard = ({ session }) => {
   const [showFetchButton, setShowFetchButton] = useState(!isProd);
   const [activeTab, setActiveTab] = useState("basic");
   const isNewUser = localStorage.getItem("newUser:v1") === "true";
+  const [messages, setMessages] = useState(null);
 
   useEffect(() => {
     const local = localStorage.getItem("notionConfig");
@@ -58,9 +59,9 @@ const NotionCard = ({ session }) => {
     });
   }, []);
 
-  if (!editableConfig) return <div>Loading configuration...</div>;
   if (!session?.user)
     return <div>Please log in to view your configuration.</div>;
+  if (!editableConfig) return <div>Loading configuration...</div>;
 
   const basicObject = Object.keys(editableConfig)
     .filter((k) => k !== "gcal_dic" && k !== "page_property")
@@ -132,6 +133,7 @@ const NotionCard = ({ session }) => {
       <NotionCardNoteSection
         lastFetchedAt={lastFetchedAt}
         lastModifiedAt={lastModifiedAt}
+        messages={messages}
       />
 
       {editMode ? (
@@ -140,6 +142,7 @@ const NotionCard = ({ session }) => {
           setEditMode={setEditMode}
           setLastFetchedAt={setLastFetchedAt}
           setShowFetchButton={setShowFetchButton}
+          setMessages={setMessages}
         />
       ) : (
         <>

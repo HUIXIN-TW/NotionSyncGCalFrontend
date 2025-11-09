@@ -1,26 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
-import { useConnectionNotice } from "@/hooks/useConnectionNotice";
+import React from "react";
 import styles from "./notioncard.module.css";
+import config from "@/config/notion";
 
 export default function NotionCardNoteSection({
   lastFetchedAt,
   lastModifiedAt,
-  templateUrl = "https://www.notion.so/28b438de0d88819db5f6c28a33ccbfdc?v=28b438de0d8881158789000cba8aab6f",
+  messages,
+  templateUrl = config.NOTION_PAGE_TEMPLATE_URL,
 }) {
-  const [notice, setNotice] = useState(null);
-  useConnectionNotice(setNotice);
-
   return (
     <>
-      <div className={styles.note}>
-        Last fetched from S3: {lastFetchedAt || "-"}
-      </div>
+      <div className={styles.note}>Last fetched: {lastFetchedAt || "-"}</div>
 
-      <div className={styles.note}>
-        Last modified in S3: {lastModifiedAt || "-"}
-      </div>
+      <div className={styles.note}>Last modified: {lastModifiedAt || "-"}</div>
+
+      {messages && lastModifiedAt && (
+        <div className={styles.note}>
+          {messages} at {lastModifiedAt}
+        </div>
+      )}
 
       <div className={styles.note}>
         Don’t have a Notion page yet? You can use this template:{" "}
@@ -28,8 +28,6 @@ export default function NotionCardNoteSection({
           Notion Template
         </a>
       </div>
-
-      {notice && <span className={styles.note}>{notice}</span>}
     </>
   );
 }

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
@@ -20,6 +22,9 @@ export async function GET(req) {
   const returned = url.searchParams.get("state");
   const err = url.searchParams.get("error");
 
+  // redirect target
+  const redirectTarget = "/getting-started";
+
   // check error
   if (err || !code) {
     return NextResponse.redirect(
@@ -29,9 +34,6 @@ export async function GET(req) {
 
   // verify uuid, state, code_verifier
   const session = await getServerSession(authOptions);
-  const redirectTarget = session.isNewUser
-    ? "/getting-started"
-    : "/notion/config";
   if (!session?.user?.uuid || !session?.user?.email) {
     return NextResponse.redirect(
       new URL(`${redirectTarget}?google=error&reason=unauthorized`, BaseUrl),

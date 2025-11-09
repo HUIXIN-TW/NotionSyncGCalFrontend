@@ -138,8 +138,8 @@ export const createUser = async (userData) => {
     username,
     // include password only for credentials
     ...(provider === "credentials" && { passwordHash: userData.passwordHash }),
-    role: userData.role || "user",
-    image: userData.image || "",
+    role: userData.role ?? "user",
+    image: userData.image ?? null,
     provider: provider,
     ...(provider === "google" &&
       userData.providerSub && { providerSub: userData.providerSub }),
@@ -147,6 +147,12 @@ export const createUser = async (userData) => {
     createdAtMs: createdAtMs,
     updatedAt: createdAtDate,
     updatedAtMs: createdAtMs,
+    lastLoginAt: createdAtDate,
+    lastLoginAtMs: createdAtMs,
+    lastLoginLocation: userData.lastLoginLocation ?? null,
+    emailVerified:
+      provider === "google" ? true : (userData.emailVerified ?? null),
+    plan: userData.plan ?? "free",
   };
 
   try {
@@ -206,6 +212,33 @@ export const updateUser = async (id, updateData) => {
   } catch (error) {
     logger.error("Error updating user", error);
     throw error;
+  }
+};
+
+export const updateLastLogin = async (uuid, ip = null, when = new Date()) => {
+  try {
+    const dateStr = when.toISOString().slice(0, 10);
+    const ms = when.getTime();
+
+    await ddb.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: { uuid },
+        UpdateExpression:
+          "SET lastLoginAt = :dt, lastLoginAtMs = :ms, updatedAt = :dt, updatedAtMs = :ms" +
+          (ip ? ", lastLoginLocation = :ip" : ""),
+        ExpressionAttributeValues: {
+          ":dt": dateStr,
+          ":ms": ms,
+          ...(ip && { ":ip": ip }),
+        },
+        ConditionExpression: "attribute_exists(#uuid)",
+        ExpressionAttributeNames: { "#uuid": "uuid" },
+      }),
+    );
+  } catch (err) {
+    logger.error("Error updating lastLogin", err);
+    throw err;
   }
 };
 

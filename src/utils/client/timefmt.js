@@ -1,3 +1,5 @@
+"use client";
+
 export default function timefmt(sec) {
   const n = Number(sec) || 0;
   if (n <= 0) return "0s";

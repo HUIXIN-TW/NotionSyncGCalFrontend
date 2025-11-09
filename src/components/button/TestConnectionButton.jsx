@@ -32,6 +32,7 @@ const TestConnectionButton = ({ className, style, text }) => {
 
   return (
     <Button
+      className={className}
       text={loading ? "Testing Connection..." : text || "Test Connection"}
       onClick={handleTestConnection}
       disabled={loading}

@@ -7,9 +7,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import SyncButton from "@components/button/SyncButton";
-import NavigateButton from "@/components/button/NavigateButton";
-import SignOutButton from "@components/button/SignOutButton";
-import { Plug, Settings } from "lucide-react";
 
 const Profile = ({ session }) => {
   const user = session?.user;
@@ -92,26 +89,7 @@ const Profile = ({ session }) => {
 
   return (
     <div className={styles.profile_container}>
-      <div className={styles.profile_nav_button_row}>
-        <NavigateButton
-          path="/getting-started"
-          text={
-            <>
-              <Plug size={20} strokeWidth={2} style={{ marginRight: 10 }} />
-            </>
-          }
-          className="clear_btn"
-        />
-        <NavigateButton
-          path="/notion/config"
-          text={
-            <>
-              <Settings size={20} strokeWidth={2} style={{ marginRight: 10 }} />
-            </>
-          }
-          className="clear_btn"
-        />
-      </div>
+      <div className={styles.profile_nav_button_row}></div>
       <div className={styles.profile_image_container}>
         {image && (
           <img
@@ -199,7 +177,6 @@ const Profile = ({ session }) => {
         onSync={handleSync}
         disabled={isSyncing || (isCountingDown && isProd)}
       />
-      <SignOutButton />
 
       <div className={styles.support_section}>
         <span className={styles.note}>Enjoying NOTICA? Support me:</span>

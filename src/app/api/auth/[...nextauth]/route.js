@@ -1,9 +1,17 @@
+import "server-only";
+
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { createUser, getUserByEmail, getUserByProviderSub } from "@models/user";
+import {
+  createUser,
+  getUserByEmail,
+  getUserByProviderSub,
+  updateLastLogin,
+} from "@models/user";
+import { cookies } from "next/headers";
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
@@ -139,10 +147,37 @@ export const authOptions = {
     },
   },
 
+  events: {
+    async signIn({ user, account }) {
+      try {
+        let dbUser = null;
+
+        if (account?.provider === "google") {
+          dbUser = await getUserByProviderSub(
+            "google",
+            account.providerAccountId,
+          );
+        } else if (account?.provider === "credentials") {
+          dbUser = await getUserByEmail(user.email);
+        }
+
+        if (dbUser) {
+          // Update lastLoginAt and lastLoginLocation
+          const cookieStore = await cookies();
+          const ip = cookieStore.get("client_ip")?.value ?? "unknown";
+          logger.info("updateLastLogin", { uuid: dbUser.uuid, ip });
+          await updateLastLogin(dbUser.uuid, ip);
+        }
+      } catch (err) {
+        logger.warn("Failed to update lastLogin / location", err);
+      }
+    },
+  },
+
   pages: {
     signIn: "/",
     signOut: "/",
-    error: "/api/auth/error",
+    error: "/error",
   },
 };
 
