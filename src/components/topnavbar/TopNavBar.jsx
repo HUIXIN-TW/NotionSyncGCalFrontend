@@ -10,7 +10,7 @@ import {
   HelpCircle,
   CircleUserRound,
   LogOut,
-  BarChart3,
+  ChartSpline,
 } from "lucide-react";
 
 function Btn({ type = "navigate", path, text, icon }) {
@@ -46,6 +46,16 @@ export default function TopNavBar() {
   const isRoot = pathname === "/";
 
   const BUTTONS = [
+    ...(isAdmin
+      ? [
+          {
+            type: "navigate",
+            path: "/admin",
+            icon: <ChartSpline size={20} strokeWidth={2} />,
+          },
+        ]
+      : []),
+
     {
       type: "navigate",
       path: "/profile",
@@ -67,15 +77,6 @@ export default function TopNavBar() {
       path: "/faq",
       icon: <HelpCircle size={20} strokeWidth={2} />,
     },
-    ...(isAdmin
-      ? [
-          {
-            type: "navigate",
-            path: "/admin",
-            icon: <BarChart3 size={20} strokeWidth={2} />,
-          },
-        ]
-      : []),
     ...(!isRoot
       ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }]
       : []),
