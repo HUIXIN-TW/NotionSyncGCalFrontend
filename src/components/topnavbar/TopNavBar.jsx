@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import NavigateButton from "@/components/button/NavigateButton";
 import SignOutButton from "@/components/button/SignOutButton";
 import {
@@ -9,9 +10,9 @@ import {
   HelpCircle,
   CircleUserRound,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 
-// Single button renderer
 function Btn({ type = "navigate", path, text, icon }) {
   if (type === "signout") {
     return (
@@ -37,6 +38,10 @@ function Btn({ type = "navigate", path, text, icon }) {
 
 export default function TopNavBar() {
   const pathname = usePathname();
+  const { data } = useSession();
+  const role = data?.user?.role;
+  const isAdmin = role === "admin";
+
   const isActive = (p) => p && (pathname === p || pathname.startsWith(p + "/"));
   const isRoot = pathname === "/";
 
@@ -62,7 +67,15 @@ export default function TopNavBar() {
       path: "/faq",
       icon: <HelpCircle size={20} strokeWidth={2} />,
     },
-    // only add signout if not root
+    ...(isAdmin
+      ? [
+          {
+            type: "navigate",
+            path: "/admin",
+            icon: <BarChart3 size={20} strokeWidth={2} />,
+          },
+        ]
+      : []),
     ...(!isRoot
       ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }]
       : []),
