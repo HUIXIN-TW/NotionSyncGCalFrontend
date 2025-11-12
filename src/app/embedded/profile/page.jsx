@@ -60,12 +60,14 @@ export default function EmbedSyncPage() {
             <>
               <div className={styles.divider} />
               <div className={styles.status}>
-                Last Result: <strong>{syncResult?.type ?? "-"}</strong>
+                Last Status: <strong>{syncResult?.type ?? "-"}</strong>
               </div>
               <div className={styles.result_message}>
-                {syncResult?.type === "sync_success"
-                  ? `Last sync at ${syncResult?.message?.trigger_time ?? "-"}`
-                  : (syncResult?.message ?? "Awaiting sync details.")}
+                {syncResult?.message
+                  ? syncResult?.type === "sync_success"
+                    ? `Last sync at ${syncResult?.message?.trigger_time || "-"}`
+                    : syncResult?.message
+                  : "-"}
               </div>
             </>
           )}
