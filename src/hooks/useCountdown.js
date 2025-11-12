@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import timefmt from "@/utils/client/timefmt";
 
 export function useCountdown(key) {
@@ -16,23 +16,31 @@ export function useCountdown(key) {
   const [remainingSeconds, setRemainingSeconds] = useState(readRemaining);
 
   // --- Start countdown (given ms duration)
-  const startCountdown = (ms) => {
-    const until = Date.now() + ms;
-    localStorage.setItem(key, String(until));
-    setRemainingSeconds(Math.ceil(ms / 1000));
-  };
+  const startCountdown = useCallback(
+    (ms) => {
+      const until = Date.now() + ms;
+      localStorage.setItem(key, String(until));
+      setRemainingSeconds(Math.ceil(ms / 1000));
+    },
+    [key],
+  );
 
   // --- Directly set the end timestamp (epoch ms)
-  const setUntil = (epochMs) => {
-    localStorage.setItem(key, String(epochMs));
-    setRemainingSeconds(Math.max(0, Math.ceil((epochMs - Date.now()) / 1000)));
-  };
+  const setUntil = useCallback(
+    (epochMs) => {
+      localStorage.setItem(key, String(epochMs));
+      setRemainingSeconds(
+        Math.max(0, Math.ceil((epochMs - Date.now()) / 1000)),
+      );
+    },
+    [key],
+  );
 
   // --- Cancel countdown immediately
-  const cancelCountdown = () => {
+  const cancelCountdown = useCallback(() => {
     localStorage.removeItem(key);
     setRemainingSeconds(0);
-  };
+  }, [key]);
 
   // --- Internal interval tick
   useEffect(() => {

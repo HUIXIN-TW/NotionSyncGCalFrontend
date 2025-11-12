@@ -1,9 +1,10 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import { isProdRuntime as isProd } from "@/utils/shared/logger";
 import config from "@/config/rate-limit";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useElapsedTime } from "@/hooks/useElapsedTime";
-import React, { useState, useEffect } from "react";
+import useSyncHandler from "@/hooks/useSyncHandler";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import SyncButton from "@components/button/SyncButton";
@@ -12,47 +13,22 @@ import SupportSection from "@components/profile/SupportSection";
 const Profile = ({ session }) => {
   const user = session?.user;
   const router = useRouter();
-  const [syncResult, setSyncResult] = useState(null);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncStartedAt, setSyncStartedAt] = useState(null);
 
   // Rate limit configuration
   const SYNC_USER_MIN_MS = config.SYNC_USER_MIN_MS ?? 10 * 60_000;
   const { startCountdown, isCountingDown, formattedRemaining } =
     useCountdown("cooldown:sync");
 
+  const { syncResult, isSyncing, syncStartedAt, handleSync } = useSyncHandler({
+    userUuid: user?.uuid,
+    cooldownMs: SYNC_USER_MIN_MS,
+    startCountdown,
+  });
+
   // Elapsed time since sync started
   const elapsedSec = useElapsedTime(syncStartedAt);
 
-  // --- 1. Load once when user is known ---
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!user?.uuid) return;
-
-    // keys
-    const key = `syncResult:${user.uuid}`;
-    try {
-      const latestSyncResult = localStorage.getItem(key);
-      setSyncResult(JSON.parse(latestSyncResult));
-    } catch (e) {
-      logger.warn("Failed to restore syncResult", e);
-    }
-  }, [user?.uuid]);
-
-  // --- 2. Save whenever syncResult changes ---
-  useEffect(() => {
-    if (!syncResult || typeof window === "undefined" || !user?.uuid) return;
-    try {
-      localStorage.setItem(
-        `syncResult:${user.uuid}`,
-        JSON.stringify(syncResult),
-      );
-    } catch (err) {
-      logger.warn("Failed to persist syncResult", err);
-    }
-  }, [syncResult, user?.uuid]);
-
-  // --- 3. Load from session: If new user, redirect to getting started ---
+  // --- 1. Load from session: If new user, redirect to getting started ---
   useEffect(() => {
     if (session?.isNewUser) {
       // set local storage flag
@@ -68,25 +44,6 @@ const Profile = ({ session }) => {
     );
   }
   const { email, uuid, username, image } = user;
-
-  const handleSync = async (syncPromise) => {
-    setIsSyncing(true);
-    setSyncStartedAt(Date.now());
-
-    try {
-      const result = await syncPromise;
-      setSyncResult(result);
-      startCountdown(SYNC_USER_MIN_MS);
-    } catch (err) {
-      logger.error("Unexpected sync failure", err);
-      setSyncResult({
-        type: "error",
-        message: "Unexpected sync failure.",
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   return (
     <div className={styles.profile_container}>
