@@ -17,6 +17,38 @@ import { cookies } from "next/headers";
 export const authOptions = {
   debug: !isProd,
   secret: process.env.NEXTAUTH_SECRET,
+  // Allow NextAuth session cookies inside the Notion iframe. SameSite=None is
+  // required so third-party requests (the embed) can include the session, and
+  // Secure/httpOnly keeps the cookie scoped to HTTPS only. The embed itself is
+  // restricted to Notion domains via next.config.js `frame-ancestors`.
+  cookies: {
+    sessionToken: {
+      name: "__Secure-next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+    callbackUrl: {
+      name: "__Secure-next-auth.callback-url",
+      options: {
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+    csrfToken: {
+      name: "__Host-next-auth.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+  },
 
   providers: [
     CredentialsProvider({
