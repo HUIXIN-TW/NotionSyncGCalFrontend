@@ -1,16 +1,18 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { isEmbedded } from "@/utils/client/embed-context";
 import NavigateButton from "@/components/button/NavigateButton";
 import SignOutButton from "@/components/button/SignOutButton";
 import {
   Plug,
   Settings,
   HelpCircle,
-  CircleUserRound,
   LogOut,
   ChartSpline,
+  CalendarSync,
 } from "lucide-react";
 
 function Btn({ type = "navigate", path, text, icon }) {
@@ -41,46 +43,61 @@ export default function TopNavBar() {
   const { data } = useSession();
   const role = data?.user?.role;
   const isAdmin = role === "admin";
+  const [embedded, setEmbedded] = useState(false);
+
+  useEffect(() => {
+    setEmbedded(isEmbedded());
+  }, []);
 
   const isActive = (p) => p && (pathname === p || pathname.startsWith(p + "/"));
   const isRoot = pathname === "/";
 
-  const BUTTONS = [
-    ...(isAdmin
-      ? [
-          {
-            type: "navigate",
-            path: "/admin",
-            icon: <ChartSpline size={20} strokeWidth={2} />,
-          },
-        ]
-      : []),
+  const BUTTONS = useMemo(() => {
+    const profileButton = embedded
+      ? {
+          type: "navigate",
+          path: "/embedded/profile",
+          icon: <CalendarSync size={20} strokeWidth={2} />,
+          side: "left",
+        }
+      : {
+          type: "navigate",
+          path: "/profile",
+          icon: <CalendarSync size={20} strokeWidth={2} />,
+          side: "left",
+        };
 
-    {
-      type: "navigate",
-      path: "/profile",
-      icon: <CircleUserRound size={20} strokeWidth={2} />,
-      side: "left",
-    },
-    {
-      type: "navigate",
-      path: "/getting-started",
-      icon: <Plug size={20} strokeWidth={2} />,
-    },
-    {
-      type: "navigate",
-      path: "/notion/config",
-      icon: <Settings size={20} strokeWidth={2} />,
-    },
-    {
-      type: "navigate",
-      path: "/faq",
-      icon: <HelpCircle size={20} strokeWidth={2} />,
-    },
-    ...(!isRoot
-      ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }]
-      : []),
-  ];
+    return [
+      ...(isAdmin
+        ? [
+            {
+              type: "navigate",
+              path: "/admin",
+              icon: <ChartSpline size={20} strokeWidth={2} />,
+            },
+          ]
+        : []),
+      profileButton,
+      {
+        type: "navigate",
+        path: "/getting-started",
+        icon: <Plug size={20} strokeWidth={2} />,
+      },
+      {
+        type: "navigate",
+        path: "/notion/config",
+        icon: <Settings size={20} strokeWidth={2} />,
+      },
+      {
+        type: "navigate",
+        path: "/faq",
+        icon: <HelpCircle size={20} strokeWidth={2} />,
+      },
+      ...(!isRoot
+        ? [{ type: "signout", icon: <LogOut size={20} strokeWidth={2} /> }]
+        : []),
+    ];
+  }, [embedded, isAdmin, isRoot]);
 
   // hide active page
   const filtered = BUTTONS.filter(
