@@ -42,6 +42,8 @@ const nextConfig = {
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     NOTION_CLIENT_ID: process.env.NOTION_CLIENT_ID,
     APP_ENV: process.env.APP_ENV || "production",
+    NEXT_PUBLIC_BUILD_VERSION:
+      process.env.NEXT_PUBLIC_BUILD_VERSION || new Date().toISOString(),
   },
 };
 
