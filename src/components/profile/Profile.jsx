@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
 import SyncButton from "@components/button/SyncButton";
+import SupportSection from "@components/profile/SupportSection";
 
 const Profile = ({ session }) => {
   const user = session?.user;
@@ -89,7 +90,6 @@ const Profile = ({ session }) => {
 
   return (
     <div className={styles.profile_container}>
-      <div className={styles.profile_nav_button_row}></div>
       <div className={styles.profile_image_container}>
         {image && (
           <img
@@ -178,27 +178,7 @@ const Profile = ({ session }) => {
         disabled={isSyncing || (isCountingDown && isProd)}
       />
 
-      <div className={styles.support_section}>
-        <span className={styles.note}>Enjoying NOTICA? Support me:</span>
-        <a
-          href="https://buymeacoffee.com/huixinyang"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.profile_bmac_button}
-        >
-          <img
-            src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
-            alt="Buy Me a Coffee"
-            style={{
-              height: "36px",
-              width: "130px",
-              marginTop: "0.25rem",
-              borderRadius: "6px",
-              boxShadow: "0 0 4px rgba(0,0,0,0.1)",
-            }}
-          />
-        </a>
-      </div>
+      <SupportSection />
     </div>
   );
 };
