@@ -7,7 +7,7 @@ import useSyncHandler from "@/hooks/useSyncHandler";
 import { useCountdown } from "@/hooks/useCountdown";
 import { useElapsedTime } from "@/hooks/useElapsedTime";
 import config from "@/config/rate-limit";
-import styles from "./embed.module.css";
+import styles from "./profile.module.css";
 import { isProdRuntime as isProd } from "@/utils/shared/logger";
 
 export default function EmbedSyncPage() {
