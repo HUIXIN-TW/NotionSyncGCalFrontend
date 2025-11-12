@@ -13,11 +13,9 @@ export default function Home() {
   const { status } = useSession();
 
   useEffect(() => {
-    if (status === "authenticated") {
-      if (isEmbedded()) {
-        router.replace("/embed");
-        return;
-      }
+    if (isEmbedded()) {
+      router.replace("/embedded/profile");
+    } else if (status === "authenticated") {
       router.replace("/profile");
     }
   }, [status, router]);
