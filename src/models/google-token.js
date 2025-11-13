@@ -1,14 +1,16 @@
 import "server-only";
 import logger from "@/utils/shared/logger";
-import {
-  GetCommand,
-  UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { ddb } from "@/utils/server/db-client";
 
 const TABLE_NAME = process.env.DYNAMODB_GOOGLE_OAUTH_TOKEN_TABLE;
 
-export const updateGoogleTokens = async (uuid, accessToken, refreshToken, expiryDate) => {
+export const updateGoogleTokens = async (
+  uuid,
+  accessToken,
+  refreshToken,
+  expiryDate,
+) => {
   try {
     const params = {
       TableName: TABLE_NAME,
@@ -33,7 +35,6 @@ export const updateGoogleTokens = async (uuid, accessToken, refreshToken, expiry
     throw error;
   }
 };
-
 
 // get token by uuid
 export const getGoogleTokensByUuid = async (uuid) => {

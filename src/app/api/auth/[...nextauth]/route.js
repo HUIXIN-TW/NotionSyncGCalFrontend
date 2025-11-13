@@ -9,7 +9,7 @@ import {
   updateLastLogin,
 } from "@models/user";
 import { cookies } from "next/headers";
-import { uploadNotionConfigTemplates } from "@/utils/server/s3-client"
+import { uploadNotionConfigTemplates } from "@/utils/server/s3-client";
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
