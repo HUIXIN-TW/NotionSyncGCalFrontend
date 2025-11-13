@@ -3,7 +3,7 @@ import "server-only";
 import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
 import { getToken } from "next-auth/jwt";
 import {
-  getConfigLastModified,
+  getNotionConfigLastModified,
   getNotionConfig,
   uploadNotionConfig,
 } from "@/utils/server/s3-client";
@@ -26,7 +26,7 @@ export async function GET(req) {
   try {
     const [config, lastModified] = await Promise.all([
       getNotionConfig(uuid),
-      getConfigLastModified(uuid),
+      getNotionConfigLastModified(uuid),
     ]);
 
     return new Response(

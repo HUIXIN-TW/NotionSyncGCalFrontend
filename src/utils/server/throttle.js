@@ -1,6 +1,6 @@
 import "server-only";
 import logger from "@/utils/shared/logger";
-import { getConfigLastModified } from "@/utils/server/s3-client";
+import { getNotionConfigLastModified } from "@/utils/server/s3-client";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
@@ -89,7 +89,7 @@ export async function enforceS3Throttle(user) {
   const id = user.uuid;
   if (!id) return null;
   const THROTTLE_UPLOAD_MIN_MS = config.UPLOAD_MIN_MS;
-  const lastModified = await getConfigLastModified(id);
+  const lastModified = await getNotionConfigLastModified(id);
   if (!lastModified) {
     logger.info("No previous config timestamp — skipping throttle check.");
     return null;
