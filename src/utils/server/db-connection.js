@@ -3,8 +3,8 @@ import "server-only";
  * Database connection management
  * Provides functions to connect to and check the status of the DynamoDB connection
  */
-import logger from "@/utils/shared/logger";
-import { ddb } from "@/utils/server/db-client.js";
+import logger from "@utils/shared/logger";
+import { ddb } from "@utils/server/db-client.js";
 import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 
 // Track the connection state

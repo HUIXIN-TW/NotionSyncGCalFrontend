@@ -3,12 +3,12 @@
 import { useSession } from "next-auth/react";
 import SignInButton from "@components/button/SignInButton";
 import SyncButton from "@components/button/SyncButton";
-import useSyncHandler from "@/hooks/useSyncHandler";
-import { useCountdown } from "@/hooks/useCountdown";
-import { useElapsedTime } from "@/hooks/useElapsedTime";
-import config from "@/config/rate-limit";
+import useSyncHandler from "@hooks/useSyncHandler";
+import { useCountdown } from "@hooks/useCountdown";
+import { useElapsedTime } from "@hooks/useElapsedTime";
+import config from "@config/rate-limit";
 import styles from "./profile.module.css";
-import { isProdRuntime as isProd } from "@/utils/shared/logger";
+import { isProdRuntime as isProd } from "@utils/shared/logger";
 
 export default function EmbedSyncPage() {
   const { data: session } = useSession();

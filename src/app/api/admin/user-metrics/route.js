@@ -2,7 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@api/auth/[...nextauth]/route";
 import { getDailyUserCountsLast14 } from "@models/user";
 
 export async function GET() {

@@ -1,9 +1,9 @@
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getGoogleOAuthClient } from "@/utils/server/google-oauth-client";
-import { getGoogleTokensByUuid } from "@/models/google-token";
-import logger from "@/utils/shared/logger";
+import { authOptions } from "@api/auth/[...nextauth]/route";
+import { getGoogleOAuthClient } from "@utils/server/google-oauth-client";
+import { getGoogleTokensByUuid } from "@models/google-token";
+import logger from "@utils/shared/logger";
 
 export async function GET(req) {
   const session = await getServerSession(authOptions);

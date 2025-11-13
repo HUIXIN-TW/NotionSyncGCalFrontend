@@ -2,9 +2,9 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { updateNotionTokens } from "@/models/notion-token";
-import logger from "@/utils/shared/logger";
+import { authOptions } from "@api/auth/[...nextauth]/route";
+import { updateNotionTokens } from "@models/notion-token";
+import logger from "@utils/shared/logger";
 
 function clearNotionOAuthCookies(res) {
   res.cookies.set("notion_oauth_state", "", { maxAge: 0, path: "/" });

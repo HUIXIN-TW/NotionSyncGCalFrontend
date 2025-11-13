@@ -1,6 +1,6 @@
 import "server-only";
-import logger from "@/utils/shared/logger";
-import { ddb } from "@/utils/server/db-client";
+import logger from "@utils/shared/logger";
+import { ddb } from "@utils/server/db-client";
 import {
   PutCommand,
   GetCommand,
@@ -10,7 +10,7 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import { normalizeEmail } from "@/utils/server/normalize-email";
+import { normalizeEmail } from "@utils/server/normalize-email";
 
 const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 

@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Button from "@components/button/Button";
-import config from "@/config/notion";
-import logger from "@/utils/shared/logger";
+import config from "@config/notion";
+import logger from "@utils/shared/logger";
 
 const LinkToNotionTemplateButton = ({ className, style, text }) => {
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,6 @@ const LinkToNotionTemplateButton = ({ className, style, text }) => {
 
   return (
     <Button
-      type="button"
       className={className}
       style={style}
       text={loading ? "Linking..." : text || "Open Template"}

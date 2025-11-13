@@ -1,6 +1,6 @@
 import "server-only";
-import config from "@/config/rate-limit";
-import { normalizeEmail } from "@/utils/server/normalize-email";
+import config from "@config/rate-limit";
+import { normalizeEmail } from "@utils/server/normalize-email";
 
 /**
  * Build register throttling rules per IP.

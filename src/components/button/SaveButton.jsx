@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import Button from "@components/button/Button";
-import config from "@/config/rate-limit";
-import { useCountdown } from "@/hooks/useCountdown";
-import logger from "@/utils/shared/logger";
-import validateConfigFormat from "@/utils/client/validate-config-format";
+import config from "@config/rate-limit";
+import { useCountdown } from "@hooks/useCountdown";
+import logger from "@utils/shared/logger";
+import validateConfigFormat from "@utils/client/validate-config-format";
 
 export default function SaveButton({
   editableConfig,

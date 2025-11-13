@@ -1,12 +1,12 @@
 import "server-only";
-import logger from "@/utils/shared/logger";
-import { getNotionConfigLastModified } from "@/utils/server/s3-client";
+import logger from "@utils/shared/logger";
+import { getNotionConfigLastModified } from "@utils/server/s3-client";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
   rateLimitWindowDdb,
-} from "@/models/rate-limit";
-import config from "@/config/rate-limit";
+} from "@models/rate-limit";
+import config from "@config/rate-limit";
 
 let hasWarnedMissingRateLimit = false;
 

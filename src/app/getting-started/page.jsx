@@ -4,11 +4,11 @@ import styles from "./getting-started.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Button from "@/components/button/Button";
-import { useConnectionNotice } from "@/hooks/useConnectionNotice";
+import Button from "@components/button/Button";
+import { useConnectionNotice } from "@hooks/useConnectionNotice";
 import ConnectGCalButton from "@components/button/ConnectGCalButton";
-import ConnectNotionButton from "@/components/button/ConnectNotionButton";
-import LinkToNotionTemplateButton from "@/components/button/LinkToNotionTemplateButton";
+import ConnectNotionButton from "@components/button/ConnectNotionButton";
+import LinkToNotionTemplateButton from "@components/button/LinkToNotionTemplateButton";
 
 const GettingStarted = () => {
   const { data: session } = useSession();

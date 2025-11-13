@@ -2,8 +2,8 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import logger from "@/utils/shared/logger";
+import { authOptions } from "@api/auth/[...nextauth]/route";
+import logger from "@utils/shared/logger";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const SCOPES = [

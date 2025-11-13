@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { isEmbedded } from "@/utils/client/embed-context";
-import NavigateButton from "@/components/button/NavigateButton";
-import SignOutButton from "@/components/button/SignOutButton";
+import { isEmbedded } from "@utils/client/embed-context";
+import NavigateButton from "@components/button/NavigateButton";
+import SignOutButton from "@components/button/SignOutButton";
 import {
   Plug,
   Settings,

@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "./notioncard.module.css";
-import config from "@/config/notion";
+import config from "@config/notion";
 
 export default function NotionCardNoteSection({
   lastFetchedAt,

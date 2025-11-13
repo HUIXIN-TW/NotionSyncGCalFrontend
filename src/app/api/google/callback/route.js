@@ -3,9 +3,9 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { updateGoogleTokens } from "@/models/google-token";
-import logger from "@/utils/shared/logger";
+import { authOptions } from "@api/auth/[...nextauth]/route";
+import { updateGoogleTokens } from "@models/google-token";
+import logger from "@utils/shared/logger";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;

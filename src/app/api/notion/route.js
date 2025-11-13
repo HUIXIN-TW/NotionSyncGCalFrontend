@@ -1,13 +1,13 @@
 import "server-only";
 
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 import { getToken } from "next-auth/jwt";
 import {
   getNotionConfigLastModified,
   getNotionConfig,
   uploadNotionConfig,
-} from "@/utils/server/s3-client";
-import { enforceS3Throttle } from "@/utils/server/throttle";
+} from "@utils/server/s3-client";
+import { enforceS3Throttle } from "@utils/server/throttle";
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });

@@ -2,8 +2,8 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import { getSyncCounts, getDailySyncCountsLastNDays } from "@/models/sync-logs";
+import { authOptions } from "@api/auth/[...nextauth]/route";
+import { getSyncCounts, getDailySyncCountsLastNDays } from "@models/sync-logs";
 
 export const dynamic = "force-dynamic";
 

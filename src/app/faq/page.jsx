@@ -2,7 +2,7 @@ import "server-only";
 
 import { promises as fs } from "fs";
 import path from "path";
-import MarkdownRenderer from "@/components/markdown/MarkdownRenderer";
+import MarkdownRenderer from "@components/markdown/MarkdownRenderer";
 
 export const metadata = {
   title: "FAQ — NOTICA",

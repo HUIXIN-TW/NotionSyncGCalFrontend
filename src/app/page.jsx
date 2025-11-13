@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import SignInButton from "@/components/button/SignInButton";
+import SignInButton from "@components/button/SignInButton";
 import styles from "./page.module.css";
-import { isEmbedded } from "@/utils/client/embed-context";
+import { isEmbedded } from "@utils/client/embed-context";
 
 export default function Home() {
   const router = useRouter();

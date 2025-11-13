@@ -5,7 +5,7 @@ import styles from "./button.module.css";
 const Button = ({
   text,
   onClick,
-  type = "button",
+  type = "button", // default to "button"
   className = "",
   disabled,
   title,

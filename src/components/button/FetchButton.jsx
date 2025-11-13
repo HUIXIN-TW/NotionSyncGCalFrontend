@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Button from "@components/button/Button";
-import { loadRemoteConfig } from "@/utils/client/load-remote-config";
+import { loadRemoteConfig } from "@utils/client/load-remote-config";
 
 export default function FetchButton({
   setEditableConfig,

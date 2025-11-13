@@ -1,7 +1,7 @@
 import "server-only";
-import logger from "@/utils/shared/logger";
+import logger from "@utils/shared/logger";
 import { NextResponse } from "next/server";
-import { getNotionConfig } from "@/utils/server/s3-client";
+import { getNotionConfig } from "@utils/server/s3-client";
 
 export async function validateConfig(uuid) {
   // check if notion config setting

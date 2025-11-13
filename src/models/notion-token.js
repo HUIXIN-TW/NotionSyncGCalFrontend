@@ -1,7 +1,7 @@
 import "server-only";
-import logger from "@/utils/shared/logger";
+import logger from "@utils/shared/logger";
 import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { ddb } from "@/utils/server/db-client";
+import { ddb } from "@utils/server/db-client";
 
 const TABLE_NAME = process.env.DYNAMODB_NOTION_OAUTH_TOKEN_TABLE;
 

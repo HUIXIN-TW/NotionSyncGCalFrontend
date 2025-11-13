@@ -1,9 +1,9 @@
 import "server-only";
 
-import { isProdRuntime as isProd } from "@/utils/shared/logger";
+import { isProdRuntime as isProd } from "@utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@api/auth/[...nextauth]/route";
 
 const CLIENT_ID = process.env.NOTION_CLIENT_ID;
 const BASEURL = process.env.NEXTAUTH_URL;

@@ -1,6 +1,6 @@
 import "server-only";
 
-import logger from "@/utils/shared/logger";
+import logger from "@utils/shared/logger";
 import { getAllUsers } from "@models/user";
 import { getToken } from "next-auth/jwt";
 

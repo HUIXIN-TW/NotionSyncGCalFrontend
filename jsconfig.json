@@ -4,11 +4,14 @@
     "paths": {
       "@/*": ["src/*"],
       "@app/*": ["src/app/*"],
+      "@api/*": ["src/app/api/*"],
       "@components/*": ["src/components/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
       "@models/*": ["src/models/*"],
-      "@templates/*": ["src/templates/*"]
+      "@templates/*": ["src/templates/*"],
+      "@config/*": ["src/config/*"],
+      "@hooks/*": ["src/hooks/*"]
     }
   }
 }

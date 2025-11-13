@@ -1,4 +1,4 @@
-import logger from "@/utils/shared/logger";
+import logger from "@utils/shared/logger";
 
 const POPUP_FEATURES = "width=500,height=700,noopener,noreferrer";
 const POPUP_NAME = "notica-auth";

@@ -1,6 +1,6 @@
 import "server-only";
-import logger from "@/utils/shared/logger";
-import notionTemplate from "@/templates/notion_config.json";
+import logger from "@utils/shared/logger";
+import notionTemplate from "@templates/notion_config.json";
 import {
   S3Client,
   PutObjectCommand,

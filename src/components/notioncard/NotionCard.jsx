@@ -1,15 +1,15 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 import React, { useState, useEffect } from "react";
 import styles from "./notioncard.module.css";
 import SaveButton from "@components/button/SaveButton";
-import FetchButton from "@/components/button/FetchButton";
-import NewUserWelcomeSection from "@components/callout/NewUserWelcomeSection";
-import NewUserSignOutSection from "@components/callout/NewUserSignOutSection";
+import FetchButton from "@components/button/FetchButton";
+import NewUserWelcomeCalloutSection from "@components/callout/NewUserWelcomeCalloutSection";
+import NewUserSignOutCalloutSection from "@components/callout/NewUserSignOutCalloutSection";
 import NotionCardNoteSection from "@components/notioncard/NotionCardNoteSection";
-import ConfigMapSection from "@/components/notioncard/notiontab/NotionTabsSection";
-import NotionTabs from "@/components/notioncard/notiontab/NotionTabs";
-import { loadRemoteConfig } from "@/utils/client/load-remote-config";
+import ConfigMapSection from "@components/notioncard/notiontab/NotionTabsSection";
+import NotionTabs from "@components/notioncard/notiontab/NotionTabs";
+import { loadRemoteConfig } from "@utils/client/load-remote-config";
 
 const NotionCard = ({ session }) => {
   const [editMode, setEditMode] = useState(false);
@@ -77,7 +77,7 @@ const NotionCard = ({ session }) => {
 
   return (
     <div className={styles.notioncard_container}>
-      {isNewUser && <NewUserWelcomeSection />}
+      {isNewUser && <NewUserWelcomeCalloutSection />}
 
       {/* Tabs */}
       <NotionTabs
@@ -159,7 +159,7 @@ const NotionCard = ({ session }) => {
       {isNewUser && (
         // This button will likely call NextAuth's signOut() to clear the session
         // and force a fresh login/re-authentication cycle after setup.
-        <NewUserSignOutSection />
+        <NewUserSignOutCalloutSection />
       )}
     </div>
   );

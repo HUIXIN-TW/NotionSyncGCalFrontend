@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import timefmt from "@/utils/client/timefmt";
+import timefmt from "@utils/client/timefmt";
 
 export function useCountdown(key) {
   // Helper to read remaining seconds from localStorage

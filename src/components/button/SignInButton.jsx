@@ -8,8 +8,8 @@ import {
   buildSignInUrl,
   isEmbedded,
   openAuthWindow,
-} from "@/utils/client/embed-context";
-import logger from "@/utils/shared/logger";
+} from "@utils/client/embed-context";
+import logger from "@utils/shared/logger";
 
 export default function SignInButton({
   className,

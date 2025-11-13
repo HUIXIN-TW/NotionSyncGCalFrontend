@@ -1,6 +1,6 @@
 "use client";
 
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 
 export function getPollingTimings() {
   return {
