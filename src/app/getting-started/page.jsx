@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Button from "@/components/button/Button";
 import { useConnectionNotice } from "@/hooks/useConnectionNotice";
-import RefreshGCalButton from "@components/button/RefreshGCalButton";
-import RefreshNotionButton from "@/components/button/RefreshNotionButton";
-import TestConnectionButton from "@components/button/TestConnectionButton";
-import SignOutButton from "@/components/button/SignOutButton";
+import ConnectGCalButton from "@components/button/ConnectGCalButton";
+import ConnectNotionButton from "@/components/button/ConnectNotionButton";
 import LinkToNotionTemplateButton from "@/components/button/LinkToNotionTemplateButton";
 
 const GettingStarted = () => {
@@ -38,12 +36,12 @@ const GettingStarted = () => {
       <h2>Let’s Get Your Sync Ready</h2>
 
       <div className={styles.gettingstartedcard_container}>
-        <RefreshGCalButton
+        <ConnectGCalButton
           className="outline_btn"
           text={googleStatus || "Step 1: Connect Google Calendar Account"}
         />
 
-        <RefreshNotionButton
+        <ConnectNotionButton
           className="outline_btn"
           text={notionStatus || "Step 2: Connect Notion Database Account"}
         />
