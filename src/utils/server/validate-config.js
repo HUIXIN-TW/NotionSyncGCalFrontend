@@ -1,11 +1,12 @@
 import "server-only";
 import logger from "@utils/shared/logger";
 import { NextResponse } from "next/server";
-import { getNotionConfig } from "@utils/server/s3-client";
+import { getNotionConfigByUuid } from "@models/user";
 
 export async function validateConfig(uuid) {
   // check if notion config setting
-  const notionConfig = await getNotionConfig(uuid);
+  // get notion config from DynamoDB by uuid
+  const notionConfig = await getNotionConfigByUuid(uuid);
 
   const isDefaultGmail =
     Array.isArray(notionConfig.gcal_dic) &&

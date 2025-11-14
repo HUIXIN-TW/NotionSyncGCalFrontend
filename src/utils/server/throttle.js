@@ -1,12 +1,10 @@
 import "server-only";
 import logger from "@utils/shared/logger";
-import { getNotionConfigLastModified } from "@utils/server/s3-client";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
   rateLimitWindowDdb,
 } from "@models/rate-limit";
-import config from "@config/rate-limit";
 
 let hasWarnedMissingRateLimit = false;
 
@@ -82,32 +80,5 @@ export async function enforceDDBThrottle(rules = []) {
     }
   }
 
-  return null;
-}
-
-export async function enforceS3Throttle(user) {
-  const id = user.uuid;
-  if (!id) return null;
-  const THROTTLE_UPLOAD_MIN_MS = config.UPLOAD_MIN_MS;
-  const lastModified = await getNotionConfigLastModified(id);
-  if (!lastModified) {
-    logger.info("No previous config timestamp — skipping throttle check.");
-    return null;
-  }
-
-  const timeGap = Date.now() - new Date(lastModified).getTime();
-  if (timeGap < THROTTLE_UPLOAD_MIN_MS) {
-    const waitMinutes = Math.ceil(
-      (THROTTLE_UPLOAD_MIN_MS - timeGap) / (1000 * 60),
-    );
-    logger.info(`[UPLOAD BLOCKED] User: ${id}, Time Gap: ${timeGap}ms`);
-    return {
-      status: 429,
-      body: {
-        type: "throttle error",
-        message: `Too frequent update. Please wait ~${waitMinutes} minute(s).`,
-      },
-    };
-  }
   return null;
 }

@@ -11,7 +11,7 @@ export default function FetchButton({
 }) {
   const [loading, setLoading] = useState(false);
 
-  const fetchFromS3 = async () => {
+  const handleFetch = async () => {
     setLoading(true);
     try {
       await loadRemoteConfig({
@@ -27,7 +27,7 @@ export default function FetchButton({
   return (
     <Button
       text={loading ? "Fetching..." : "Fetch Latest Configuration"}
-      onClick={fetchFromS3}
+      onClick={handleFetch}
       disabled={loading}
     />
   );

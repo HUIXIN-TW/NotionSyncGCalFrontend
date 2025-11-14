@@ -11,6 +11,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 import { normalizeEmail } from "@utils/server/normalize-email";
+import notionConfigTemplate from "@templates/notion_config.json";
 
 const TABLE_NAME = process.env.DYNAMODB_USER_TABLE;
 
@@ -257,3 +258,50 @@ export const deleteUser = async (id) => {
     throw error;
   }
 };
+
+// Get Notion config by UUID
+export async function getNotionConfigByUuid(uuid) {
+  try {
+    const result = await ddbDocClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: { uuid },
+        ProjectionExpression: "notionConfig",
+      }),
+    );
+
+    return result.Item?.notionConfig;
+  } catch (err) {
+    logger.error(
+      { err, uuid },
+      "[db] Failed to get Notion config from DynamoDB",
+    );
+    throw err;
+  }
+}
+
+// Update Notion config to default template
+export async function uploadNotionConfigTemplateByUuid(uuid) {
+  try {
+    const notionConfig = JSON.parse(JSON.stringify(notionConfigTemplate));
+    const now = Date.now();
+
+    await ddbDocClient.send(
+      new UpdateCommand({
+        TableName: USER_TABLE,
+        Key: { uuid },
+        UpdateExpression: "SET notionConfig = :cfg, updatedAt = :now",
+        ExpressionAttributeValues: {
+          ":cfg": notionConfig,
+          ":now": now,
+        },
+        ReturnValues: "ALL_NEW",
+      }),
+    );
+
+    return notionConfig;
+  } catch (err) {
+    logger.error({ err, uuid }, "[db] Failed to update user.notionConfig");
+    throw err;
+  }
+}

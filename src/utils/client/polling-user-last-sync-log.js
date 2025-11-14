@@ -6,7 +6,7 @@ export function getPollingTimings() {
   return {
     initialWaitMs: isProd ? 30_000 : 2_000,
     intervalMs: isProd ? 15_000 : 2_000,
-    maxTotalMs: isProd ? 600_000 : 60_000,
+    maxTotalMs: isProd ? 600_000 : 60_000, // 10min prod / 1min dev
     skewMs: 3_000,
   };
 }

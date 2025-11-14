@@ -25,14 +25,6 @@ const config = {
   REGISTER_EMAIL_WINDOW_LIMIT: 3, // Limit per email address: 3 registration attempts per 5 minutes
   REGISTER_EMAIL_WINDOW_MS: 5 * 60_000, // Time window for email-based limit (5 minutes)
   REGISTER_EMAIL_MIN_MS: 5000, // Minimum delay between registration requests using the same email (5 seconds)
-
-  // S3 Upload throttling
-  UPLOAD_MIN_MS: 3 * 60_000, // per user UUID: 3 minutes
-
-  // S3 Test Connection throttling
-  TEST_CONNECTION_USER_WINDOW_LIMIT: 10, // Limit per user UUID: 10 connection tests per 10 minutes
-  TEST_CONNECTION_USER_WINDOW_MS: 3 * 60_000, // Time window for test connection limit (10 minutes)
-  TEST_CONNECTION_USER_MIN_MS: 10_000, // Minimum spacing between connection tests for the same user (10 seconds)
 };
 
 export default Object.freeze(config);

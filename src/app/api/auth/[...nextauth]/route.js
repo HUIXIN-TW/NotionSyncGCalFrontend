@@ -9,7 +9,7 @@ import {
   updateLastLogin,
 } from "@models/user";
 import { cookies } from "next/headers";
-import { uploadNotionConfigTemplates } from "@utils/server/s3-client";
+import { uploadNotionConfigTemplateByUuid } from "@models/user";
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
@@ -83,9 +83,8 @@ export const authOptions = {
             image: user.image || "",
             role: "user",
           });
-          // First-time login → upload S3 templates
           try {
-            await uploadNotionConfigTemplates(dbUser.uuid);
+            await uploadNotionConfigTemplateByUuid(dbUser.uuid);
           } catch (e) {
             logger.warn("template init failed", e);
           }
