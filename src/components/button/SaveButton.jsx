@@ -45,7 +45,7 @@ export default function SaveButton({
     }
 
     try {
-      const res = await fetch("/api/notion/config", {
+      const res = await fetch("/api/notion/service/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

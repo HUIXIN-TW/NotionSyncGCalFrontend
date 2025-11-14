@@ -22,7 +22,7 @@ export function useNotionConfig() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("/api/notion/config", { method: "GET" });
+      const res = await fetch("/api/notion/service/config", { method: "GET" });
 
       if (!res.ok) {
         logger.error("[useNotionConfig] fetch failed", res.statusText);
