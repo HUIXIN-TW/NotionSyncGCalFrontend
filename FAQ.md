@@ -68,7 +68,7 @@ Make sure it includes these properties (names can vary as long as **types** matc
 | Date           | Date         | —                                                   |
 | Initiative     | Multi-Select | —                                                   |
 | Status         | Status       | —                                                   |
-| Location       | Text         | —                                                   |
+| Location       | Place        | —                                                   |
 | Extra Info     | Text         | —                                                   |
 | Calendar       | Select       | —                                                   |
 | GCal Event Id  | Text         | —                                                   |
