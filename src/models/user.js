@@ -262,7 +262,7 @@ export const deleteUser = async (id) => {
 // Get Notion config by UUID
 export async function getNotionConfigByUuid(uuid) {
   try {
-    const result = await ddbDocClient.send(
+    const result = await ddb.send(
       new GetCommand({
         TableName: TABLE_NAME,
         Key: { uuid },
@@ -280,13 +280,39 @@ export async function getNotionConfigByUuid(uuid) {
   }
 }
 
-// Update Notion config to default template
+// Update Notion config
+export async function updateNotionConfigByUuid(uuid, config) {
+  const now = new Date();
+  const updatedAtDate = now.toISOString().slice(0, 10); // "YYYY-MM-DD"
+  const updatedAtMs = now.getTime(); // epoch ms (UTC)
+  try {
+    await ddb.send(
+      new UpdateCommand({
+        TableName: TABLE_NAME,
+        Key: { uuid },
+        UpdateExpression:
+          "SET notionConfig = :cfg, updatedAt = :updatedAtDate, updatedAtMs = :updatedAtMs",
+        ExpressionAttributeValues: {
+          ":cfg": config,
+          ":updatedAtDate": updatedAtDate,
+          ":updatedAtMs": updatedAtMs,
+        },
+        ReturnValues: "ALL_NEW",
+      }),
+    );
+  } catch (err) {
+    logger.error({ err, uuid }, "[db] Failed to update user.notionConfig");
+    throw err;
+  }
+}
+
+// Upload Notion config to default template
 export async function uploadNotionConfigTemplateByUuid(uuid) {
   try {
     const notionConfig = JSON.parse(JSON.stringify(notionConfigTemplate));
     const now = Date.now();
 
-    await ddbDocClient.send(
+    await ddb.send(
       new UpdateCommand({
         TableName: USER_TABLE,
         Key: { uuid },

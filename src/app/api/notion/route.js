@@ -1,13 +1,9 @@
 import "server-only";
 
-import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
+import logger from "@utils/shared/logger";
+import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import {
-  getNotionConfigLastModified,
-  getNotionConfig,
-  uploadNotionConfig,
-} from "@utils/server/s3-client";
-import { enforceS3Throttle } from "@utils/server/throttle";
+import { getNotionConfigByUuid, updateNotionConfigByUuid } from "@models/user";
 
 export async function GET(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -24,25 +20,12 @@ export async function GET(req) {
   }
 
   try {
-    const [config, lastModified] = await Promise.all([
-      getNotionConfig(uuid),
-      getNotionConfigLastModified(uuid),
-    ]);
+    const config = await getNotionConfigByUuid(uuid);
 
-    return new Response(
-      JSON.stringify({
-        config,
-        lastModified: lastModified?.toISOString() ?? null,
-      }),
-      { status: 200 },
-    );
+    return NextResponse.json({ ok: true, config }, { status: 200 });
   } catch (err) {
-    logger.error("Error loading config or metadata from S3", err);
-    return new Response(
-      JSON.stringify({
-        type: "error",
-        message: "Failed to load config",
-      }),
+    return NextResponse.json(
+      { ok: false, error: "Failed to load config" },
       { status: 500 },
     );
   }
@@ -99,59 +82,21 @@ export async function POST(req) {
   let mergedConfig = { ...incomingConfig };
 
   try {
-    let existingConfig = {};
-
-    try {
-      existingConfig = await getNotionConfig(uuid);
-    } catch (err) {
-      logger.warn("No existing config found, proceeding with new upload.");
-      logger.error("Failed to load existing config", err);
-    }
-
-    // Preserve masked token (minimum 6 asterisks)
-    if (
-      /^[\*]{6,}$/.test(incomingConfig.notion_token) &&
-      existingConfig.notion_token
-    ) {
-      mergedConfig.notion_token = existingConfig.notion_token;
-      logger.info("Masked token detected, preserving original token.");
-      logger.sensitive("Incoming (masked)", "[masked]");
-      logger.sensitive("Replacing with", "[masked]");
-    }
-
-    const s3Block = await enforceS3Throttle({ uuid });
-    logger.error(`isProd in <enforceS3Throttle>: ${isProd}`);
-    if (s3Block && isProd)
-      return new Response(JSON.stringify(s3Block.body), {
-        status: s3Block.status,
-      });
-  } catch (err) {
-    logger.error("Failed to validate upload frequency", err);
-    return new Response(
-      JSON.stringify({
-        type: "error",
-        message: "Failed to validate upload frequency",
-      }),
-      { status: 500 },
-    );
-  }
-
-  try {
-    await uploadNotionConfig(uuid, mergedConfig);
+    await updateNotionConfigByUuid(uuid, mergedConfig);
     return new Response(
       JSON.stringify({
         type: "success",
-        message: "Uploaded successfully",
+        message: "updated successfully",
         uuid,
       }),
       { status: 200 },
     );
   } catch (err) {
-    logger.error("Failed to upload config", err);
+    logger.error("Failed to update config", err);
     return new Response(
       JSON.stringify({
         type: "error",
-        message: "Upload to S3 failed",
+        message: "Failed to update config",
       }),
       { status: 500 },
     );

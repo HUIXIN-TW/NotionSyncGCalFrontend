@@ -1,79 +1,74 @@
 "use client";
-import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
-import React, { useState, useEffect } from "react";
+import logger from "@utils/shared/logger";
+import React, { useState, useEffect, useMemo } from "react";
 import styles from "./notioncard.module.css";
 import SaveButton from "@components/button/SaveButton";
-import FetchButton from "@components/button/FetchButton";
 import NewUserWelcomeCalloutSection from "@components/callout/NewUserWelcomeCalloutSection";
 import NewUserSignOutCalloutSection from "@components/callout/NewUserSignOutCalloutSection";
 import NotionCardNoteSection from "@components/notioncard/NotionCardNoteSection";
 import ConfigMapSection from "@components/notioncard/notiontab/NotionTabsSection";
 import NotionTabs from "@components/notioncard/notiontab/NotionTabs";
-import { loadRemoteConfig } from "@utils/client/load-remote-config";
+import { useNotionConfig } from "@/hooks/useNotionConfig";
 
 const NotionCard = ({ session }) => {
   const [editMode, setEditMode] = useState(false);
-  const [editableConfig, setEditableConfig] = useState(null);
-  const [lastFetchedAt, setLastFetchedAt] = useState(null);
-  const [lastModifiedAt, setLastModifiedAt] = useState(null);
-  const [showFetchButton, setShowFetchButton] = useState(!isProd);
   const [activeTab, setActiveTab] = useState("basic");
-  const isNewUser = localStorage.getItem("newUser:v1") === "true";
   const [messages, setMessages] = useState(null);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const { editableConfig, setEditableConfig, loading, error, reload } =
+    useNotionConfig();
 
   useEffect(() => {
-    const local = localStorage.getItem("notionConfig");
-    const timestamp = localStorage.getItem("notionConfigFetchedAt");
-    const modified = localStorage.getItem("notionConfigLastModified");
+    if (typeof window === "undefined") return;
 
-    if (isNewUser) {
-      setEditMode(true);
+    try {
+      const flag = window.localStorage.getItem("newUser:v1") === "true";
+      setIsNewUser(flag);
+      if (flag) setEditMode(true);
+    } catch (e) {
+      logger.warn("[NotionCard] failed to read newUser flag", e);
     }
-
-    if (local) {
-      try {
-        setEditableConfig(JSON.parse(local));
-
-        const fetchTime = timestamp ? new Date(timestamp).getTime() : null;
-        const modifyTime = modified ? new Date(modified).getTime() : null;
-
-        if (!isProd || !fetchTime || !modifyTime || fetchTime < modifyTime) {
-          setShowFetchButton(true);
-        }
-
-        if (fetchTime) setLastFetchedAt(new Date(fetchTime).toLocaleString());
-        if (modifyTime)
-          setLastModifiedAt(new Date(modifyTime).toLocaleString());
-
-        return;
-      } catch (err) {
-        logger.warn("Failed to parse local config", err);
-      }
-    }
-
-    // fallback to remote fetch
-    loadRemoteConfig({
-      setEditableConfig,
-      setLastFetchedAt,
-      setLastModifiedAt,
-    });
   }, []);
 
-  if (!session?.user)
+  const basicObject = useMemo(() => {
+    if (!editableConfig) return {};
+
+    return Object.keys(editableConfig)
+      .filter((k) => k !== "gcal_dic" && k !== "page_property")
+      .reduce((acc, k) => ({ ...acc, [k]: editableConfig[k] }), {});
+  }, [editableConfig]);
+
+  const gcalObjectOrArray = useMemo(() => {
+    if (!editableConfig || !editableConfig.gcal_dic) return {};
+
+    return Array.isArray(editableConfig.gcal_dic)
+      ? editableConfig.gcal_dic[0] || {}
+      : editableConfig.gcal_dic;
+  }, [editableConfig]);
+
+  const pagePropObjectOrArray = useMemo(() => {
+    if (!editableConfig || !editableConfig.page_property) return {};
+
+    return Array.isArray(editableConfig.page_property)
+      ? editableConfig.page_property[0] || {}
+      : editableConfig.page_property;
+  }, [editableConfig]);
+
+  if (!session?.user) {
     return <div>Please log in to view your configuration.</div>;
-  if (!editableConfig) return <div>Loading configuration...</div>;
+  }
 
-  const basicObject = Object.keys(editableConfig)
-    .filter((k) => k !== "gcal_dic" && k !== "page_property")
-    .reduce((acc, k) => ({ ...acc, [k]: editableConfig[k] }), {});
+  if (loading && !editableConfig) {
+    return <div>Loading configuration...</div>;
+  }
 
-  const gcalObjectOrArray = Array.isArray(editableConfig.gcal_dic)
-    ? editableConfig.gcal_dic[0] || {}
-    : editableConfig.gcal_dic || {};
+  if (error && !editableConfig) {
+    return <div>Failed to load configuration. </div>;
+  }
 
-  const pagePropObjectOrArray = Array.isArray(editableConfig.page_property)
-    ? editableConfig.page_property[0] || {}
-    : editableConfig.page_property || {};
+  if (!editableConfig) {
+    return <div>No configuration found.</div>;
+  }
 
   return (
     <div className={styles.notioncard_container}>
@@ -130,37 +125,16 @@ const NotionCard = ({ session }) => {
           />
         )}
       </div>
-      <NotionCardNoteSection
-        lastFetchedAt={lastFetchedAt}
-        lastModifiedAt={lastModifiedAt}
-        messages={messages}
-      />
+      <NotionCardNoteSection messages={messages} />
 
-      {editMode ? (
+      {editMode && (
         <SaveButton
           editableConfig={editableConfig}
           setEditMode={setEditMode}
-          setLastFetchedAt={setLastFetchedAt}
-          setShowFetchButton={setShowFetchButton}
           setMessages={setMessages}
         />
-      ) : (
-        <>
-          {showFetchButton && (
-            <FetchButton
-              setEditableConfig={setEditableConfig}
-              setLastFetchedAt={setLastFetchedAt}
-              setLastModifiedAt={setLastModifiedAt}
-            />
-          )}
-        </>
       )}
-
-      {isNewUser && (
-        // This button will likely call NextAuth's signOut() to clear the session
-        // and force a fresh login/re-authentication cycle after setup.
-        <NewUserSignOutCalloutSection />
-      )}
+      {isNewUser && <NewUserSignOutCalloutSection />}
     </div>
   );
 };
