@@ -1,18 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import SignInButton from "@components/button/SignInButton";
 import SyncButton from "@components/button/SyncButton";
+import NavigateButton from "@components/button/NavigateButton";
 import useSyncHandler from "@hooks/useSyncHandler";
 import { useCountdown } from "@hooks/useCountdown";
 import { useElapsedTime } from "@hooks/useElapsedTime";
 import config from "@config/rate-limit";
 import styles from "./profile.module.css";
 import { isProdRuntime as isProd } from "@utils/shared/logger";
+import { isNotionMobileApp } from "@utils/client/embed-context";
 
 export default function EmbedSyncPage() {
   const { data: session } = useSession();
   const user = session?.user;
+  const [isNotionMobile, setIsNotionMobile] = useState(false);
+
+  useEffect(() => {
+    const notionMobile = isNotionMobileApp();
+    setIsNotionMobile(notionMobile);
+    if (notionMobile && typeof window !== "undefined") {
+      setFallbackUrl(window.location.href);
+    }
+  }, []);
 
   const SYNC_USER_MIN_MS = config.SYNC_USER_MIN_MS ?? 10 * 60_000;
   const { startCountdown, isCountingDown, formattedRemaining } =
@@ -32,6 +44,19 @@ export default function EmbedSyncPage() {
       : isCountingDown
         ? `You can sync again in ${formattedRemaining}`
         : `Sync Calendar`;
+
+  if (isNotionMobile) {
+    return (
+      <div className={styles.card}>
+        <h1 className={styles.title}>Notica Sync</h1>
+        <p className={styles.description}>
+          Interactive embeds are not supported in the Notion mobile app. Please
+          open this page in your mobile browser to continue.
+        </p>
+        <NavigateButton path="/profile" text="Open in browser" />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.card}>
