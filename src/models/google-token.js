@@ -10,6 +10,7 @@ export const updateGoogleTokens = async (
   accessToken,
   refreshToken,
   expiryDate,
+  updatedAt,
 ) => {
   try {
     const params = {
@@ -25,7 +26,7 @@ export const updateGoogleTokens = async (
         ":accessToken": accessToken,
         ":refreshToken": refreshToken,
         ":expiryDate": expiryDate,
-        ":now": Date.now(),
+        ":now": updatedAt,
       },
     };
 
