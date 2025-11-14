@@ -1,52 +1,6 @@
 import "server-only";
-import config from "@config/rate-limit";
-import { normalizeEmail } from "@utils/server/normalize-email";
+import config from "@config/server/rate-limit";
 
-/**
- * Build register throttling rules per IP.
- */
-export function registerIpRules(ip) {
-  if (!ip) return [];
-
-  return [
-    {
-      key: `register:ip:${ip}`,
-      minMs: config.REGISTER_IP_MIN_MS,
-      window: {
-        limit: config.REGISTER_IP_WINDOW_LIMIT,
-        ms: config.REGISTER_IP_WINDOW_MS,
-      },
-      messages: {
-        tooFrequent: "Too many requests. Please slow down.",
-        windowExceeded: "Too many requests. Please try again later.",
-      },
-    },
-  ];
-}
-
-/**
- * Build register throttling rules per email.
- */
-export function registerEmailRules(email) {
-  const normalizedEmail = normalizeEmail(email);
-  if (!normalizedEmail) return [];
-
-  return [
-    {
-      key: `register:email:${normalizedEmail}`,
-      minMs: config.REGISTER_EMAIL_MIN_MS,
-      window: {
-        limit: config.REGISTER_EMAIL_WINDOW_LIMIT,
-        ms: config.REGISTER_EMAIL_WINDOW_MS,
-      },
-      messages: {
-        tooFrequent: "Please wait a moment before retrying.",
-        windowExceeded:
-          "Too many attempts for this email. Please try again later.",
-      },
-    },
-  ];
-}
 
 /**
  * Build sync throttling rules: per IP and per user UUID.
@@ -102,26 +56,3 @@ export function syncRules(ip, uuid, providerSub) {
   return rules;
 }
 
-/**
- * Build sync throttling rules: per IP and per user UUID.
- */
-export function testConnectionRules(uuid) {
-  const rules = [];
-
-  if (uuid) {
-    rules.push({
-      key: `testConnection:user:${uuid}`,
-      minMs: config.TEST_CONNECTION_USER_MIN_MS,
-      window: {
-        limit: config.TEST_CONNECTION_USER_WINDOW_LIMIT,
-        ms: config.TEST_CONNECTION_USER_WINDOW_MS,
-      },
-      messages: {
-        tooFrequent: "Please wait a moment before retrying.",
-        windowExceeded: "Too many connection tests in a short period.",
-      },
-    });
-  }
-
-  return rules;
-}
