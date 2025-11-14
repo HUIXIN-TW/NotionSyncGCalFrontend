@@ -1,6 +1,5 @@
 "use client";
 import { isProdRuntime as isProd } from "@utils/shared/logger";
-import config from "@config/rate-limit";
 import { useCountdown } from "@hooks/useCountdown";
 import { useElapsedTime } from "@hooks/useElapsedTime";
 import useSyncHandler from "@hooks/useSyncHandler";
