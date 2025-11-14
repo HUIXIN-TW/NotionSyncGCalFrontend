@@ -1,12 +1,12 @@
 import "server-only";
-import config from "@config/rate-limit";
+import config from "@config/server/rate-limit";
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { ddb } from "@utils/server/db-client";
 
 /**
  * DynamoDB rate limit helpers
  * - PK attribute: defaults to `k` (override with RATE_LIMIT_PK)
- * - TTL attribute: `ttlEpochSec` (epoch seconds). 請在表上啟用 TTL 並填入 ttlEpochSec。
+ * - TTL attribute: `ttlEpochSec` (epoch seconds). Enable TTL and ttlEpochSec.
  */
 
 const TABLE = process.env.DYNAMODB_RATE_LIMIT_TABLE;

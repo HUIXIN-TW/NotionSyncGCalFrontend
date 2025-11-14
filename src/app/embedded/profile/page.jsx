@@ -8,7 +8,7 @@ import NavigateButton from "@components/button/NavigateButton";
 import useSyncHandler from "@hooks/useSyncHandler";
 import { useCountdown } from "@hooks/useCountdown";
 import { useElapsedTime } from "@hooks/useElapsedTime";
-import config from "@config/rate-limit";
+import config from "@config/client/rate-limit";
 import styles from "./profile.module.css";
 import { isProdRuntime as isProd } from "@utils/shared/logger";
 import { isNotionMobileApp } from "@utils/client/embed-context";

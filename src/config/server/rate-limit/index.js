@@ -14,17 +14,6 @@ const config = {
   SYNC_USER_WINDOW_LIMIT: 1, // Limit per user UUID: allow 1 sync every 10 minutes
   SYNC_USER_WINDOW_MS: 3 * 60_000, // Time window for user-based limit (10 minutes)
   SYNC_USER_MIN_MS: 3 * 60_000, // Minimum spacing between bursts for the same user (10 minutes)
-
-  // Register API throttling
-  // IP-based limits
-  REGISTER_IP_WINDOW_LIMIT: 5, // Limit per IP: 5 registration attempts per minute
-  REGISTER_IP_WINDOW_MS: 60_000, // Time window for IP-based registration limit (1 minute)
-  REGISTER_IP_MIN_MS: 3000, // Minimum delay between registration requests from same IP (3 seconds)
-
-  // Email-based limits
-  REGISTER_EMAIL_WINDOW_LIMIT: 3, // Limit per email address: 3 registration attempts per 5 minutes
-  REGISTER_EMAIL_WINDOW_MS: 5 * 60_000, // Time window for email-based limit (5 minutes)
-  REGISTER_EMAIL_MIN_MS: 5000, // Minimum delay between registration requests using the same email (5 seconds)
 };
 
 export default Object.freeze(config);

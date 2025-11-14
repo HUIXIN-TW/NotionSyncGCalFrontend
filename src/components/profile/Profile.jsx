@@ -7,6 +7,7 @@ import useSyncHandler from "@hooks/useSyncHandler";
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./profile.module.css";
+import config from "@config/client/rate-limit";
 import SyncButton from "@components/button/SyncButton";
 import SupportSection from "@components/profile/SupportSection";
 

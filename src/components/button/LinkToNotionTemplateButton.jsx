@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Button from "@components/button/Button";
-import config from "@config/notion";
+import config from "@config/server/notion";
 import logger from "@utils/shared/logger";
 
 const LinkToNotionTemplateButton = ({ className, style, text }) => {
