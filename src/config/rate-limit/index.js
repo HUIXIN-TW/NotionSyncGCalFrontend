@@ -12,8 +12,8 @@ const config = {
 
   // User-based limits
   SYNC_USER_WINDOW_LIMIT: 1, // Limit per user UUID: allow 1 sync every 10 minutes
-  SYNC_USER_WINDOW_MS: 10 * 60_000, // Time window for user-based limit (10 minutes)
-  SYNC_USER_MIN_MS: 10 * 60_000, // Minimum spacing between bursts for the same user (10 minutes)
+  SYNC_USER_WINDOW_MS: 3 * 60_000, // Time window for user-based limit (10 minutes)
+  SYNC_USER_MIN_MS: 3 * 60_000, // Minimum spacing between bursts for the same user (10 minutes)
 
   // Register API throttling
   // IP-based limits
@@ -31,7 +31,7 @@ const config = {
 
   // S3 Test Connection throttling
   TEST_CONNECTION_USER_WINDOW_LIMIT: 10, // Limit per user UUID: 10 connection tests per 10 minutes
-  TEST_CONNECTION_USER_WINDOW_MS: 10 * 60_000, // Time window for test connection limit (10 minutes)
+  TEST_CONNECTION_USER_WINDOW_MS: 3 * 60_000, // Time window for test connection limit (10 minutes)
   TEST_CONNECTION_USER_MIN_MS: 10_000, // Minimum spacing between connection tests for the same user (10 seconds)
 };
 
