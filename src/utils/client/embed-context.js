@@ -17,7 +17,7 @@ export function isEmbedded() {
 
 export function isNotionMobileApp(userAgentOverride) {
   const uaSource =
-  // Use override if provided, otherwise use navigator.userAgent if available
+    // Use override if provided, otherwise use navigator.userAgent if available
     typeof userAgentOverride === "string" && userAgentOverride.length > 0
       ? userAgentOverride
       : typeof navigator !== "undefined"
