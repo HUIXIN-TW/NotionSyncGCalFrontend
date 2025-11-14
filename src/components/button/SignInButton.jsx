@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Button from "@components/button/Button";
-import { Loader2 } from "lucide-react";
 import {
   buildSignInUrl,
   isEmbedded,
@@ -41,13 +40,7 @@ export default function SignInButton({
 
   return (
     <Button
-      text={
-        loading ? (
-          <Loader2 className="animate-spin" size={20} strokeWidth={2} />
-        ) : (
-          text
-        )
-      }
+      text={loading ? "Sign In..." : text}
       onClick={handleGoogleLogin}
       disabled={loading}
       className={className}

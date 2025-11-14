@@ -19,11 +19,7 @@ export default function CancelButton({ setEditableConfig, setEditMode }) {
 
   return (
     <Button
-      text={
-        <>
-          <X size={16} strokeWidth={2} style={{ marginRight: 6 }} />
-        </>
-      }
+      text={<X size={16} strokeWidth={2} />}
       className="clear_btn"
       onClick={handleCancelClick}
     />

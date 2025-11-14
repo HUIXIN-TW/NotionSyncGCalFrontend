@@ -144,6 +144,7 @@ export async function GET(req) {
       tokenPayload.access_token,
       tokenPayload.refresh_token,
       Date.now() + (tokenPayload.expires_in || 0) * 1000,
+      Date.now(),
     );
 
     // 7) success: clean cookies & redirect

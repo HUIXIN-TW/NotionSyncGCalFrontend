@@ -9,11 +9,7 @@ export default function EditButton({ setEditMode }) {
 
   return (
     <Button
-      text={
-        <>
-          <Pencil size={16} strokeWidth={2} style={{ marginRight: 6 }} />
-        </>
-      }
+      text={<Pencil size={16} strokeWidth={2} />}
       className="clear_btn"
       onClick={handleEditClick}
     />
