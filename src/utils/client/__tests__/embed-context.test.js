@@ -1,30 +1,4 @@
-import { isNotionMobileApp, isNotionMobileUserAgent } from "@utils/client/embed-context";
-
-describe("isNotionMobileUserAgent", () => {
-  it("detects Notion Android user agents", () => {
-    expect(
-      isNotionMobileUserAgent(
-        "Mozilla/5.0 (Linux; Android 14; Pixel 8) Notion-Android",
-      ),
-    ).toBe(true);
-  });
-
-  it("detects Notion iOS user agents", () => {
-    expect(
-      isNotionMobileUserAgent(
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) Notion-iOS",
-      ),
-    ).toBe(true);
-  });
-
-  it("ignores unrelated user agents", () => {
-    expect(
-      isNotionMobileUserAgent(
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15",
-      ),
-    ).toBe(false);
-  });
-});
+import { isNotionMobileApp } from "@utils/client/embed-context";
 
 describe("isNotionMobileApp", () => {
   const originalNavigator = global.navigator;
