@@ -28,6 +28,7 @@ export default function SaveButton({
   };
 
   const handleSaveClick = async () => {
+    if (loading) return;
     setLoading(true);
 
     // 1) Build the payload you will POST
@@ -65,7 +66,7 @@ export default function SaveButton({
       logger.error("Save failed:", err);
       alert("Unexpected network error during save");
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 3000)
     }
   };
 
