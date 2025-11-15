@@ -1,12 +1,12 @@
 import "server-only";
 
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { validateConfig } from "@/utils/server/validate-config";
-import { sendSyncJobMessage } from "@/utils/server/sqs-client";
-import { enforceDDBThrottle, extractClientIp } from "@/utils/server/throttle";
-import { syncRules } from "@/utils/server/throttle-rule";
+import { validateConfig } from "@utils/server/validate-config";
+import { sendSyncJobMessage } from "@utils/server/sqs-client";
+import { enforceDDBThrottle, extractClientIp } from "@utils/server/throttle";
+import { syncRules } from "@utils/server/throttle-rule";
 
 // Use centralized prod detection (AWS_BRANCH or APP_ENV) to avoid env typos
 
@@ -82,20 +82,17 @@ export async function POST(req) {
   }
 
   // Only enforce throttle in production environment
-  if (isProd) {
-    const throttleResult = await enforceDDBThrottle(
-      syncRules(ip, uuid, token.providerSub),
+
+  const throttleResult = await enforceDDBThrottle(syncRules(ip, uuid));
+  if (throttleResult) {
+    return NextResponse.json(
+      {
+        type: "throttle error",
+        message: throttleResult.body.error,
+        needRefresh: false,
+      },
+      { status: throttleResult.status },
     );
-    if (throttleResult) {
-      return NextResponse.json(
-        {
-          type: "throttle error",
-          message: throttleResult.body.error,
-          needRefresh: false,
-        },
-        { status: throttleResult.status },
-      );
-    }
   }
 
   const timestamp = new Date().toISOString();

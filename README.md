@@ -69,10 +69,6 @@ yarn dev
 
 6. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-![image](./images/light.png)
-
-![image](./images/dark.png)
-
 ## Security
 
 Never share or commit your personal credentials, OAuth secrets, or JWT keys.

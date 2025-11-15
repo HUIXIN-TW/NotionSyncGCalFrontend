@@ -1,53 +1,54 @@
 import "server-only";
 
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
 import {
   createUser,
-  getUserByEmail,
   getUserByProviderSub,
   updateLastLogin,
 } from "@models/user";
 import { cookies } from "next/headers";
+import { uploadNotionConfigTemplateByUuid } from "@models/user";
 
 // Define and export NextAuth configuration for shared use
 export const authOptions = {
   debug: !isProd,
   secret: process.env.NEXTAUTH_SECRET,
+  // Allow NextAuth session cookies inside the Notion iframe. SameSite=None is
+  // required so third-party requests (the embed) can include the session, and
+  // Secure/httpOnly keeps the cookie scoped to HTTPS only. The embed itself is
+  // restricted to Notion domains via next.config.js `frame-ancestors`.
+  cookies: {
+    sessionToken: {
+      name: "__Secure-next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+    callbackUrl: {
+      name: "__Secure-next-auth.callback-url",
+      options: {
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+    csrfToken: {
+      name: "__Host-next-auth.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/",
+      },
+    },
+  },
 
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        // fetch credential user
-        const user = await getUserByEmail(credentials.email);
-        if (!user || user.provider !== "credentials") {
-          throw new Error("Invalid email or login method");
-        }
-        const validPassword = await bcrypt.compare(
-          credentials.password,
-          user.passwordHash,
-        );
-        if (!validPassword) {
-          throw new Error("Invalid email or password");
-        }
-        return {
-          uuid: user.uuid,
-          email: user.email,
-          username: user.username,
-          role: user.role,
-          image: user.image,
-          provider: "credentials",
-        };
-      },
-    }),
     GoogleProvider({
       name: "Google",
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -82,29 +83,14 @@ export const authOptions = {
             image: user.image || "",
             role: "user",
           });
-          // First-time login → create S3 templates (fire-and-forget)
-          // Fire-and-forget template init
           try {
-            const { createTemplates, uploadTemplates } = await import(
-              "@/utils/server/s3-client"
-            );
-            const fn = createTemplates || uploadTemplates;
-            if (fn)
-              fn(dbUser.uuid).catch((err) =>
-                logger.error("template init error", err),
-              );
+            await uploadNotionConfigTemplateByUuid(dbUser.uuid);
           } catch (e) {
-            logger.warn("template init module load failed", e);
+            logger.warn("template init failed", e);
           }
         }
         token.uuid = dbUser.uuid;
         token.role = dbUser.role;
-      }
-
-      // —— Credentials sign-in path
-      if (account?.provider === "credentials" && user) {
-        token.provider = "credentials";
-        // No providerSub for credentials
       }
 
       // —— Common population when `user` exists (first sign-in)
@@ -157,8 +143,6 @@ export const authOptions = {
             "google",
             account.providerAccountId,
           );
-        } else if (account?.provider === "credentials") {
-          dbUser = await getUserByEmail(user.email);
         }
 
         if (dbUser) {

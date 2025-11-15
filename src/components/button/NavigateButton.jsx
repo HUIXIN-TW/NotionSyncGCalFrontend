@@ -3,7 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import Button from "@components/button/Button";
-import { ArrowLeft } from "lucide-react";
 
 export default function NavigateButton({ path, text, className, title }) {
   const router = useRouter();
@@ -14,7 +13,7 @@ export default function NavigateButton({ path, text, className, title }) {
 
   return (
     <Button
-      text={text ? text : <ArrowLeft size={20} strokeWidth={2} />}
+      text={text}
       onClick={handleBackClick}
       className={className}
       title={title}

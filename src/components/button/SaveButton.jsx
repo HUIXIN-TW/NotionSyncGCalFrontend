@@ -2,22 +2,15 @@
 
 import React, { useState } from "react";
 import Button from "@components/button/Button";
-import config from "@/config/rate-limit";
-import { useCountdown } from "@/hooks/useCountdown";
-import logger from "@/utils/shared/logger";
-import validateConfigFormat from "@/utils/client/validate-config-format";
+import logger from "@utils/shared/logger";
+import validateConfigFormat from "@utils/client/validate-config-format";
 
 export default function SaveButton({
   editableConfig,
   setEditMode,
-  setLastFetchedAt,
-  setShowFetchButton,
   setMessages,
 }) {
   const [loading, setLoading] = useState(false);
-  const UPLOAD_LIMIT_MS = config.UPLOAD_MIN_MS ?? 3 * 60_000;
-  const { startCountdown, isCountingDown, formattedRemaining } =
-    useCountdown("cooldown:save");
 
   const toLegacyArrayOfOne = (v) => {
     if (Array.isArray(v)) return v;
@@ -34,14 +27,8 @@ export default function SaveButton({
     return out;
   };
 
-  const stripSensitiveForLocal = (cfg) => {
-    const { notion_token, ...rest } = cfg; // avoid storing token client-side
-    return rest;
-  };
-
   const handleSaveClick = async () => {
-    if (loading || isCountingDown) return;
-
+    if (loading) return;
     setLoading(true);
 
     // 1) Build the payload you will POST
@@ -59,7 +46,7 @@ export default function SaveButton({
     }
 
     try {
-      const res = await fetch("/api/notion", {
+      const res = await fetch("/api/notion/service/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -68,17 +55,8 @@ export default function SaveButton({
       if (res.ok) {
         setMessages("Configuration saved successfully");
         setEditMode(false);
-
-        // 3) Persist exactly what you POSTED (for consistent reloads)
-        const nowIso = new Date().toISOString();
-        const safeToStore = stripSensitiveForLocal(payload);
-        localStorage.setItem("notionConfig", JSON.stringify(safeToStore));
-        localStorage.setItem("notionConfigLastModified", nowIso);
-        setLastFetchedAt(new Date(nowIso).toLocaleString());
-
-        startCountdown(UPLOAD_LIMIT_MS);
+        localStorage.setItem("notionConfig", JSON.stringify(payload));
       } else {
-        setShowFetchButton(true);
         const { message } = await res
           .json()
           .catch(() => ({ message: "Unknown error" }));
@@ -88,21 +66,15 @@ export default function SaveButton({
       logger.error("Save failed:", err);
       alert("Unexpected network error during save");
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 3000);
     }
   };
 
   return (
     <Button
-      text={
-        loading
-          ? "Saving..."
-          : isCountingDown
-            ? `Please wait ${formattedRemaining} to save`
-            : "Save"
-      }
+      text={loading ? "Saving..." : "Save"}
       onClick={handleSaveClick}
-      disabled={loading || isCountingDown}
+      disabled={loading}
     />
   );
 }

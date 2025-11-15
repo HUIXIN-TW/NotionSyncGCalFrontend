@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notion Embed Test</title>
+    <style>
+      :root {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Helvetica Neue",
+          "Segoe UI",
+          sans-serif;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 24px;
+        gap: 16px;
+      }
+      header {
+        text-align: center;
+      }
+      iframe {
+        width: min(1200px, 100%);
+        height: 800px;
+        border: 1px solid #cbd5f5;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      }
+      .tips {
+        max-width: 640px;
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        padding: 16px;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+        line-height: 1.6;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        background: #e2e8f0;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Notion Embed Test Page</h1>
+      <p>Use this page to verify CSP and iframe behavior.</p>
+    </header>
+
+    <section class="tips">
+      <ol>
+        <li>
+          Start the Next.js app from another terminal: <code>npm run dev</code>.
+        </li>
+        <li>
+          Serve this file via <code>npx http-server public -p 4000</code> or any
+          static server.
+        </li>
+        <li>
+          Visit <code>http://localhost:4000/embed-preview.html</code> and
+          confirm the iframe loads <code>http://localhost:3000</code>.
+        </li>
+        <li>
+          Verify the Google OAuth buttons escape the iframe and complete
+          sign-in.
+        </li>
+      </ol>
+    </section>
+
+    <iframe
+      src="http://localhost:3000"
+      title="Notion Embed Preview"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+      allow="camera; microphone; clipboard-read; clipboard-write; fullscreen"
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>
+  </body>
+</html>

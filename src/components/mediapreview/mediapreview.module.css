@@ -1,8 +1,0 @@
-.video_preview {
-  width: 100%;
-  max-width: 640px;
-  border-radius: 1rem;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  display: block;
-  margin: 2rem auto;
-}

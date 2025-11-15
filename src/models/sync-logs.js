@@ -1,5 +1,5 @@
 import "server-only";
-import { ddb } from "@/utils/server/db-client";
+import { ddb } from "@utils/server/db-client";
 import { ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 const TABLE_NAME = process.env.DYNAMODB_SYNC_LOGS_TABLE;

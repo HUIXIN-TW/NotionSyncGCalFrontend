@@ -1,12 +1,12 @@
 "use client";
 
-import logger, { isProdRuntime as isProd } from "@/utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 
 export function getPollingTimings() {
   return {
-    initialWaitMs: isProd ? 30_000 : 2_000,
-    intervalMs: isProd ? 15_000 : 2_000,
-    maxTotalMs: isProd ? 600_000 : 60_000,
+    initialWaitMs: isProd ? 30_000 : 10_000,
+    intervalMs: isProd ? 15_000 : 10_000,
+    maxTotalMs: isProd ? 600_000 : 600_000, // 10min prod / 10min dev
     skewMs: 3_000,
   };
 }

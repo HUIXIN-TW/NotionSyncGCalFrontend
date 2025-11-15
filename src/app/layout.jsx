@@ -1,7 +1,7 @@
 import "../styles/global.css";
 import Provider from "@components/provider/Provider";
-import TopNavBar from "@/components/topnavbar/TopNavBar";
-import Footer from "@/components/footer/Footer";
+import TopNavBar from "@components/topnavbar/TopNavBar";
+import Footer from "@components/footer/Footer";
 
 export const metadata = {
   metadataBase: new URL(

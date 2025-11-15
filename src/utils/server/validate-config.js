@@ -1,27 +1,19 @@
 import "server-only";
-import logger from "@/utils/shared/logger";
+import logger from "@utils/shared/logger";
 import { NextResponse } from "next/server";
-import { getNotionConfig } from "@/utils/server/s3-client";
+import { getNotionConfigByUuid } from "@models/user";
 
 export async function validateConfig(uuid) {
   // check if notion config setting
-  const notionConfig = await getNotionConfig(uuid);
-
-  // // check for default/empty config values
-  // const isDefaultToken =
-  //   !notionConfig.notion_token || notionConfig.notion_token === "xxxxxxx";
-
-  // const isDefaultUrl =
-  //   !notionConfig.urlroot ||
-  //   notionConfig.urlroot === "https://www.notion.so/" ||
-  //   notionConfig.urlroot.trim() === "";
+  // get notion config from DynamoDB by uuid
+  const notionConfig = await getNotionConfigByUuid(uuid);
 
   const isDefaultGmail =
     Array.isArray(notionConfig.gcal_dic) &&
     notionConfig.gcal_dic.length > 0 &&
     Object.values(notionConfig.gcal_dic[0] || {})[0] === "xxxxxx@gmail.com";
 
-  const invalid = isDefaultGmail; // isDefaultToken || isDefaultUrl
+  const invalid = isDefaultGmail;
 
   if (invalid) {
     logger.warn(`No Notion config found for user ${uuid}`);

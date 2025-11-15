@@ -4,15 +4,18 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import SignInButton from "@/components/button/SignInButton";
+import SignInButton from "@components/button/SignInButton";
 import styles from "./page.module.css";
+import { isEmbedded } from "@utils/client/embed-context";
 
 export default function Home() {
   const router = useRouter();
   const { status } = useSession();
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (isEmbedded()) {
+      router.replace("/embedded/profile");
+    } else if (status === "authenticated") {
       router.replace("/profile");
     }
   }, [status, router]);
