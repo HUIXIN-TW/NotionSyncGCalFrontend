@@ -19,6 +19,7 @@ export function useNotionConfig() {
     }
 
     try {
+      if (loading) return;
       setLoading(true);
       setError(null);
 
@@ -46,7 +47,7 @@ export function useNotionConfig() {
       logger.error("[useNotionConfig] unexpected error", err);
       setError("Unexpected error occurred");
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 3000)
     }
   }, [session?.user]);
 
