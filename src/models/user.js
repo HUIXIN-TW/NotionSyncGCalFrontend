@@ -314,7 +314,7 @@ export async function uploadNotionConfigTemplateByUuid(uuid) {
 
     await ddb.send(
       new UpdateCommand({
-        TableName: USER_TABLE,
+        TableName: TABLE_NAME,
         Key: { uuid },
         UpdateExpression: "SET notionConfig = :cfg, updatedAt = :now",
         ExpressionAttributeValues: {
