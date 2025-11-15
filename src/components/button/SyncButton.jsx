@@ -23,6 +23,7 @@ const SyncButton = ({ text, onSync, disabled }) => {
     };
 
     const syncPromise = (async () => {
+      if (loading) return;
       setLoading(true);
       try {
         // trigger sync
@@ -61,7 +62,7 @@ const SyncButton = ({ text, onSync, disabled }) => {
         logger.error("Sync error", err);
         return { type: "error", message: err.message };
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 3000)
       }
     })();
 
