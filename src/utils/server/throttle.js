@@ -1,5 +1,5 @@
 import "server-only";
-import logger from "@utils/shared/logger";
+import logger, { isProdRuntime as isProd } from "@utils/shared/logger";
 import {
   isDdbRateLimitEnabled,
   throttleMinIntervalDdb,
@@ -36,6 +36,11 @@ export function extractClientIp(req) {
  * Returns null if allowed; otherwise an object { status, body } suitable for a Response.
  */
 export async function enforceDDBThrottle(rules = []) {
+  // skip if non-production
+  if (!isProd) {
+    logger.info("Skipping throttle enforcement in non-production runtime");
+    return null;
+  }
   if (!isDdbRateLimitEnabled()) {
     if (!hasWarnedMissingRateLimit) {
       logger.warn(
@@ -80,5 +85,5 @@ export async function enforceDDBThrottle(rules = []) {
     }
   }
 
-  return null;
+  return null; // allowed
 }

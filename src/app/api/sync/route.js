@@ -82,20 +82,19 @@ export async function POST(req) {
   }
 
   // Only enforce throttle in production environment
-  if (isProd) {
-    const throttleResult = await enforceDDBThrottle(
-      syncRules(ip, uuid, token.providerSub),
+
+  const throttleResult = await enforceDDBThrottle(
+    syncRules(ip, uuid),
+  );
+  if (throttleResult) {
+    return NextResponse.json(
+      {
+        type: "throttle error",
+        message: throttleResult.body.error,
+        needRefresh: false,
+      },
+      { status: throttleResult.status },
     );
-    if (throttleResult) {
-      return NextResponse.json(
-        {
-          type: "throttle error",
-          message: throttleResult.body.error,
-          needRefresh: false,
-        },
-        { status: throttleResult.status },
-      );
-    }
   }
 
   const timestamp = new Date().toISOString();
