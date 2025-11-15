@@ -62,7 +62,7 @@ const SyncButton = ({ text, onSync, disabled }) => {
         logger.error("Sync error", err);
         return { type: "error", message: err.message };
       } finally {
-        setTimeout(() => setLoading(false), 3000)
+        setTimeout(() => setLoading(false), 3000);
       }
     })();
 

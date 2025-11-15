@@ -66,7 +66,7 @@ export default function SaveButton({
       logger.error("Save failed:", err);
       alert("Unexpected network error during save");
     } finally {
-      setTimeout(() => setLoading(false), 3000)
+      setTimeout(() => setLoading(false), 3000);
     }
   };
 
